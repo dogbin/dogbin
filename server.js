@@ -9,6 +9,7 @@ var connect_st = require('st');
 var connect_rate_limit = require('connect-ratelimit');
 
 var DocumentHandler = require('./lib/document_handler');
+var URLHandler = require('./lib/url_handler');
 
 // Load the configuration and set some defaults
 var config = JSON.parse(fs.readFileSync('./config.js', 'utf8'));
@@ -97,6 +98,18 @@ var documentHandler = new DocumentHandler({
   keyLength: config.keyLength,
   keyGenerator: keyGenerator
 });
+// Pick up an url key generator
+var urlPwOptions = config.urlKeyGenerator || {};
+urlPwOptions.type = urlPwOptions.type || 'random';
+var urlGen = require('./lib/key_generators/' + urlPwOptions.type);
+var urlKeyGenerator = new urlGen(urlPwOptions);
+
+// Configure the URL handler
+var urlHandler = new URLHandler({
+  store: preferredStore,
+  urlKeyLength: config.urlKeyLength,
+  urlKeyGenerator: urlKeyGenerator
+});
 
 var app = connect();
 
@@ -124,6 +137,11 @@ app.use(route(function(router) {
     var skipExpire = !!config.documents[key];
     return documentHandler.handleGet(key, response, skipExpire);
   });
+  // add urls
+  router.post('/urls', function(request, response) {
+    return urlHandler.handlePost(request, response);
+  });
+
 }));
 
 // Otherwise, try to match static files

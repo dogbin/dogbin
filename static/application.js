@@ -1,4 +1,4 @@
-/* global $, hljs, window, document */
+/* global $, hljs, window, document, valid-url */
 
 ///// represents a single document
 
@@ -25,27 +25,34 @@ haste_document.prototype.load = function(key, callback, lang) {
       _this.locked = true;
       _this.key = key;
       _this.data = res.data;
-      try {
-        var high;
-        if (lang === 'txt') {
-          high = { value: _this.htmlEscape(res.data) };
-        }
-        else if (lang) {
-          high = hljs.highlight(lang, res.data);
-        }
-        else {
+      if (_this.isValidURL(res.data.trim())) {
+        callback({
+          url: res.data.trim(),
+          key: key
+        });
+      } else {
+        try {
+          var high;
+          if (lang === 'txt') {
+            high = {
+              value: _this.htmlEscape(res.data)
+            };
+          } else if (lang) {
+            high = hljs.highlight(lang, res.data);
+          } else {
+            high = hljs.highlightAuto(res.data);
+          }
+        } catch (err) {
+          // failed highlight, fall back on auto
           high = hljs.highlightAuto(res.data);
         }
-      } catch(err) {
-        // failed highlight, fall back on auto
-        high = hljs.highlightAuto(res.data);
+        callback({
+          value: high.value,
+          key: key,
+          language: high.language || lang,
+          lineCount: res.data.split('\n').length
+        });
       }
-      callback({
-        value: high.value,
-        key: key,
-        language: high.language || lang,
-        lineCount: res.data.split('\n').length
-      });
     },
     error: function() {
       callback(false);
@@ -60,32 +67,102 @@ haste_document.prototype.save = function(data, callback) {
   }
   this.data = data;
   var _this = this;
-  $.ajax('/documents', {
-    type: 'post',
-    data: data,
-    dataType: 'json',
-    contentType: 'application/json; charset=utf-8',
-    success: function(res) {
-      _this.locked = true;
-      _this.key = res.key;
-      var high = hljs.highlightAuto(data);
-      callback(null, {
-        value: high.value,
-        key: res.key,
-        language: high.language,
-        lineCount: data.split('\n').length
-      });
-    },
-    error: function(res) {
-      try {
-        callback($.parseJSON(res.responseText));
+  if (this.isValidURL(data.trim())) {
+    $.ajax('/urls', {
+      type: 'post',
+      data: data,
+      dataType: 'json',
+      contentType: 'application/json; charset=utf-8',
+      success: function(res) {
+        _this.locked = true;
+        _this.key = res.key;
+        callback(null, {
+          value: data.trim(),
+          key: res.key,
+          lineCount: 1
+        });
+      },
+      error: function(res) {
+        try {
+          callback($.parseJSON(res.responseText));
+        } catch (e) {
+          callback({
+            message: 'Something went wrong!'
+          });
+        }
       }
-      catch (e) {
-        callback({message: 'Something went wrong!'});
+    });
+  } else {
+    $.ajax('/documents', {
+      type: 'post',
+      data: data,
+      dataType: 'json',
+      contentType: 'application/json; charset=utf-8',
+      success: function(res) {
+        _this.locked = true;
+        _this.key = res.key;
+        var high = hljs.highlightAuto(data);
+        callback(null, {
+          value: high.value,
+          key: res.key,
+          language: high.language,
+          lineCount: data.split('\n').length
+        });
+      },
+      error: function(res) {
+        try {
+          callback($.parseJSON(res.responseText));
+        } catch (e) {
+          callback({
+            message: 'Something went wrong!'
+          });
+        }
       }
-    }
-  });
+    });
+  }
 };
+
+// URL validity checker
+// Source: https://gist.github.com/dperini/729294
+haste_document.prototype.isValidURL = function(str) {
+  var pattern = new RegExp(
+    "^" +
+    // protocol identifier
+    "(?:(?:https?|ftp)://)" +
+    // user:pass authentication
+    "(?:\\S+(?::\\S*)?@)?" +
+    "(?:" +
+    // IP address exclusion
+    // private & local networks
+    "(?!(?:10|127)(?:\\.\\d{1,3}){3})" +
+    "(?!(?:169\\.254|192\\.168)(?:\\.\\d{1,3}){2})" +
+    "(?!172\\.(?:1[6-9]|2\\d|3[0-1])(?:\\.\\d{1,3}){2})" +
+    // IP address dotted notation octets
+    // excludes loopback network 0.0.0.0
+    // excludes reserved space >= 224.0.0.0
+    // excludes network & broacast addresses
+    // (first & last IP address of each class)
+    "(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])" +
+    "(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}" +
+    "(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))" +
+    "|" +
+    // host name
+    "(?:(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)" +
+    // domain name
+    "(?:\\.(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)*" +
+    // TLD identifier
+    "(?:\\.(?:[a-z\\u00a1-\\uffff]{2,}))" +
+    // TLD may end with dot
+    "\\.?" +
+    ")" +
+    // port number
+    "(?::\\d{2,5})?" +
+    // resource path
+    "(?:[/?#]\\S*)?" +
+    "$", "i"
+  );
+  return pattern.test(str);
+}
 
 ///// represents the paste application
 
@@ -112,10 +189,12 @@ haste.prototype.setTitle = function(ext) {
 
 // Show a message box
 haste.prototype.showMessage = function(msg, cls) {
-  var msgBox = $('<li class="'+(cls || 'info')+'">'+msg+'</li>');
+  var msgBox = $('<li class="' + (cls || 'info') + '">' + msg + '</li>');
   $('#messages').prepend(msgBox);
   setTimeout(function() {
-    msgBox.slideUp('fast', function() { $(this).remove(); });
+    msgBox.slideUp('fast', function() {
+      $(this).remove();
+    });
   }, 3000);
 };
 
@@ -165,12 +244,39 @@ haste.prototype.newDocument = function(hideHistory) {
 // due to the behavior of lookupTypeByExtension and lookupExtensionByType
 // Note: optimized for lookupTypeByExtension
 haste.extensionMap = {
-  rb: 'ruby', py: 'python', pl: 'perl', php: 'php', scala: 'scala', go: 'go',
-  xml: 'xml', html: 'xml', htm: 'xml', css: 'css', js: 'javascript', vbs: 'vbscript',
-  lua: 'lua', pas: 'delphi', java: 'java', cpp: 'cpp', cc: 'cpp', m: 'objectivec',
-  vala: 'vala', sql: 'sql', sm: 'smalltalk', lisp: 'lisp', ini: 'ini',
-  diff: 'diff', bash: 'bash', sh: 'bash', tex: 'tex', erl: 'erlang', hs: 'haskell',
-  md: 'markdown', txt: '', coffee: 'coffee', json: 'javascript',
+  rb: 'ruby',
+  py: 'python',
+  pl: 'perl',
+  php: 'php',
+  scala: 'scala',
+  go: 'go',
+  xml: 'xml',
+  html: 'xml',
+  htm: 'xml',
+  css: 'css',
+  js: 'javascript',
+  vbs: 'vbscript',
+  lua: 'lua',
+  pas: 'delphi',
+  java: 'java',
+  cpp: 'cpp',
+  cc: 'cpp',
+  m: 'objectivec',
+  vala: 'vala',
+  sql: 'sql',
+  sm: 'smalltalk',
+  lisp: 'lisp',
+  ini: 'ini',
+  diff: 'diff',
+  bash: 'bash',
+  sh: 'bash',
+  tex: 'tex',
+  erl: 'erlang',
+  hs: 'haskell',
+  md: 'markdown',
+  txt: '',
+  coffee: 'coffee',
+  json: 'javascript',
   swift: 'swift'
 };
 
@@ -213,14 +319,17 @@ haste.prototype.loadDocument = function(key) {
   _this.doc = new haste_document();
   _this.doc.load(parts[0], function(ret) {
     if (ret) {
-      _this.$code.html(ret.value);
-      _this.setTitle(ret.key);
-      _this.fullKey();
-      _this.$textarea.val('').hide();
-      _this.$box.show().focus();
-      _this.addLineNumbers(ret.lineCount);
-    }
-    else {
+      if (ret.url) {
+        window.open(ret.url, "_self");
+      } else {
+        _this.$code.html(ret.value);
+        _this.setTitle(ret.key);
+        _this.fullKey();
+        _this.$textarea.val('').hide();
+        _this.$box.show().focus();
+        _this.addLineNumbers(ret.lineCount);
+      }
+    } else {
       _this.newDocument();
     }
   }, this.lookupTypeByExtension(parts[1]));
@@ -241,8 +350,7 @@ haste.prototype.lockDocument = function() {
   this.doc.save(this.$textarea.val(), function(err, ret) {
     if (err) {
       _this.showMessage(err.message, 'error');
-    }
-    else if (ret) {
+    } else if (ret) {
       _this.$code.html(ret.value);
       _this.setTitle(ret.key);
       var file = '/' + ret.key;
@@ -260,8 +368,7 @@ haste.prototype.lockDocument = function() {
 
 haste.prototype.configureButtons = function() {
   var _this = this;
-  this.buttons = [
-    {
+  this.buttons = [{
       $where: $('#box2 .save'),
       label: 'Save',
       shortcutDescription: 'control + s',
@@ -351,7 +458,7 @@ haste.prototype.configureShortcuts = function() {
   var _this = this;
   $(document.body).keydown(function(evt) {
     var button;
-    for (var i = 0 ; i < _this.buttons.length; i++) {
+    for (var i = 0; i < _this.buttons.length; i++) {
       button = _this.buttons[i];
       if (button.shortcut && button.shortcut(evt)) {
         evt.preventDefault();
@@ -383,13 +490,12 @@ $(function() {
         var endPos = this.selectionEnd;
         var scrollTop = this.scrollTop;
         this.value = this.value.substring(0, startPos) + myValue +
-          this.value.substring(endPos,this.value.length);
+          this.value.substring(endPos, this.value.length);
         this.focus();
         this.selectionStart = startPos + myValue.length;
         this.selectionEnd = startPos + myValue.length;
         this.scrollTop = scrollTop;
-      }
-      else {
+      } else {
         this.value += myValue;
         this.focus();
       }
