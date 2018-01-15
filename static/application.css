@@ -32,7 +32,7 @@ textarea {
 	left: 0px;
 	width: 30px; /* 30 to get 20 away from box */
 	font-size: 13px;
-	font-family: 'Roboto Mono', monospace;
+	font-family: monospace;
 	text-align: right;
 }
 
