@@ -20,7 +20,7 @@ config.host = process.env.HOST || config.host || 'localhost';
 if (config.logging) {
   try {
     winston.remove(winston.transports.Console);
-  } catch(e) {
+  } catch (e) {
     /* was not present */
   }
 
@@ -36,7 +36,9 @@ if (config.logging) {
 // build the store from the config on-demand - so that we don't load it
 // for statics
 if (!config.storage) {
-  config.storage = { type: 'file' };
+  config.storage = {
+    type: 'file'
+  };
 }
 if (!config.storage.type) {
   config.storage.type = 'file';
@@ -48,8 +50,7 @@ if (process.env.REDISTOGO_URL && config.storage.type === 'redis') {
   var redisClient = require('redis-url').connect(process.env.REDISTOGO_URL);
   Store = require('./lib/document_stores/redis');
   preferredStore = new Store(config.storage, redisClient);
-}
-else {
+} else {
   Store = require('./lib/document_stores/' + config.storage.type);
   preferredStore = new Store(config.storage);
 }
@@ -74,14 +75,21 @@ var path, data;
 for (var name in config.documents) {
   path = config.documents[name];
   data = fs.readFileSync(path, 'utf8');
-  winston.info('loading static document', { name: name, path: path });
+  winston.info('loading static document', {
+    name: name,
+    path: path
+  });
   if (data) {
     preferredStore.set(name, data, function(cb) {
-      winston.debug('loaded static document', { success: cb });
+      winston.debug('loaded static document', {
+        success: cb
+      });
     }, true);
-  }
-  else {
-    winston.warn('failed to load static document', { name: name, path: path });
+  } else {
+    winston.warn('failed to load static document', {
+      name: name,
+      path: path
+    });
   }
 }
 
@@ -147,7 +155,9 @@ app.use(route(function(router) {
 // Otherwise, try to match static files
 app.use(connect_st({
   path: __dirname + '/static',
-  content: { maxAge: config.staticMaxAge },
+  content: {
+    maxAge: config.staticMaxAge
+  },
   passthrough: true,
   index: false
 }));
@@ -199,23 +209,26 @@ var isValidURL = function(str) {
 app.use(route(function(router) {
   router.get('/:id', function(request, response, next) {
     var key = request.params.id.split('.')[0];
-    var skipExpire = !!config.documents[key];
     documentHandler.store.get(key, function(ret) {
-      if (ret) {
-        if(isValidURL(ret.trim())){
-          request.url(ret);
-        }
+      if (ret && isValidURL(ret.trim())) {
+        response.writeHead(302, {
+          'Location': ret.trim()
+        });
+        response.end();
+      } else {
+        request.sturl = '/';
+        next();
       }
-    }, skipExpire);
-    request.sturl = '/';
-    next();
+    }, true);
   });
 }));
 
 // And match index
 app.use(connect_st({
   path: __dirname + '/static',
-  content: { maxAge: config.staticMaxAge },
+  content: {
+    maxAge: config.staticMaxAge
+  },
   index: 'index.html'
 }));
 
