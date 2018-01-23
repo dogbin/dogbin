@@ -1,4 +1,4 @@
-/* global $, hljs, window, document, valid-url */
+/* global $, hljs, window, document */
 
 ///// represents a single document
 
@@ -25,34 +25,27 @@ haste_document.prototype.load = function(key, callback, lang) {
       _this.locked = true;
       _this.key = key;
       _this.data = res.data;
-      if (_this.isValidURL(res.data.trim())) {
-        callback({
-          url: res.data.trim(),
-          key: key
-        });
-      } else {
-        try {
-          var high;
-          if (lang === 'txt') {
-            high = {
-              value: _this.htmlEscape(res.data)
-            };
-          } else if (lang) {
-            high = hljs.highlight(lang, res.data);
-          } else {
-            high = hljs.highlightAuto(res.data);
-          }
-        } catch (err) {
-          // failed highlight, fall back on auto
+      try {
+        var high;
+        if (lang === 'txt') {
+          high = {
+            value: _this.htmlEscape(res.data)
+          };
+        } else if (lang) {
+          high = hljs.highlight(lang, res.data);
+        } else {
           high = hljs.highlightAuto(res.data);
         }
-        callback({
-          value: high.value,
-          key: key,
-          language: high.language || lang,
-          lineCount: res.data.split('\n').length
-        });
+      } catch (err) {
+        // failed highlight, fall back on auto
+        high = hljs.highlightAuto(res.data);
       }
+      callback({
+        value: high.value,
+        key: key,
+        language: high.language || lang,
+        lineCount: res.data.split('\n').length
+      });
     },
     error: function() {
       callback(false);
@@ -319,16 +312,12 @@ haste.prototype.loadDocument = function(key) {
   _this.doc = new haste_document();
   _this.doc.load(parts[0], function(ret) {
     if (ret) {
-      if (ret.url) {
-        window.open(ret.url, "_self");
-      } else {
-        _this.$code.html(ret.value);
-        _this.setTitle(ret.key);
-        _this.fullKey();
-        _this.$textarea.val('').hide();
-        _this.$box.show().focus();
-        _this.addLineNumbers(ret.lineCount);
-      }
+      _this.$code.html(ret.value);
+      _this.setTitle(ret.key);
+      _this.fullKey();
+      _this.$textarea.val('').hide();
+      _this.$box.show().focus();
+      _this.addLineNumbers(ret.lineCount);
     } else {
       _this.newDocument();
     }
