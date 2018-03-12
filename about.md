@@ -1,10 +1,11 @@
-# Haste
+# dogbin - a fancy hastebin fork! Woof!
 
 Sharing code is a good thing, and it should be _really_ easy to do it.
 A lot of times, I want to show you something I'm seeing - and that's where we
 use pastebins.
 
-Haste is the prettiest, easiest to use pastebin ever made.
+dogbin is the prettiest, easiest to use pastebin ever made. Even prettier than
+the original hastebin, and mostly optimized for use by Android developers.
 
 ## Basic Usage
 
@@ -13,49 +14,39 @@ URL to someone and they'll see what you see.
 
 To make a new entry, click "New" (or type 'control + n')
 
-## From the Console
+### URL shortening
 
-Most of the time I want to show you some text, it's coming from my current
-console session.  We should make it really easy to take code from the console
-and send it to people.
+To shorten an URL to a fancy, short del.dog URL, just enter the URL, click "Save"
+and then copy the URL. Any future calls to that URL will redirect to what you entered
+earlier.
 
-`cat something | haste` # https://hastebin.com/1238193
+### Telegram Bot
 
-You can even take this a step further, and cut out the last step of copying the
-URL with:
+On Telegram you can use [@haste_bot](https://t.me/haste_bot) made by
+[@krypticallusion](https://t.me/krypticallusion), to create a paste or shortened
+URL directly from inside TG!
 
-* osx: `cat something | haste | pbcopy`
-* linux: `cat something | haste | xsel`
-* windows: check out [WinHaste](https://github.com/ajryan/WinHaste)
-
-After running that, the STDOUT output of `cat something` will show up at a URL
-which has been conveniently copied to your clipboard.
-
-That's all there is to that, and you can install it with `gem install haste`
-right now.
-  * osx: you will need to have an up to date version of Xcode
-  * linux: you will need to have rubygems and ruby-devel installed
 
 ## Duration
 
-Pastes will stay for 30 days from their last view.  They may be removed earlier
-and without notice.
+Pastes currently have no expiration time, but they may be removed at any time
+without notice.
 
 ## Privacy
 
-While the contents of hastebin.com are not directly crawled by any search robot
+While the contents of del.dog are not directly crawled by any search robot
 that obeys "robots.txt", there should be no great expectation of privacy.  Post
 things at your own risk. Not responsible for any loss of data or removed
 pastes.
 
 ## Open Source
 
-Haste can easily be installed behind your network, and it's all open source!
+dogbin can easily be installed behind your network, and it's all open source!
 
-* [haste-client](https://github.com/seejohnrun/haste-client)
-* [haste-server](https://github.com/seejohnrun/haste-server)
+* [dogbin-server](https://github.com/deletescape/dogin-server)
 
 ## Author
 
-Code by John Crepezzi <john.crepezzi@gmail.com>
+Original Code by John Crepezzi <john.crepezzi@gmail.com>
+dogbin specific Code by Till Kottmann <deletescape@gmail.com>
 Key Design by Brian Dawson <bridawson@gmail.com>
