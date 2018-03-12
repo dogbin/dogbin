@@ -36,10 +36,9 @@ without notice.
 
 ## Privacy
 
-While the contents of del.dog are not directly crawled by any search robot
-that obeys "robots.txt", there should be no great expectation of privacy.  Post
-things at your own risk. Not responsible for any loss of data or removed
-pastes.
+There should be no great expectation of privacy. Post things at your own risk.
+Not responsible for any loss of data or removed pastes. Posts can possibly be indexed
+by search engines.
 
 ## Open Source
 
