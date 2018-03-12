@@ -176,3 +176,11 @@ textarea {
 #messages li.error {
 	background:rgba(102,8,0,0.8);
 }
+
+.unselectable {
+	user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+}
