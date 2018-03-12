@@ -99,7 +99,7 @@ haste_document.prototype.save = function(data, callback) {
           value: high.value,
           key: res.key,
           language: high.language,
-          lineCount: data.split('\n').length
+          Count: data.split('\n').length
         });
       },
       error: function(res) {
@@ -293,7 +293,8 @@ haste.prototype.lookupTypeByExtension = function(ext) {
 haste.prototype.addLineNumbers = function(lineCount) {
   var h = '';
   for (var i = 0; i < lineCount; i++) {
-    h += (i + 1).toString() + '<br/>';
+    var num = (i + 1).toString();
+    h += '<a href="#L' + num + '" id="L' + num + '">' + num + '</a><br/>';
   }
   $('#linenos').html(h);
 };

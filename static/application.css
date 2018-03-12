@@ -26,7 +26,6 @@ textarea {
 
 #linenos {
   color: #7c8fcc;
-	z-index: -1000;
 	position: absolute;
 	top: 20px;
 	left: 0px;
@@ -34,6 +33,11 @@ textarea {
 	font-size: 13px;
 	font-family: monospace;
 	text-align: right;
+}
+
+#linenos a, a:visited {
+	color: inherit;
+	text-decoration: none;
 }
 
 /* code box when locked */
