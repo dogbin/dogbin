@@ -44,7 +44,7 @@ by search engines.
 
 dogbin can easily be installed behind your network, and it's all open source!
 
-* [dogbin-server](https://github.com/deletescape/dogin-server)
+* [dogbin-server](https://github.com/deletescape/dogbin-server)
 
 ## Author
 
