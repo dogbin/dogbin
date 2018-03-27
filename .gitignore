@@ -4,3 +4,5 @@ node_modules
 *.swo
 data
 *.DS_Store
+logs
+__pycache__

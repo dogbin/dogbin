@@ -154,7 +154,7 @@ app.use(route(function(router) {
 
 // Otherwise, try to match static files
 app.use(connect_st({
-  path: __dirname + '/static',
+  path: __dirname,
   content: {
     maxAge: config.staticMaxAge
   },
