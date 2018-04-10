@@ -1,12 +1,10 @@
 from dogbin.lib.key_generators.key_generator import KeyGenerator
-import logging
 import random 
 
 _vowels = "aeiou"
 _consonants = "bcdfghjklmnpqrstvwxyz"
 
 class PhoneticKeyGenerator(KeyGenerator):
-    logger = logging.getLogger(__name__)
 
     def init(self, options:dict):
         # not needed for this generator

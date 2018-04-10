@@ -1,9 +1,7 @@
 from dogbin.lib.key_generators.key_generator import KeyGenerator
-import logging
 import random 
 
 class RandomKeyGenerator(KeyGenerator):
-    logger = logging.getLogger(__name__)
 
     def init(self, options:dict):
         self.keyspace = options.get("keyspace", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")

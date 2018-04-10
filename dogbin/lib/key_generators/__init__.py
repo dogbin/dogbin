@@ -1,15 +1,12 @@
-import logging
 from . import phonetic_key_gen, random_key_gen
 
-logger = logging.getLogger(__name__)
-
-def getKeyGenerator(options:dict):
+def getKeyGenerator(app, options:dict):
     type = options.get("type", None)
     if(type == "random"):
-        return random_key_gen.RandomKeyGenerator(options)
+        return random_key_gen.RandomKeyGenerator(app, options)
     elif(type == "phonetic"):
-        return phonetic_key_gen.PhoneticKeyGenerator(options)
+        return phonetic_key_gen.PhoneticKeyGenerator(app, options)
     else:
-        logger.warning("%s is not a valid type", type)
-        return random_key_gen.RandomKeyGenerator(options)
+        app.logger.warning("%s is not a valid type", type)
+        return random_key_gen.RandomKeyGenerator(app, options)
 

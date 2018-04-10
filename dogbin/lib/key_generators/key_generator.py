@@ -1,7 +1,6 @@
-import logging
 class KeyGenerator:
-    logger = logging.getLogger(__name__)
-    def __init__(self, options:dict):
+    def __init__(self, app, options:dict):
+        self. logger = app.logger
         self.logger.debug("Initializing %s", self.__class__.__name__)
         self.init(options)
 

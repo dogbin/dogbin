@@ -1,10 +1,8 @@
 from dogbin.lib.document_stores.document_store import DocumentStore
-import logging
 import hashlib
 import os, os.path
 
 class FileDocumentStore(DocumentStore):
-    logger = logging.getLogger(__name__)
 
     def init(self, options):
         self.basePath = options.get("path", "./data")

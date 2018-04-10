@@ -1,8 +1,6 @@
-import logging
-
 class DocumentStore:
-    logger = logging.getLogger(__name__)
-    def __init__(self, options):
+    def __init__(self, app, options):
+        self.logger = app.logger
         self.logger.debug("Initializing %s", self.__class__.__name__)
         self.init(options)
 
