@@ -3,9 +3,9 @@ import sys
 import validators
 from json import JSONEncoder
 from dogbin.lib import document_stores, key_generators
-from bottle import Bottle, request, route, get, post, run, static_file, redirect, error, response, abort
+from flask import Flask, render_template, send_from_directory, Response, request, redirect, url_for, jsonify
 
-app = Bottle()
+app = Flask(__name__)
 logger = logging.getLogger(__name__)
 this = sys.modules['dogbin']
 
@@ -31,7 +31,7 @@ urlKeyGenerator = key_generators.getKeyGenerator(
     this.config['urlKeyGenerator'])
 
 
-@get('/<id>')
+@app.route('/<id>')
 def idRoute(id):
     key = id.split('.')[0]
     ret = store.get(key)
@@ -39,11 +39,10 @@ def idRoute(id):
         redirect(ret, 302)
         logger.info('redirected to %s', ret)
     else:
-        return static_file('index.html', './static')
+        return render_template('index.html')
 
-@get('/documents/<id>')
+@app.route('/documents/<id>')
 def getDocument(id):
-    response.set_header('content-type', 'application/json')
     key = id.split('.')[0]
     skipExpire = key in this.config['documents']
     ret = store.get(key, skipExpire)
@@ -52,11 +51,10 @@ def getDocument(id):
         return custom404('Document not found.')
     else:
         logger.info('retrieved document %s', key)
-        return JSONEncoder().encode({'data': ret, 'key': key})
+        return jsonify({'data': ret, 'key': key})
 
-@get('/raw/<id>')
+@app.route('/raw/<id>')
 def getDocumentRaw(id):
-    response.set_header('content-type', 'text/plain')
     key = id.split('.')[0]
     skipExpire = key in this.config['documents']
     ret = store.get(key, skipExpire)
@@ -65,7 +63,7 @@ def getDocumentRaw(id):
         return custom404('Document not found.')
     else:
         logger.info('retrieved document %s', key)
-        return ret
+        return Response(ret, mimetype='text/plain')
     
 
 def handleDocument(content):
@@ -75,11 +73,10 @@ def handleDocument(content):
     res = store.set(key, content) 
     if(res == False):
         logger.info('error adding document')
-        response.status = 500
-        return JSONEncoder().encode({ 'message': 'Error adding document.' })
+        return jsonify({ 'message': 'Error adding document.' }), 500
     else:
         logger.info('added document %s', key)
-        return JSONEncoder().encode({ 'key': key })
+        return jsonify({ 'key': key })
 
 def handleUrl(content):
     key = ''
@@ -88,47 +85,35 @@ def handleUrl(content):
     res = store.set(key, content, True) 
     if(res == False):
         logger.info('error adding url')
-        response.status = 500
-        return JSONEncoder().encode({ 'message': 'Error adding url.' })
+        return jsonify({ 'message': 'Error adding url.' }), 500
     else:
         logger.info('added url %s', key)
-        return JSONEncoder().encode({ 'key': key })
+        return jsonify({ 'key': key })
 
-@post('/documents')
+@app.route('/documents', methods = ['POST'])
 def postDocument():
-    response.set_header('content-type', 'application/json')
     ct = request.content_type
     content:str = None
     if(ct and ct.split(';')[0] == 'multipart/form-data'):
-        content = request.forms.get('data').decode("utf-8").strip()
+        content = request.forms.get('data').decode('utf-8').strip()
     else:
-        content = request.body.read().decode("utf-8").strip()
+        content = request.data.decode('utf-8').strip()
 
     maxLength = this.config.get('maxLength')
     if(maxLength and len(content) > maxLength):
         logger.warn('content >maxLength')
-        response.status = 400
-        return JSONEncoder().encode({ 'message': 'Content exceeds maximum length.' })
+        return jsonify({ 'message': 'Content exceeds maximum length.' }), 400
     if(validators.url(content)):
         return handleUrl(content)
     else:
         return handleDocument(content)
 
-
-@route('/static/<filename>')
-def staticFiles(filename):
-    return static_file(filename, './static')
-
-
-@route('/')
+@app.route('/')
 def index():
-    return static_file('index.html', './static')
+    return render_template('index.html')
 
 
 def custom404(message: str):
-    response.set_header('content-type', 'application/json')
-    response.status = 404
-    return JSONEncoder().encode({'message': message})
+    return jsonify({'message': message}), 404 
 
-
-run(host=this.config['host'], port=this.config['port'])
+app.run(host=this.config['host'], port=this.config['port'])
