@@ -30,13 +30,24 @@ for name in this.config['documents']:
 
 @app.route('/<id>')
 def idRoute(id):
-    key = id.split('.')[0]
+    parts = id.split('.')
+    key = parts[0]
+    lang = ''
+    if len(parts) > 1:
+        lang = parts[1]
+        if lang == 'txt':
+            lang = 'nohighlight'
     ret = store.get(key)
-    if(ret and validators.url(ret)):
-        redirect(ret, 302)
-        app.logger.info('redirected to %s', ret)
+    if ret:
+        if validators.url(ret):
+            redirect(ret, 302)
+            app.logger.info('redirected to %s', ret)
+        else:
+            appname = this.config['appname']
+            lines = len(str(ret).split('\n'))
+            return render_template('index.html', content=ret, key=key, lines=lines, title=f'{appname} - {key}', lang=lang)
     else:
-        return render_template('index.html')
+        return redirect('/', 302)
 
 
 @app.route('/documents/<id>')
@@ -112,7 +123,13 @@ def postDocument():
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    initialValue = ''
+    duplicateFrom = request.args.get('duplicate')
+    if(duplicateFrom):
+        ret = store.get(duplicateFrom)
+        if ret:
+            initialValue = ret
+    return render_template('index.html', title=this.config['appname'], initialValue=initialValue)
 
 
 def custom404(message: str):

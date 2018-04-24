@@ -24,7 +24,7 @@ class FileDocumentStore(DocumentStore):
             self.logger.warning("file store cannot set expirations on keys")
         return True
     
-    def get(self, key:str, skipExpire:bool=False):
+    def get(self, key:str, skipExpire:bool=False) -> str:
         try:
             filename = self.getFilename(key)
             with open(filename) as file:

@@ -3,40 +3,31 @@
 <head>
 
 	<meta charset="utf-8" />
-	<title>dogbin</title>
+	<title>{{ title }}</title>
 	<link rel="shortcut icon" href="static/favicon.ico" />
-	<link rel="stylesheet" type="text/css" href="static/dracula.css" />
 	<link rel="stylesheet" type="text/css" href="static/application.css" />
 
-	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-	<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-	<script type="text/javascript" src="static/application.min.js"></script>
+	{% if content %}
+		<link rel="stylesheet" type="text/css" href="static/dracula.css" />
+		<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+	{% endif %}
 
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+
+	<script type="text/javascript" src="static/application.js"></script>
 	<script type="text/javascript">
-		var app = null;
-		// Handle pops
-		var handlePop = function (evt) {
-			var path = evt.target.location.pathname;
-			if (path === '/') { app.newDocument(true); }
-			else { app.loadDocument(path.substring(1, path.length)); }
-		};
-		// Set up the pop state to handle loads, skipping the first load
-		// to make chrome behave like others:
-		// http://code.google.com/p/chromium/issues/detail?id=63040
-		setTimeout(function () {
-			window.onpopstate = function (evt) {
-				try { handlePop(evt); } catch (err) { /* not loaded yet */ }
-			};
-		}, 1000);
 		// Construct app and load initial path
 		$(function () {
-			app = new haste('dogbin', { twitter: true });
-			handlePop({ target: window });
+			var app = new haste();
 		});
 	</script>
 
-	<meta property="og:title" content="dogbin" />
-	<meta property="og:description" content="The prettiest, easiest to use pastebin ever made." />
+	<meta property="og:title" content="{{ title }}" />
+	{% if content %}
+		<meta property="og:description" content="{{ content[0:100] }}" />
+	{% else %}
+		<meta property="og:description" content="The prettiest, easiest to use pastebin ever made." />
+	{% endif %}
 	<meta property="og:image" content="https://del.dog/doggo.jpg" />
 </head>
 
@@ -49,22 +40,29 @@
 			<a href="/about.md" class="logo"></a>
 		</div>
 		<div id="box2">
-			<button class="save function button-picture">Save</button>
-			<button class="new function button-picture">New</button>
-			<button class="duplicate function button-picture">Duplicate & Edit</button>
-			<button class="raw function button-picture">Just Text</button>
-			<button class="twitter function button-picture">Twitter</button>
+			<button class="save function button-picture {% if not content %} enabled {% endif %}">Save</button>
+			<button class="new function button-picture enabled">New</button>
+			<button class="duplicate function button-picture {% if content %} enabled {% endif %}">Duplicate &amp; Edit</button>
+			<button class="raw function button-picture {% if content %} enabled {% endif %}">Just Text</button>
+			<button class="twitter function button-picture {% if content %} enabled {% endif %}">Twitter</button>
 		</div>
 		<div id="box3" style="display:none;">
 			<div class="label"></div>
 			<div class="shortcut"></div>
 		</div>
 	</div>
-
-	<div id="linenos" class="unselectable"></div>
-	<pre id="box" style="display:none;" class="hljs" tabindex="0"><code></code></pre>
-	<textarea spellcheck="false" style="display:none;" placeholder="Paste, save, share! (Pasting just an URL will shorten it!)"></textarea>
-
+	<div id="linenos" class="unselectable">
+		{% if lines %}
+			{% for n in range(1, lines + 1) %}
+				<a href="#L{{ n }}" id="L{{ n }}">{{ n }}</a><br/>
+			{% endfor %}
+		{% else %}>{% endif %}
+	</div>
+	{% if content %}
+		<pre id="box" tabindex="0"><code class="hljs {{ lang }}">{{ content }}</code></pre>
+	{% else %}
+		<textarea spellcheck="false" placeholder="Paste, save, share! (Pasting just an URL will shorten it!)">{{ initialValue }}</textarea>
+	{% endif %}
 </body>
 
 </html>

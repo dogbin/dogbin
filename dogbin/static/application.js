@@ -1,79 +1,74 @@
-/* global $, hljs, window, document */
+// Map of common extensions
+// Note: this list does not need to include anything that IS its extension,
+// due to the behavior of lookupTypeByExtension and lookupExtensionByType
+// Note: optimized for lookupTypeByExtension
+extensionMap = {
+  ruby: 'rb',
+  python: 'py',
+  perl: 'pl',
+  php: 'php',
+  scala: 'scala',
+  go: 'go',
+  xml: 'xml',
+  xml: 'html',
+  xml: 'htm',
+  css: 'css',
+  javascript: 'js',
+  vbscript: 'vbs',
+  lua: 'lua',
+  delphi: 'pas',
+  java: 'java',
+  cpp: 'cpp',
+  cpp: 'cc',
+  objectivec: 'm',
+  vala: 'vala',
+  sql: 'sql',
+  smalltalk: 'sm',
+  lisp: 'lisp',
+  ini: 'ini',
+  diff: 'diff',
+  bash: 'bash',
+  bash: 'sh',
+  tex: 'tex',
+  erlang: 'erl',
+  haskell: 'hs',
+  markdown: 'md',
+  nohighlight: 'txt',
+  coffee: 'coffee',
+  javascript: 'json',
+  swift: 'swift'
+};
 
-///// represents a single document
+// Look up the extension preferred for a type
+// If not found, return the type itself - which we'll place as the extension
+lookupExtensionByType = function (type) {
+  return extensionMap[type] || type;
+};
 
 var haste_document = function () {
-  this.locked = false;
-};
-
-// Escapes HTML tag characters
-haste_document.prototype.htmlEscape = function (s) {
-  return s
-    .replace(/&/g, '&amp;')
-    .replace(/>/g, '&gt;')
-    .replace(/</g, '&lt;')
-    .replace(/"/g, '&quot;');
-};
-
-// Get this document from the server and lock it here
-haste_document.prototype.load = function (key, callback, lang) {
-  var _this = this;
-  $.ajax('/documents/' + key, {
-    type: 'get',
-    dataType: 'json',
-    success: function (res) {
-      _this.locked = true;
-      _this.key = key;
-      _this.data = res.data;
-      try {
-        var high;
-        if (lang === 'txt') {
-          high = {
-            value: _this.htmlEscape(res.data)
-          };
-        } else if (lang) {
-          high = hljs.highlight(lang, res.data);
-        } else {
-          high = hljs.highlightAuto(res.data);
-        }
-      } catch (err) {
-        // failed highlight, fall back on auto
-        high = hljs.highlightAuto(res.data);
-      }
-      callback({
-        value: high.value,
-        key: key,
-        language: high.language || lang,
-        lineCount: res.data.split('\n').length
-      });
-    },
-    error: function () {
-      callback(false);
+  var path = window.location.pathname;
+  if (path !== '/') { 
+    var parts = path.substring(1, path.length).split('.',2)
+    this.key = parts[0];
+    hljs.initHighlighting()
+    if(parts.length === 1){
+      lang = $('code.hljs')[0].classList[1]
+      extension = lookupExtensionByType(lang)
+      window.history.pushState(null, document.title, path + '.' + extension);
     }
-  });
+  } 
 };
 
 // Save this document to the server and lock it here
 haste_document.prototype.save = function (data, callback) {
-  if (this.locked) {
-    return false;
-  }
-  this.data = data;
-  var _this = this;
   $.ajax('/documents', {
     type: 'post',
     data: data,
     dataType: 'json',
     contentType: 'application/json; charset=utf-8',
     success: function (res) {
-      _this.locked = true;
-      _this.key = res.key;
-      var high = hljs.highlightAuto(data);
       callback(null, {
-        value: high.value,
-        key: res.key,
-        language: high.language,
-        lineCount: data.split('\n').length
+        key: res.key
       });
     },
     error: function (res) {
@@ -90,25 +85,11 @@ haste_document.prototype.save = function (data, callback) {
 
 ///// represents the paste application
 
-var haste = function (appName, options) {
-  this.appName = appName;
+var haste = function () {
+  this.doc = new haste_document();
   this.$textarea = $('textarea');
-  this.$box = $('#box');
-  this.$code = $('#box code');
-  this.$linenos = $('#linenos');
-  this.options = options;
   this.configureShortcuts();
   this.configureButtons();
-  // If twitter is disabled, hide the button
-  if (!options.twitter) {
-    $('#box2 .twitter').hide();
-  }
-};
-
-// Set the page title - include the appName
-haste.prototype.setTitle = function (ext) {
-  var title = ext ? this.appName + ' - ' + ext : this.appName;
-  document.title = title;
 };
 
 // Show a message box
@@ -122,146 +103,20 @@ haste.prototype.showMessage = function (msg, cls) {
   }, 3000);
 };
 
-// Show the light key
-haste.prototype.lightKey = function () {
-  this.configureKey(['new', 'save']);
-};
-
-// Show the full key
-haste.prototype.fullKey = function () {
-  this.configureKey(['new', 'duplicate', 'twitter', 'raw']);
-};
-
-// Set the key up for certain things to be enabled
-haste.prototype.configureKey = function (enable) {
-  var $this, i = 0;
-  $('#box2 .function').each(function () {
-    $this = $(this);
-    for (i = 0; i < enable.length; i++) {
-      if ($this.hasClass(enable[i])) {
-        $this.addClass('enabled');
-        return true;
-      }
-    }
-    $this.removeClass('enabled');
-  });
-};
-
 // Remove the current document (if there is one)
 // and set up for a new one
-haste.prototype.newDocument = function (hideHistory) {
-  this.$box.hide();
-  this.doc = new haste_document();
-  if (!hideHistory) {
-    window.history.pushState(null, this.appName, '/');
+haste.prototype.newDocument = function () {
+  if (this.doc.key) {
+    window.location.replace('/')
+  } else {
+    this.$textarea.val('')
   }
-  this.setTitle();
-  this.lightKey();
-  this.$textarea.val('').show('fast', function () {
-    this.focus();
-  });
-  this.removeLineNumbers();
 };
 
-// Map of common extensions
-// Note: this list does not need to include anything that IS its extension,
-// due to the behavior of lookupTypeByExtension and lookupExtensionByType
-// Note: optimized for lookupTypeByExtension
-haste.extensionMap = {
-  rb: 'ruby',
-  py: 'python',
-  pl: 'perl',
-  php: 'php',
-  scala: 'scala',
-  go: 'go',
-  xml: 'xml',
-  html: 'xml',
-  htm: 'xml',
-  css: 'css',
-  js: 'javascript',
-  vbs: 'vbscript',
-  lua: 'lua',
-  pas: 'delphi',
-  java: 'java',
-  cpp: 'cpp',
-  cc: 'cpp',
-  m: 'objectivec',
-  vala: 'vala',
-  sql: 'sql',
-  sm: 'smalltalk',
-  lisp: 'lisp',
-  ini: 'ini',
-  diff: 'diff',
-  bash: 'bash',
-  sh: 'bash',
-  tex: 'tex',
-  erl: 'erlang',
-  hs: 'haskell',
-  md: 'markdown',
-  txt: '',
-  coffee: 'coffee',
-  json: 'javascript',
-  swift: 'swift'
-};
-
-// Look up the extension preferred for a type
-// If not found, return the type itself - which we'll place as the extension
-haste.prototype.lookupExtensionByType = function (type) {
-  for (var key in haste.extensionMap) {
-    if (haste.extensionMap[key] === type) return key;
-  }
-  return type;
-};
-
-// Look up the type for a given extension
-// If not found, return the extension - which we'll attempt to use as the type
-haste.prototype.lookupTypeByExtension = function (ext) {
-  return haste.extensionMap[ext] || ext;
-};
-
-// Add line numbers to the document
-// For the specified number of lines
-haste.prototype.addLineNumbers = function (lineCount) {
-  var h = '';
-  for (var i = 0; i < lineCount; i++) {
-    var num = (i + 1).toString();
-    h += '<a href="#L' + num + '" id="L' + num + '">' + num + '</a><br/>';
-  }
-  $('#linenos').html(h);
-};
-
-// Remove the line numbers
-haste.prototype.removeLineNumbers = function () {
-  $('#linenos').html('&gt;');
-};
-
-// Load a document and show it
-haste.prototype.loadDocument = function (key) {
-  // Split the key up
-  var parts = key.split('.', 2);
-  // Ask for what we want
-  var _this = this;
-  _this.doc = new haste_document();
-  _this.doc.load(parts[0], function (ret) {
-    if (ret) {
-      _this.$code.html(ret.value);
-      _this.setTitle(ret.key);
-      _this.fullKey();
-      _this.$textarea.val('').hide();
-      _this.$box.show().focus();
-      _this.addLineNumbers(ret.lineCount);
-    } else {
-      _this.newDocument();
-    }
-  }, this.lookupTypeByExtension(parts[1]));
-};
-
-// Duplicate the current document - only if locked
+// Duplicate the current document
 haste.prototype.duplicateDocument = function () {
-  if (this.doc.locked) {
-    var currentData = this.doc.data;
-    this.newDocument();
-    this.$textarea.val(currentData);
+  if(this.doc.key){
+    window.location.replace('/?duplicate=' + this.doc.key)
   }
 };
 
@@ -272,17 +127,7 @@ haste.prototype.lockDocument = function () {
     if (err) {
       _this.showMessage(err.message, 'error');
     } else if (ret) {
-      _this.$code.html(ret.value);
-      _this.setTitle(ret.key);
-      var file = '/' + ret.key;
-      if (ret.language) {
-        file += '.' + _this.lookupExtensionByType(ret.language);
-      }
-      window.history.pushState(null, _this.appName + '-' + ret.key, file);
-      _this.fullKey();
-      _this.$textarea.val('').hide();
-      _this.$box.show().focus();
-      _this.addLineNumbers(ret.lineCount);
+      window.location.replace('/' + ret.key);
     }
   });
 };
@@ -310,14 +155,14 @@ haste.prototype.configureButtons = function () {
     },
     shortcutDescription: 'control + n',
     action: function () {
-      _this.newDocument(!_this.doc.key);
+      _this.newDocument();
     }
   },
   {
     $where: $('#box2 .duplicate'),
     label: 'Duplicate & Edit',
     shortcut: function (evt) {
-      return _this.doc.locked && evt.ctrlKey && evt.keyCode === 68;
+      return evt.ctrlKey && evt.keyCode === 68;
     },
     shortcutDescription: 'control + d',
     action: function () {
@@ -339,7 +184,7 @@ haste.prototype.configureButtons = function () {
     $where: $('#box2 .twitter'),
     label: 'Twitter',
     shortcut: function (evt) {
-      return _this.options.twitter && _this.doc.locked && evt.shiftKey && evt.ctrlKey && evt.keyCode == 84;
+      return evt.shiftKey && evt.ctrlKey && evt.keyCode == 84;
     },
     shortcutDescription: 'control + shift + t',
     action: function () {
@@ -356,7 +201,7 @@ haste.prototype.configureButton = function (options) {
   // Handle the click action
   options.$where.click(function (evt) {
     evt.preventDefault();
-    if (!options.clickDisabled && $(this).hasClass('enabled')) {
+    if ($(this).hasClass('enabled')) {
       options.action();
     }
   });

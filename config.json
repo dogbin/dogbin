@@ -6,6 +6,7 @@
     "maxLength": 400000,
     "staticMaxAge": 86400,
     "recompressStaticAssets": true,
+    "appname": "dogbin",
     "logging": {
         "version": 1,
         "formatters": {
