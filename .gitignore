@@ -2,7 +2,8 @@ npm-debug.log
 node_modules
 *.swp
 *.swo
-data
 *.DS_Store
-logs
 __pycache__
+/data
+/logs
+/config.py
