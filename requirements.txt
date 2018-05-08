@@ -1,3 +1,4 @@
 validators==0.12.1
 flask==0.12.2
 waitress==1.1.0
+flask-mongoengine==0.9.5

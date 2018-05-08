@@ -1,4 +1,5 @@
 from dogbin.lib.document_stores.document_store import DocumentStore
+from dogbin.lib.model.document import Document
 import hashlib
 import os, os.path
 
@@ -13,28 +14,32 @@ class FileDocumentStore(DocumentStore):
         md5.update(str.encode())
         return self.basePath + "/" + md5.hexdigest()
 
-    def set(self, key:str, data, skipExpire:bool=False):
+    def set(self, document:Document, skipExpire:bool=False):
         if(not os.path.exists(self.basePath)):
             os.mkdir(self.basePath, 0o700)
-        filename = self.getFilename(key)
+        filename = self.getFilename(document.slug)
         file = open(filename, 'w')
-        file.write(data)
+        file.write(document.content)
         file.close()
         if(self.expire and not skipExpire):
             self.logger.warning("file store cannot set expirations on keys")
         return True
     
-    def get(self, key:str, skipExpire:bool=False) -> str:
+    def get(self, slug:str, skipExpire:bool=False) -> Document:
         try:
-            filename = self.getFilename(key)
+            filename = self.getFilename(slug)
             with open(filename) as file:
                 data = file.read()
             if(self.expire and not skipExpire):
                 self.logger.warning("file store cannot set expirations on keys")
-            return data
+            return Document(slug, None, data, 0)
         except FileNotFoundError as e:
-            self.logger.warning("No file found in store for key %s", key)
+            self.logger.warning("No file found in store for key %s", slug)
             self.logger.debug(e)
             return False
+
+    def slugAvailable(self, slug:str) -> bool:
+        filename = self.getFilename(slug)
+        return not os.path.exists(filename)
 
 

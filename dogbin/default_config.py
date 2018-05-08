@@ -19,6 +19,9 @@ DOCUMENTS = {
     'about': './about.md',
     'changelog': './changelog.md'
 }
+MONGODB_SETTINGS = {
+    'db':'dogbin_dev'
+}
 LOGGER_NAME = 'dogbin'
 LOGGER_CONFIG = {
     'version': 1,

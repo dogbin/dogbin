@@ -7,7 +7,7 @@
 	<link rel="shortcut icon" href="static/favicon.ico" />
 	<link rel="stylesheet" type="text/css" href="static/application.css" />
 
-	{% if content %}
+	{% if document %}
 		<link rel="stylesheet" type="text/css" href="static/dracula.css" />
 		<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 	{% endif %}
@@ -23,8 +23,8 @@
 	</script>
 
 	<meta property="og:title" content="{{ title }}" />
-	{% if content %}
-		<meta property="og:description" content="{{ content[0:100] }}" />
+	{% if document %}
+		<meta property="og:description" content="{{ document.content[0:100] }}" />
 	{% else %}
 		<meta property="og:description" content="The prettiest, easiest to use pastebin ever made." />
 	{% endif %}
@@ -40,11 +40,11 @@
 			<a href="/about.md" class="logo"></a>
 		</div>
 		<div id="box2">
-			<button class="save function button-picture {% if not content %} enabled {% endif %}">Save</button>
+			<button class="save function button-picture {% if not document %} enabled {% endif %}">Save</button>
 			<button class="new function button-picture enabled">New</button>
-			<button class="duplicate function button-picture {% if content %} enabled {% endif %}">Duplicate &amp; Edit</button>
-			<button class="raw function button-picture {% if content %} enabled {% endif %}">Just Text</button>
-			<button class="twitter function button-picture {% if content %} enabled {% endif %}">Twitter</button>
+			<button class="duplicate function button-picture {% if document %} enabled {% endif %}">Duplicate &amp; Edit</button>
+			<button class="raw function button-picture {% if document %} enabled {% endif %}">Just Text</button>
+			<button class="twitter function button-picture {% if document %} enabled {% endif %}">Twitter</button>
 		</div>
 		<div id="box3" style="display:none;">
 			<div class="label"></div>
@@ -58,8 +58,8 @@
 			{% endfor %}
 		{% else %}>{% endif %}
 	</div>
-	{% if content %}
-		<pre id="box" tabindex="0"><code class="hljs {{ lang }}">{{ content }}</code></pre>
+	{% if document %}
+		<pre id="box" tabindex="0"><code class="hljs {{ lang }}">{{ document.content }}</code></pre>
 	{% else %}
 		<textarea spellcheck="false" placeholder="Paste, save, share! (Pasting just an URL will shorten it!)">{{ initialValue }}</textarea>
 	{% endif %}

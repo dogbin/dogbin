@@ -1,14 +1,15 @@
 import json
-import logging
+import logging.config
 from json import JSONEncoder
 from os import path
 
 import validators
 from flask import (Flask, Response, jsonify, redirect, render_template,
                    request, send_from_directory, url_for)
+from flask_mongoengine import MongoEngine
 
 from dogbin import default_config
-from dogbin.lib import document_stores, key_generators
+from dogbin.lib.model.document import Document
 
 app = Flask(__name__)
 app.config.from_object(default_config)
@@ -20,6 +21,10 @@ if path.exists('config.py'):
 app.logger
 logging.config.dictConfig(app.config['LOGGER_CONFIG'])
 
+# Initialise MongoEngine
+db = MongoEngine(app)
+
+from dogbin.lib import document_stores, key_generators
 
 with app.app_context():
     store = document_stores.getDocumentStore(app, app.config['STORAGE'])
@@ -36,7 +41,10 @@ for name in app.config['DOCUMENTS']:
     with open(path) as file:
         data = file.read()
         app.logger.info('loading static document: %s - %s', name, path)
-        ret = store.set(name, data, True)
+        document = store.get(name, True)
+        if not document:
+            document = Document(name, False, data, 0)
+        ret = store.set(document, True)
         if(ret == False):
             app.logger.warn('couldn\'t load static document %s', name)
         else:
@@ -52,69 +60,72 @@ def idRoute(id):
         lang = parts[1]
         if lang == 'txt':
             lang = 'nohighlight'
-    ret = store.get(key)
-    if ret:
-        if validators.url(ret):
-            redirect(ret, 302)
-            app.logger.info('redirected to %s', ret)
+    document = store.get(key)
+    if document:
+        document.increaseViewCount()
+        if document.isUrl:
+            app.logger.info('redirecting to %s', document.content)
+            return redirect(document.content, 302)
         else:
             appname = app.config['APPNAME']
-            lines = len(str(ret).split('\n'))
-            return render_template('index.html', content=ret, key=key, lines=lines, title=f'{appname} - {key}', lang=lang)
+            lines = len(document.content.split('\n'))
+            return render_template('index.html', document=document, lines=lines, title=f'{appname} - {document.slug}', lang=lang)
     else:
         return redirect('/', 302)
 
 
-@app.route('/documents/<id>')
-def getDocument(id):
-    key = id.split('.')[0]
+@app.route('/documents/<slug>')
+def getDocument(slug):
+    key = slug.split('.')[0]
     skipExpire = key in app.config['DOCUMENTS']
-    ret = store.get(key, skipExpire)
-    if(ret == False):
+    document = store.get(key, skipExpire)
+    if not document:
         app.logger.warning('document not found %s', key)
         return custom404('Document not found.')
     else:
         app.logger.info('retrieved document %s', key)
-        return jsonify({'data': ret, 'key': key})
+        return jsonify({'document': document, 'data': document.content, 'key': key})
 
 
-@app.route('/raw/<id>')
-def getDocumentRaw(id):
-    key = id.split('.')[0]
+@app.route('/raw/<slug>')
+def getDocumentRaw(slug):
+    key = slug.split('.')[0]
     skipExpire = key in app.config['DOCUMENTS']
-    ret = store.get(key, skipExpire)
-    if(ret == False):
+    document = store.get(key, skipExpire)
+    if not document:
         app.logger.warning('document not found %s', key)
         return custom404('Document not found.')
     else:
         app.logger.info('retrieved document %s', key)
-        return Response(ret, mimetype='text/plain')
+        return Response(document.content, mimetype='text/plain')
 
 
 def handleDocument(content):
-    key = ''
-    while(store.get(key, True) != False):
-        key = keyGenerator.createKey(app.config['KEY_GENERATOR'].get('keyLength', 10))
-    res = store.set(key, content)
+    keyLength = app.config['KEY_GENERATOR'].get('keyLength', 10)
+    slug = keyGenerator.createKey(keyLength)
+    while not store.slugAvailable(slug):
+        slug = keyGenerator.createKey(keyLength)
+    res = store.set(Document(slug, False, content))
     if(res == False):
         app.logger.info('error adding document')
         return jsonify({'message': 'Error adding document.'}), 500
     else:
-        app.logger.info('added document %s', key)
-        return jsonify({'key': key})
+        app.logger.info('added document %s', slug)
+        return jsonify({'key': slug})
 
 
 def handleUrl(content):
-    key = ''
-    while(store.get(key, True) != False):
-        key = urlKeyGenerator.createKey(app.config['URL_KEY_GENERATOR'].get('keyLength', 7))
-    res = store.set(key, content, True)
+    keyLength = app.config['URL_KEY_GENERATOR'].get('keyLength', 7)
+    slug = urlKeyGenerator.createKey(keyLength)
+    while not store.slugAvailable(slug):
+        slug = urlKeyGenerator.createKey(keyLength)
+    res = store.set(Document(slug, True, content), True)
     if(res == False):
         app.logger.info('error adding url')
         return jsonify({'message': 'Error adding url.'}), 500
     else:
-        app.logger.info('added url %s', key)
-        return jsonify({'key': key})
+        app.logger.info('added url %s', slug)
+        return jsonify({'key': slug})
 
 
 @app.route('/documents', methods=['POST'])
