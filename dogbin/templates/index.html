@@ -5,22 +5,18 @@
 	<meta charset="utf-8" />
 	<title>{{ title }}</title>
 	<link rel="shortcut icon" href="static/favicon.ico" />
-	<link rel="stylesheet" type="text/css" href="static/application.css" />
+	<link rel="preload" href="static/fonts/hack-regular.woff2?sha=3114f1256" as="font" type="font/woff2" crossorigin>
+	<link rel="preload" href="static/fonts/hack-bold.woff2?sha=3114f1256" as="font" type="font/woff2" crossorigin>
+	<link rel="preload" href="static/fonts/hack-italic.woff2?sha=3114f1256" as="font" type="font/woff2" crossorigin>
 
 	{% if document %}
-		<link rel="stylesheet" type="text/css" href="static/dracula.css" />
-		<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="static/dracula.css" />
+	<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 	{% endif %}
-
+	
+	<link rel="stylesheet" type="text/css" href="static/app.css">
+	
 	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-
-	<script type="text/javascript" src="static/application.js"></script>
-	<script type="text/javascript">
-		// Construct app and load initial path
-		$(function () {
-			var app = new haste();
-		});
-	</script>
 
 	<meta property="og:title" content="{{ title }}" />
 	{% if document %}
@@ -44,36 +40,50 @@
 
 <body>
 	<ul id="messages" class="unselectable"></ul>
-
-	<div id="key" class="unselectable">
-		<div id="pointer" style="display:none;"></div>
-		<div id="box1">
-			<a href="/about.md" class="logo"></a>
+	<div id="header" class="unselectable">
+		<div id="title"><a href="/">{{ config.APPNAME }}</a></div>
+		<div id="tabs">
+			<a class="tab {% if not document %} active{% endif %}" href="/">PASTE</a>
+			<a class="tab {% if document and document.slug == 'about' %} active{% endif %}" href="/about.md">ABOUT</a>
+			<a class="tab {% if document and document.slug == 'changelog' %} active{% endif %}" href="/changelog.md">CHANGELOG</a>
 		</div>
-		<div id="box2">
-			<button class="save function button-picture {% if not document %} enabled {% endif %}">Save</button>
-			<button class="new function button-picture enabled">New</button>
-			<button class="duplicate function button-picture {% if document %} enabled {% endif %}">Duplicate &amp; Edit</button>
-			<button class="raw function button-picture {% if document %} enabled {% endif %}">Just Text</button>
-			<button class="twitter function button-picture {% if document %} enabled {% endif %}">Twitter</button>
-		</div>
-		<div id="box3" style="display:none;">
-			<div class="label"></div>
-			<div class="shortcut"></div>
+		<div id="actions">
+			<button class="save action {% if not document %} enabled {% endif %}"><img src="/static/icons/save.svg" alt="Save"></button>
+			<button class="new action enabled"><img src="/static/icons/create.svg" alt="New"></button>
+			<button class="duplicate action {% if document %} enabled {% endif %}"><img src="/static/icons/copy.svg" alt="Duplicate &amp; Edit"></button>
+			<button class="raw action {% if document %} enabled {% endif %}"><img src="/static/icons/raw.svg" alt="Just Text"></button>
+			<button class="twitter action {% if document %} enabled {% endif %}"><img src="/static/icons/twitter.svg" alt="Twitter"></button>
 		</div>
 	</div>
-	<div id="linenos" class="unselectable">
-		{% if lines %}
-			{% for n in range(1, lines + 1) %}
-				<a href="#L{{ n }}" id="L{{ n }}">{{ n }}</a><br/>
-			{% endfor %}
-		{% else %}>{% endif %}
+	<div id="content">
+		<div id="linenos" class="unselectable">
+				{% if lines %}
+					{% for n in range(1, lines + 1) %}
+						<a href="#L{{ n }}" id="L{{ n }}">{{ n }}</a><br/>
+					{% endfor %}
+				{% else %}>{% endif %}
+		</div>
+		{% if document %}
+			<pre id="box" tabindex="0"><code class="hljs {{ lang }}">{{ document.content }}</code></pre>
+		{% else %}
+			<textarea spellcheck="false" placeholder="Paste, save, share! (Pasting just an URL will shorten it!)">{{ initialValue }}</textarea>
+		{% endif %}
 	</div>
-	{% if document %}
-		<pre id="box" tabindex="0"><code class="hljs {{ lang }}">{{ document.content }}</code></pre>
-	{% else %}
-		<textarea spellcheck="false" placeholder="Paste, save, share! (Pasting just an URL will shorten it!)">{{ initialValue }}</textarea>
-	{% endif %}
+	<div id="footer" class="unselectable">
+		<div id="copyright">Copyright &copy; {{ now.year }} <a href="https://deletescape.ch" target="_blank">deletescape</a></div>
+		{% if document %}
+			<div id="stats">Stats:&nbsp;&nbsp;
+				<div id="views"><img src="/static/icons/eye.svg" alt="Views"><b>{{ document.viewCount }}</b></div>
+			</div>
+		{% endif %}
+	</div>
 </body>
+<script type="text/javascript" src="static/application.js"></script>
+<script type="text/javascript">
+	// Construct app and load initial path
+	$(function () {
+		var app = new haste();
+	});
+</script>
 
 </html>

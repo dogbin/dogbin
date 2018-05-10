@@ -3,6 +3,8 @@ node_modules
 *.swp
 *.swo
 *.DS_Store
+*.css.map
+.sass-cache
 __pycache__
 /data
 /logs

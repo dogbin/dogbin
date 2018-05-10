@@ -135,7 +135,7 @@ haste.prototype.lockDocument = function () {
 haste.prototype.configureButtons = function () {
   var _this = this;
   this.buttons = [{
-    $where: $('#box2 .save'),
+    $where: $('.action.save'),
     label: 'Save',
     shortcutDescription: 'control + s',
     shortcut: function (evt) {
@@ -148,7 +148,7 @@ haste.prototype.configureButtons = function () {
     }
   },
   {
-    $where: $('#box2 .new'),
+    $where: $('.action.new'),
     label: 'New',
     shortcut: function (evt) {
       return evt.ctrlKey && evt.keyCode === 78;
@@ -159,7 +159,7 @@ haste.prototype.configureButtons = function () {
     }
   },
   {
-    $where: $('#box2 .duplicate'),
+    $where: $('.action.duplicate'),
     label: 'Duplicate & Edit',
     shortcut: function (evt) {
       return evt.ctrlKey && evt.keyCode === 68;
@@ -170,7 +170,7 @@ haste.prototype.configureButtons = function () {
     }
   },
   {
-    $where: $('#box2 .raw'),
+    $where: $('.action.raw'),
     label: 'Just Text',
     shortcut: function (evt) {
       return evt.ctrlKey && evt.shiftKey && evt.keyCode === 82;
@@ -181,7 +181,7 @@ haste.prototype.configureButtons = function () {
     }
   },
   {
-    $where: $('#box2 .twitter'),
+    $where: $('.action.twitter'),
     label: 'Twitter',
     shortcut: function (evt) {
       return evt.shiftKey && evt.ctrlKey && evt.keyCode == 84;

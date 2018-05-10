@@ -1,0 +1,193 @@
+@import url("/static/hack.css");
+* {
+  font-family: "Hack", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; }
+
+html {
+  font-size: 16; }
+
+a {
+  text-decoration: none;
+  color: #fff; }
+
+body {
+  margin: 0px;
+  padding: 0px;
+  background: #263238; }
+
+#header {
+  position: fixed;
+  z-index: 1;
+  height: 3.5rem;
+  background: #37474f;
+  color: #ffffff;
+  width: 98%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding-left: 1%;
+  padding-right: 1%;
+  box-shadow: 0 3px 3px rgba(0, 0, 0, 0.16), 0 3px 3px rgba(0, 0, 0, 0.23); }
+  #header div#title {
+    font-size: 1.25rem; }
+    #header div#title a {
+      color: #f9bfd3; }
+  #header div#tabs {
+    margin-left: .5rem;
+    height: 3rem;
+    align-self: flex-end;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end; }
+    #header div#tabs a.tab {
+      text-align: center;
+      height: 3rem;
+      line-height: 3rem;
+      font-size: 1rem;
+      min-width: 5rem;
+      color: #fff;
+      opacity: 0.8; }
+      #header div#tabs a.tab.active {
+        height: 2.8rem;
+        opacity: 1;
+        border-bottom: 0.2rem solid #f06292;
+        animation: ripple 0.2s linear forwards; }
+      #header div#tabs a.tab:hover {
+        opacity: 0.9; }
+  #header div#actions {
+    margin-left: auto; }
+    #header div#actions button.action {
+      opacity: 0.4;
+      background: transparent;
+      border: none; }
+      #header div#actions button.action.enabled {
+        opacity: 0.8; }
+        #header div#actions button.action.enabled:hover {
+          opacity: 1; }
+        #header div#actions button.action.enabled:active {
+          animation: ripple 0.2s linear forwards; }
+      #header div#actions button.action img {
+        height: 1.8rem; }
+
+#content {
+  position: absolute;
+  top: 3.6rem;
+  bottom: 1.7rem;
+  width: 100%;
+  overflow: auto;
+  margin: 0;
+  overflow-y: auto; }
+  #content #linenos {
+    color: #cfd8dc;
+    position: absolute;
+    left: 0;
+    width: 2rem;
+    font-size: 1rem;
+    text-align: right; }
+    #content #linenos a {
+      color: #cfd8dc; }
+      #content #linenos a:target {
+        color: #77909b; }
+  #content textarea {
+    background: transparent;
+    position: fixed;
+    left: 2.5rem;
+    border: 0;
+    color: #fff;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    outline: none;
+    resize: none;
+    font-size: 1rem; }
+    #content textarea::placeholder {
+      color: #cfd8dc; }
+  #content pre#box {
+    margin: 0;
+    background: transparent;
+    position: absolute;
+    left: 2.5rem;
+    font-size: 1rem; }
+    #content pre#box code {
+      padding: 0;
+      background: transparent; }
+
+#footer {
+  height: 1.6rem;
+  position: fixed;
+  bottom: 0;
+  font-size: 1rem;
+  width: 98%;
+  padding-left: 1%;
+  padding-right: 1%;
+  background: #37474f;
+  color: #fff;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  box-shadow: 0 -3px 3px rgba(0, 0, 0, 0.16), 0 -3px 3px rgba(0, 0, 0, 0.23); }
+  #footer #copyright a {
+    text-decoration: underline; }
+  #footer #stats {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-left: auto; }
+    #footer #stats #views img {
+      height: 1.3rem;
+      vertical-align: bottom; }
+
+#messages {
+  width: 50vw;
+  margin: 0 auto;
+  position: absolute;
+  left: 50%;
+  top: 5.3vh;
+  margin-left: -25vw;
+  z-index: 2;
+  padding: 0; }
+  #messages li {
+    font-size: 1rem;
+    height: fit-content;
+    color: #ffffff;
+    border-radius: 50px;
+    background: rgba(38, 50, 56, 0.6);
+    margin-bottom: .3vh;
+    padding: .3vh, .2vw;
+    text-align: center;
+    list-style: none; }
+    #messages li.error {
+      background: rgba(198, 40, 40, 0.6); }
+
+@keyframes ripple {
+  0% {
+    background: transparent; }
+  50% {
+    background: rgba(255, 255, 255, 0.05); }
+  100% {
+    background: transparent; } }
+.unselectable {
+  user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none; }
+
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px; }
+
+::-webkit-scrollbar-track {
+  background: rgba(55, 71, 79, 0.2); }
+
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background: rgba(34, 44, 49, 0.5); }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(34, 44, 49, 0.8); }
+  ::-webkit-scrollbar-thumb:active {
+    background: #222c31; }
+
+::-webkit-scrollbar-corner {
+  background: rgba(55, 71, 79, 0.2); }
+
+/*# sourceMappingURL=app.css.map */

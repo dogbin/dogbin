@@ -10,6 +10,7 @@ from flask_mongoengine import MongoEngine
 
 from dogbin import default_config
 from dogbin.lib.model.document import Document
+from datetime import datetime
 
 app = Flask(__name__)
 app.config.from_object(default_config)
@@ -157,6 +158,9 @@ def index():
             initialValue = ret.content
     return render_template('index.html', title=app.config['APPNAME'], initialValue=initialValue)
 
-
 def custom404(message: str):
     return jsonify({'message': message}), 404
+
+@app.context_processor
+def inject_now():
+    return {'now': datetime.utcnow()}

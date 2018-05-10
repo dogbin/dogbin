@@ -1,0 +1,246 @@
+@import url('/static/hack.css');
+$primary: #37474f;
+$secondary: #f06292;
+$text-light: #cfd8dc;
+$code-size: 1rem;
+
+* {
+    font-family: 'Hack', "SFMono-Regular",Consolas,"Liberation Mono",Menlo,Courier,monospace
+}
+
+html {
+    font-size: 16;
+}
+
+a {
+    text-decoration: none;
+    color: #fff;
+}
+
+body {
+    margin: 0px;
+    padding: 0px;
+    background: #263238;
+}
+
+#header {
+    position: fixed;
+    z-index: 1;
+    height: 3.5rem;
+    background: $primary;
+    color: #ffffff;
+    width: 98%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 1%;
+    padding-right: 1%;
+    box-shadow: 0 3px 3px rgba(0,0,0,0.16), 0 3px 3px rgba(0,0,0,0.23);
+    div#title {
+        font-size: 1.25rem;
+        a {
+            color: lighten($secondary, 20);
+        }
+    }
+    div#tabs {
+        margin-left: .5rem;
+        height: 3rem;
+        align-self: flex-end;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-end;
+        a.tab{
+            text-align: center;
+            height: 3rem;
+            line-height: 3rem;
+            font-size: 1rem;
+            min-width: 5rem;
+            color: #fff;
+            opacity: 0.8;
+            &.active {
+                height: 2.8rem;
+                opacity: 1;
+                border-bottom: 0.2rem solid $secondary;
+                animation: ripple 0.2s linear forwards;
+            }
+            &:hover {
+                opacity: 0.9;
+            }
+        }
+    }
+    div#actions {
+        margin-left: auto;
+        button.action {
+            opacity: 0.4;
+            background: transparent;
+            border: none;
+            &.enabled {
+                opacity: 0.8;
+                &:hover{
+                    opacity: 1;
+                }
+                &:active {
+                    animation: ripple 0.2s linear forwards;  
+                }
+            }
+            img {
+                height: 1.8rem;
+            }
+        }
+    }
+}
+$linenos-width: 2rem;
+$linenos-width-plus: $linenos-width + .5rem;
+#content {
+    position: absolute;
+    top: 3.6rem;
+    bottom: 1.7rem;
+    width: 100%;
+    overflow: auto;
+    margin: 0;
+    overflow-y: auto;
+    #linenos {
+        color: $text-light;
+        a {
+            color: $text-light;
+            &:target{
+                color: darken($text-light, 30); 
+            }
+        }
+        position: absolute;
+        left: 0;
+        width: $linenos-width;
+        font-size: $code-size;
+        text-align: right;
+    }
+    
+    textarea {
+        background: transparent;
+        position: fixed;
+        left: $linenos-width-plus;
+        border: 0;
+        color: #fff;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        outline: none;
+        resize: none;
+        font-size: $code-size;
+        &::placeholder {
+            color: $text-light;
+        }
+    }
+    
+    pre#box {
+        margin: 0;
+        background: transparent;
+        position: absolute;
+        left: $linenos-width-plus;
+        font-size: $code-size; 
+        code {
+            padding: 0;
+            background: transparent;
+        }
+    } 
+} 
+
+#footer {
+    height: 1.6rem;
+    position: fixed;
+    bottom: 0;
+    font-size: 1rem;
+    width: 98%;
+    padding-left: 1%;
+    padding-right: 1%;
+    background: $primary;
+    color: #fff;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    box-shadow: 0 -3px 3px rgba(0,0,0,0.16), 0 -3px 3px rgba(0,0,0,0.23);
+    #copyright {
+        a {
+            text-decoration: underline;
+        }
+    }
+    #stats {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        margin-left: auto;
+        #views {
+            img {
+                height: 1.3rem;
+                vertical-align: bottom;
+            }
+        }
+    }
+}
+
+#messages {
+    width:50vw;
+    margin:0 auto;
+    position:absolute;
+    left:50%;
+    top:5.3vh;
+    margin-left:-25vw;
+    z-index: 2;
+    padding: 0;
+    li {
+        font-size: $code-size;
+        height: fit-content;
+        color: #ffffff;    
+        border-radius: 50px;
+        background:rgba(38,50,56, 0.6);
+        margin-bottom: .3vh;
+        padding: .3vh, .2vw;
+        text-align: center;
+        list-style:none;
+        &.error {
+            background:rgba(198,40,40,0.6);
+        }
+    }
+}
+
+@keyframes ripple {
+    0% {
+      background: transparent;
+    }
+    50% {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    100% {
+      background: transparent;
+    }
+}
+
+.unselectable {
+	user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+}
+
+::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba($primary, 0.2);
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: rgba(darken($primary, 10), 0.5); 
+    &:hover{
+        background: rgba(darken($primary, 10), 0.8); 
+    }
+    &:active{
+        background: rgba(darken($primary, 10), 1);
+    }
+}
+::-webkit-scrollbar-corner {
+    background: rgba($primary, 0.2);
+}
