@@ -45,6 +45,12 @@ for name in app.config['DOCUMENTS']:
         document = store.get(name, True)
         if not document:
             document = Document(name, False, data, 0)
+        else:
+            app.logger.info('document already in store')
+            if document.content != data:
+                app.logger.info('content on disk is different than store content. updating...')
+                document.content = data
+                document.viewCount = 0
         ret = store.set(document, True)
         if(ret == False):
             app.logger.warn('couldn\'t load static document %s', name)
