@@ -29,6 +29,17 @@
 		<meta property="og:description" content="The prettiest, easiest to use pastebin ever made." />
 	{% endif %}
 	<meta property="og:image" content="https://del.dog/doggo.jpg" />
+
+	{% if config.GA_ID %}
+		<!-- Global site tag (gtag.js) - Google Analytics -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id={{ config.GA_ID }}"></script>
+		<script>
+			window.dataLayer = window.dataLayer || [];
+			function gtag(){dataLayer.push(arguments);}
+			gtag('js', new Date());
+			gtag('config', '{{ config.GA_ID }}');
+		</script>
+	{% endif %}
 </head>
 
 <body>

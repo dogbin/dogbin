@@ -22,6 +22,7 @@ DOCUMENTS = {
 MONGODB_SETTINGS = {
     'db':'dogbin_dev'
 }
+GA_ID = None
 LOGGER_NAME = 'dogbin'
 LOGGER_CONFIG = {
     'version': 1,
