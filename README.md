@@ -11,7 +11,7 @@ The API however is written to be compatible with any haste client, but with some
 3. Start dogbin using `python3 -m dogbin` 
 4. dogbin should now be running on `localhost:7777`
 
-##License
+## License
 
 (The MIT License)
 
@@ -35,7 +35,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-###Other licenses:
+### Other licenses:
 
 [haste-server](https://github.com/seejohnrun/haste-server): MIT license, Copyright © 2011-2012 John Crepezzi
 [Hack font](https://github.com/source-foundry/Hack/blob/master/LICENSE.md): MIT License, Copyright 2018 Source Foundry Authors
