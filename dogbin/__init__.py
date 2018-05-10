@@ -154,7 +154,7 @@ def index():
     if(duplicateFrom):
         ret = store.get(duplicateFrom)
         if ret:
-            initialValue = ret
+            initialValue = ret.content
     return render_template('index.html', title=app.config['APPNAME'], initialValue=initialValue)
 
 
