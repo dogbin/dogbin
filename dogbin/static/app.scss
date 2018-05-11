@@ -76,6 +76,23 @@ body {
         width: 20rem;
         font-size: $code-size;
         text-align: center;
+        button.btn {
+            background: transparent;
+            border: none;
+            opacity: 0.8;
+            margin-left: -.7rem;
+            vertical-align: bottom;
+            cursor: pointer;
+            &:hover {
+                opacity: 1;
+            }
+            &:active {
+                animation: ripple 0.2s linear forwards;  
+            }
+            img {
+                height: $code-size;
+            }
+        }
     }
     div#actions {
         margin-left: auto;
@@ -85,6 +102,7 @@ body {
             border: none;
             &.enabled {
                 opacity: 0.8;
+                cursor: pointer;
                 &:hover{
                     opacity: 1;
                 }

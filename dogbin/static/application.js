@@ -93,6 +93,38 @@ var haste = function () {
   this.configureButtons();
 };
 
+haste.prototype.fallbackCopyTextToClipboard = function(text) {
+  var textArea = document.createElement("textarea");
+  textArea.value = text;
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+
+  try {
+    var successful = document.execCommand('copy');
+    var msg = successful ? 'Successfully' : 'Unsuccessful';
+    var cls = successful ? 'info' : error;
+    this.showMessage(msg + ' copied URL to the clipboard', cls)
+  } catch (err) {
+    console.error('Fallback: Oops, unable to copy', err);
+  }
+
+  document.body.removeChild(textArea);
+}
+
+haste.prototype.copyTextToClipboard = function(text) {
+  if (!navigator.clipboard) {
+    fallbackCopyTextToClipboard(text);
+    return;
+  }
+  _this = this;
+  navigator.clipboard.writeText(text).then(function() {
+    _this.showMessage('Successfully copied URL to the clipboard')
+  }, function(err) {
+    console.error('Async: Could not copy text: ', err);
+  });
+}
+
 // Show a message box
 haste.prototype.showMessage = function (msg, cls) {
   var msgBox = $('<li class="' + (cls || 'info') + '">' + msg + '</li>');
@@ -195,6 +227,13 @@ haste.prototype.configureButtons = function () {
     action: function () {
       window.open('https://twitter.com/share?url=' + encodeURI(window.location.href));
     }
+  },
+  {
+    $where: $('.btn.copy_url'),
+    label: 'Copy URL',
+    action: function () {
+      _this.copyTextToClipboard($('#url_display').attr("href"))
+    }
   }
   ];
   for (var i = 0; i < this.buttons.length; i++) {
@@ -209,18 +248,6 @@ haste.prototype.configureButton = function (options) {
     if ($(this).hasClass('enabled')) {
       options.action();
     }
-  });
-  // Show the label
-  options.$where.mouseenter(function () {
-    $('#box3 .label').text(options.label);
-    $('#box3 .shortcut').text(options.shortcutDescription || '');
-    $('#box3').show();
-    $(this).append($('#pointer').remove().show());
-  });
-  // Hide the label
-  options.$where.mouseleave(function () {
-    $('#box3').hide();
-    $('#pointer').hide();
   });
 };
 

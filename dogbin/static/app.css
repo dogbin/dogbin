@@ -61,6 +61,19 @@ body {
     width: 20rem;
     font-size: 1rem;
     text-align: center; }
+    #header div#slug button.btn {
+      background: transparent;
+      border: none;
+      opacity: 0.8;
+      margin-left: -.7rem;
+      vertical-align: bottom;
+      cursor: pointer; }
+      #header div#slug button.btn:hover {
+        opacity: 1; }
+      #header div#slug button.btn:active {
+        animation: ripple 0.2s linear forwards; }
+      #header div#slug button.btn img {
+        height: 1rem; }
   #header div#actions {
     margin-left: auto; }
     #header div#actions button.action {
@@ -68,7 +81,8 @@ body {
       background: transparent;
       border: none; }
       #header div#actions button.action.enabled {
-        opacity: 0.8; }
+        opacity: 0.8;
+        cursor: pointer; }
         #header div#actions button.action.enabled:hover {
           opacity: 1; }
         #header div#actions button.action.enabled:active {

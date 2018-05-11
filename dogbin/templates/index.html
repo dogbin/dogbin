@@ -56,15 +56,16 @@
 					</label>
 				</div>
 			{% else %}
-				<a href="{{ url_for('idRoute', id=document.slug) }}">/{{ document.slug }}</a>
+				<a id="url_display" href="{{ url_for('idRoute', id=document.slug, _external=True) }}">/{{ document.slug }}</a>
+				<button class="copy_url btn enabled" tabindex="2"><img src="/static/icons/copy.svg" alt="Copy URL"></button>
 			{% endif %}
 		</div>
 		<div id="actions">
-			<button class="save action {% if not document %} enabled {% endif %}" tabindex="2"><img src="/static/icons/save.svg" alt="Save"></button>
-			<button class="new action enabled" tabindex="2"><img src="/static/icons/create.svg" alt="New"></button>
-			<button class="duplicate action {% if document %} enabled {% endif %}" tabindex="2"><img src="/static/icons/copy.svg" alt="Duplicate &amp; Edit"></button>
-			<button class="raw action {% if document %} enabled {% endif %}" tabindex="2"><img src="/static/icons/raw.svg" alt="Just Text"></button>
-			<button class="twitter action {% if document %} enabled {% endif %}" tabindex="2"><img src="/static/icons/twitter.svg" alt="Twitter"></button>
+			<button class="save action {% if not document %} enabled {% endif %}" tabindex="3"><img src="/static/icons/save.svg" alt="Save"></button>
+			<button class="new action enabled" tabindex="3"><img src="/static/icons/create.svg" alt="New"></button>
+			<button class="duplicate action {% if document %} enabled {% endif %}" tabindex="3"><img src="/static/icons/copy.svg" alt="Duplicate &amp; Edit"></button>
+			<button class="raw action {% if document %} enabled {% endif %}" tabindex="3"><img src="/static/icons/raw.svg" alt="Just Text"></button>
+			<button class="twitter action {% if document %} enabled {% endif %}" tabindex="3"><img src="/static/icons/twitter.svg" alt="Twitter"></button>
 		</div>
 	</div>
 	<div id="content">
