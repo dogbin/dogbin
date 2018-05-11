@@ -128,7 +128,11 @@ haste.prototype.lockDocument = function () {
     if (err) {
       _this.showMessage(err.message, 'error');
     } else if (ret) {
-      window.location.replace('/' + ret.key);
+      if(ret.isUrl === true){
+        window.location.replace('/v/' + ret.key);
+      } else {
+        window.location.replace('/' + ret.key);
+      }
     }
   });
 };

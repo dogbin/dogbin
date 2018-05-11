@@ -80,6 +80,26 @@ def idRoute(id):
     else:
         return redirect('/', 302)
 
+@app.route('/v/<slug>')
+def viewRoute(slug):
+    parts = slug.split('.')
+    key = parts[0]
+    lang = ''
+    if len(parts) > 1:
+        lang = parts[1]
+        if lang == 'txt':
+            lang = 'nohighlight'
+    document = store.get(key)
+    if document:
+        document.increaseViewCount()
+        if(document.isUrl):
+            lang = 'nohighlight'
+        appname = app.config['APPNAME']
+        lines = len(document.content.split('\n'))
+        return render_template('index.html', document=document, lines=lines, title=f'{appname} - {document.slug}', lang=lang)
+    else:
+        return redirect('/', 302)
+
 
 @app.route('/documents/<slug>')
 def getDocument(slug):
@@ -121,7 +141,7 @@ def handleDocument(content, customSlug):
         return jsonify({'message': 'Error adding document.'}), 500
     else:
         app.logger.info('added document %s', slug)
-        return jsonify({'key': slug})
+        return jsonify({'key': slug, 'isUrl': False})
 
 
 def handleUrl(content, customSlug):
@@ -138,7 +158,7 @@ def handleUrl(content, customSlug):
         return jsonify({'message': 'Error adding url.'}), 500
     else:
         app.logger.info('added url %s', slug)
-        return jsonify({'key': slug})
+        return jsonify({'key': slug, 'isUrl': True})
 
 
 @app.route('/documents', methods=['POST'])
