@@ -128,7 +128,7 @@ haste.prototype.copyTextToClipboard = function(text) {
 // Show a message box
 haste.prototype.showMessage = function (msg, cls) {
   var msgBox = $('<li class="' + (cls || 'info') + '">' + msg + '</li>');
-  $('#messages').prepend(msgBox);
+  $('#messages').append(msgBox);
   setTimeout(function () {
     msgBox.slideUp('fast', function () {
       $(this).remove();

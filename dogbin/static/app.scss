@@ -205,24 +205,32 @@ $linenos-width-plus: $linenos-width + .5rem;
 }
 
 #messages {
-    width:50vw;
-    margin:0 auto;
-    position:absolute;
-    left:50%;
-    top:5.3vh;
-    margin-left:-25vw;
+    position: fixed;
+    right: 0;
+    left: 0;
+    margin-right: auto;
+    margin-left: auto;
+    top:3rem;
     z-index: 2;
     padding: 0;
+    width: 50%;
     li {
+        position: relative;
+        /* center the element */
+        right: 0;
+        left: 0;
+        margin-right: auto;
+        margin-left: auto;
+        margin-top: 0;
         font-size: $code-size;
-        height: fit-content;
         color: #ffffff;    
-        border-radius: 50px;
-        background:rgba(38,50,56, 0.6);
-        margin-bottom: .3vh;
-        padding: .3vh, .2vw;
+        border-radius: 10px;
+        background:rgba(#546e7a, 0.6);
+        margin-bottom: .5rem;
+        padding: .1rem .4rem;
         text-align: center;
         list-style:none;
+        word-wrap: break-word;
         &.error {
             background:rgba(198,40,40,0.6);
         }
