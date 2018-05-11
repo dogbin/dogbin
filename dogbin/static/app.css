@@ -54,6 +54,13 @@ body {
         animation: ripple 0.2s linear forwards; }
       #header div#tabs a.tab:hover {
         opacity: 0.9; }
+  #header div#slug {
+    position: relative;
+    margin-left: auto;
+    left: -5rem;
+    width: 20rem;
+    font-size: 1rem;
+    text-align: center; }
   #header div#actions {
     margin-left: auto; }
     #header div#actions button.action {
@@ -158,6 +165,50 @@ body {
     list-style: none; }
     #messages li.error {
       background: rgba(198, 40, 40, 0.6); }
+
+.md-input {
+  margin-top: 0.9rem;
+  width: 20rem;
+  text-align: start;
+  min-height: 2.7rem; }
+  .md-input label {
+    display: block;
+    width: 100%;
+    min-height: 2.7rem;
+    position: absolute; }
+  .md-input .placeholder {
+    position: absolute;
+    display: block;
+    z-index: 2;
+    font-size: 1rem;
+    transition: all 200ms ease-in-out;
+    width: 100%;
+    color: rgba(255, 255, 255, 0.8);
+    cursor: text; }
+  .md-input input {
+    background: transparent;
+    color: #fff;
+    position: absolute;
+    z-index: 1;
+    width: 20rem;
+    font-size: 1rem;
+    border: 0;
+    border-bottom: 0.1rem solid rgba(255, 255, 255, 0.8);
+    transition: border-color 200ms ease-in-out;
+    outline: none;
+    padding: 0;
+    margin: 0; }
+  .md-input input {
+    height: 1.8rem; }
+  .md-input input:focus,
+  .md-input input:valid {
+    border-bottom: 0.2rem solid #f06292; }
+    .md-input input:focus + .placeholder,
+    .md-input input:valid + .placeholder {
+      top: -0.45rem;
+      cursor: inherit;
+      font-size: 0.6rem;
+      color: #f06292; }
 
 @keyframes ripple {
   0% {

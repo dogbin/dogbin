@@ -88,6 +88,7 @@ haste_document.prototype.save = function (data, callback) {
 var haste = function () {
   this.doc = new haste_document();
   this.$textarea = $('textarea');
+  this.$customSlug = $('input[name=\'slug\']')
   this.configureShortcuts();
   this.configureButtons();
 };
@@ -123,7 +124,7 @@ haste.prototype.duplicateDocument = function () {
 // Lock the current document
 haste.prototype.lockDocument = function () {
   var _this = this;
-  this.doc.save(this.$textarea.val(), function (err, ret) {
+  this.doc.save(JSON.stringify({'content': this.$textarea.val(), 'slug': this.$customSlug.val()}), function (err, ret) {
     if (err) {
       _this.showMessage(err.message, 'error');
     } else if (ret) {

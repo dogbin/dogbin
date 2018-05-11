@@ -107,11 +107,14 @@ def getDocumentRaw(slug):
         return Response(document.content, mimetype='text/plain')
 
 
-def handleDocument(content):
-    keyLength = app.config['KEY_GENERATOR'].get('keyLength', 10)
-    slug = keyGenerator.createKey(keyLength)
-    while not store.slugAvailable(slug):
+def handleDocument(content, customSlug):
+    if customSlug:
+        slug = customSlug
+    else: 
+        keyLength = app.config['KEY_GENERATOR'].get('keyLength', 10)
         slug = keyGenerator.createKey(keyLength)
+        while not store.slugAvailable(slug):
+            slug = keyGenerator.createKey(keyLength)
     res = store.set(Document(slug, False, content))
     if(res == False):
         app.logger.info('error adding document')
@@ -121,11 +124,14 @@ def handleDocument(content):
         return jsonify({'key': slug})
 
 
-def handleUrl(content):
-    keyLength = app.config['URL_KEY_GENERATOR'].get('keyLength', 7)
-    slug = urlKeyGenerator.createKey(keyLength)
-    while not store.slugAvailable(slug):
+def handleUrl(content, customSlug):
+    if customSlug:
+        slug = customSlug
+    else: 
+        keyLength = app.config['URL_KEY_GENERATOR'].get('keyLength', 7)
         slug = urlKeyGenerator.createKey(keyLength)
+        while not store.slugAvailable(slug):
+            slug = urlKeyGenerator.createKey(keyLength)
     res = store.set(Document(slug, True, content), True)
     if(res == False):
         app.logger.info('error adding url')
@@ -139,8 +145,17 @@ def handleUrl(content):
 def postDocument():
     ct = request.content_type
     content: str = None
+    customSlug: str = None
     if(ct and ct.split(';')[0] == 'multipart/form-data'):
         content = request.forms.get('data').decode('utf-8').strip()
+        customSlug = request.forms.get('slug')
+        if customSlug:
+            customSlug = customSlug.decode('utf-8').strip()
+    elif request.json:
+        content = request.json.get('content').strip()
+        customSlug = request.json.get('slug')
+        if customSlug:
+            customSlug = customSlug.strip()
     else:
         content = request.data.decode('utf-8').strip()
 
@@ -148,10 +163,17 @@ def postDocument():
     if(maxLength and len(content) > maxLength):
         app.logger.warn('content >maxLength')
         return jsonify({'message': 'Content exceeds maximum length.'}), 400
+
+    if customSlug and len(customSlug) < 3:
+        return jsonify({'message': 'Custom URLs need to be atleast 3 characters long'}), 400
+
+    if customSlug and not store.slugAvailable(customSlug):
+        return jsonify({'message': 'This URL is already in use, please choose a different one'}), 409
+
     if(validators.url(content)):
-        return handleUrl(content)
+        return handleUrl(content, customSlug)
     else:
-        return handleDocument(content)
+        return handleDocument(content, customSlug)
 
 
 @app.route('/')

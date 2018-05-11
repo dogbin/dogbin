@@ -69,6 +69,14 @@ body {
             }
         }
     }
+    div#slug {
+        position: relative;
+        margin-left: auto;
+        left: -5rem;
+        width: 20rem;
+        font-size: $code-size;
+        text-align: center;
+    }
     div#actions {
         margin-left: auto;
         button.action {
@@ -202,6 +210,72 @@ $linenos-width-plus: $linenos-width + .5rem;
         }
     }
 }
+
+$highlight-color: $secondary;
+$placeholder-padding: .2rem;
+$placeholder-font-size-small: $code-size - .4rem;
+$placeholder-transition: 200ms ease-in-out;
+$input-top: $placeholder-padding + $placeholder-font-size-small + .1rem;
+$input-height: 2 * $input-top;
+$placeholder-color: rgba(#fff, 0.8);
+$input-width: 20rem;
+
+.md-input {
+  margin-top: $input-top;
+  width: $input-width;
+  text-align: start;
+  min-height: $input-height + $input-top;
+
+  label {
+    display:block;
+    width:100%;
+    min-height: $input-height + $input-top;
+    position:absolute;
+  }
+
+  .placeholder {
+    position:absolute;
+    display:block;
+    z-index:2 ;
+    font-size: $code-size;
+    transition:all $placeholder-transition;
+    width:100%;
+    color: $placeholder-color;
+    cursor:text;
+  }
+
+  input {
+    background: transparent;
+    color: #fff;
+    position:absolute;
+    z-index:1;
+    width:$input-width;
+    font-size:$code-size;
+    border:0;
+    border-bottom:.1rem solid $placeholder-color;
+    transition: border-color $placeholder-transition;
+    outline:none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  input {
+    height:$input-height; 
+  }
+
+  input:focus,
+  input:valid {
+    & + .placeholder {
+      top: -($input-top / 2);
+      cursor:inherit;
+      font-size:$placeholder-font-size-small;
+      color:$highlight-color;
+    }
+
+    border-bottom:.2rem solid $highlight-color;
+  }
+}
+
 
 @keyframes ripple {
     0% {

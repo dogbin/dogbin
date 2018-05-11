@@ -47,12 +47,24 @@
 			<a class="tab {% if document and document.slug == 'about' %} active{% endif %}" href="/about.md">ABOUT</a>
 			<a class="tab {% if document and document.slug == 'changelog' %} active{% endif %}" href="/changelog.md">CHANGELOG</a>
 		</div>
+		<div id="slug">
+			{% if not document %}
+				<div class="md-input">
+					<label>
+						<input name="slug" required tabindex="1">
+						<span class="placeholder">Custom URL</span>
+					</label>
+				</div>
+			{% else %}
+				<a href="{{ url_for('idRoute', id=document.slug) }}">/{{ document.slug }}</a>
+			{% endif %}
+		</div>
 		<div id="actions">
-			<button class="save action {% if not document %} enabled {% endif %}"><img src="/static/icons/save.svg" alt="Save"></button>
-			<button class="new action enabled"><img src="/static/icons/create.svg" alt="New"></button>
-			<button class="duplicate action {% if document %} enabled {% endif %}"><img src="/static/icons/copy.svg" alt="Duplicate &amp; Edit"></button>
-			<button class="raw action {% if document %} enabled {% endif %}"><img src="/static/icons/raw.svg" alt="Just Text"></button>
-			<button class="twitter action {% if document %} enabled {% endif %}"><img src="/static/icons/twitter.svg" alt="Twitter"></button>
+			<button class="save action {% if not document %} enabled {% endif %}" tabindex="2"><img src="/static/icons/save.svg" alt="Save"></button>
+			<button class="new action enabled" tabindex="2"><img src="/static/icons/create.svg" alt="New"></button>
+			<button class="duplicate action {% if document %} enabled {% endif %}" tabindex="2"><img src="/static/icons/copy.svg" alt="Duplicate &amp; Edit"></button>
+			<button class="raw action {% if document %} enabled {% endif %}" tabindex="2"><img src="/static/icons/raw.svg" alt="Just Text"></button>
+			<button class="twitter action {% if document %} enabled {% endif %}" tabindex="2"><img src="/static/icons/twitter.svg" alt="Twitter"></button>
 		</div>
 	</div>
 	<div id="content">
@@ -64,9 +76,9 @@
 				{% else %}>{% endif %}
 		</div>
 		{% if document %}
-			<pre id="box" tabindex="0"><code class="hljs {{ lang }}">{{ document.content }}</code></pre>
+			<pre id="box" tabindex="1"><code class="hljs {{ lang }}">{{ document.content }}</code></pre>
 		{% else %}
-			<textarea spellcheck="false" placeholder="Paste, save, share! (Pasting just an URL will shorten it!)">{{ initialValue }}</textarea>
+			<textarea spellcheck="false" placeholder="Paste, save, share! (Pasting just an URL will shorten it!)" tabindex="1">{{ initialValue }}</textarea>
 		{% endif %}
 	</div>
 	<div id="footer" class="unselectable">
