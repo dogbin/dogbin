@@ -1,10 +1,6 @@
-WOOF!
+# wow, yet another update?!
 
-# dogbin just got a huge new update!
-
-* A wonderful new design! I hope you like it :)
-* Dogbin has now been completely rewritten in python
-* The performance/loading time should now be significantly better 
-* dogbin now uses a proper db (MongoDB) as the storage back end
-* View stats support! You can now see how many people have viewed your paste in the bottom right corner.
-* Other small bug fixes and performance improvements
+* It is now possible to specify your own custom URLs (particularly useful when shortening URLs)
+* dogbin now shows the shortened URL and allows you to copy the short URL instead of just redirecting there
+* A fancy new button was added to copy the URL of the current document
+* Additional small look and feel fixes
