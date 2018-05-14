@@ -177,7 +177,7 @@ def postDocument():
         if customSlug:
             customSlug = customSlug.strip()
     else:
-        content = request.data.decode('utf-8').strip()
+        content = request.get_data().decode('utf-8').strip()
 
     maxLength = app.config.get('MAX_DOCUMENT_LENGTH')
     if(maxLength and len(content) > maxLength):
