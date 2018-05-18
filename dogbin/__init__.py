@@ -1,4 +1,5 @@
 import json
+import re
 import logging.config
 from json import JSONEncoder
 from os import path
@@ -184,11 +185,13 @@ def postDocument():
         app.logger.warn('content >maxLength')
         return jsonify({'message': 'Content exceeds maximum length.'}), 400
 
-    if customSlug and len(customSlug) < 3:
-        return jsonify({'message': 'Custom URLs need to be atleast 3 characters long'}), 400
-
-    if customSlug and not store.slugAvailable(customSlug):
-        return jsonify({'message': 'This URL is already in use, please choose a different one'}), 409
+    if customSlug:
+        if len(customSlug) < 3:
+            return jsonify({'message': 'Custom URLs need to be atleast 3 characters long'}), 400
+        if not re.match(r'^[\w-]*$', customSlug):
+            return jsonify({'message': 'Custom URLs must be alphanumeric and cannot contain spaces'}), 400
+        if not store.slugAvailable(customSlug):
+            return jsonify({'message': 'This URL is already in use, please choose a different one'}), 409
 
     if(validators.url(content)):
         return handleUrl(content, customSlug)
