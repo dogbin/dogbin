@@ -6,7 +6,7 @@ html {
 
 a {
   text-decoration: none;
-  color: #fff; }
+  color: #ECEFF1; }
 
 body {
   text-size-adjust: none;
@@ -19,7 +19,7 @@ body {
   z-index: 1;
   height: 3.5rem;
   background: #37474f;
-  color: #ffffff;
+  color: #ECEFF1;
   width: 98%;
   display: flex;
   flex-direction: row;
@@ -44,12 +44,12 @@ body {
       line-height: 3rem;
       font-size: 1rem;
       min-width: 5rem;
-      color: #fff;
+      color: #ECEFF1;
       opacity: 0.8; }
       #header div#tabs a.tab.active {
         height: 2.8rem;
         opacity: 1;
-        border-bottom: 0.2rem solid #f06292;
+        border-bottom: 0.2rem solid #f9bfd3;
         animation: ripple 0.2s linear forwards; }
       #header div#tabs a.tab:hover {
         opacity: 0.9; }
@@ -98,22 +98,22 @@ body {
   margin: 0;
   overflow-y: auto; }
   #content #linenos {
-    color: #cfd8dc;
+    color: #ECEFF1;
     position: absolute;
     left: 0;
     width: 2rem;
     font-size: 1rem;
     text-align: right; }
     #content #linenos a {
-      color: #cfd8dc; }
+      color: #ECEFF1; }
       #content #linenos a:target {
-        color: #77909b; }
+        color: #94a5b0; }
   #content textarea {
     background: transparent;
     position: fixed;
     left: 2.5rem;
     border: 0;
-    color: #fff;
+    color: #ECEFF1;
     padding: 0;
     width: 100%;
     height: 100%;
@@ -121,7 +121,7 @@ body {
     resize: none;
     font-size: 1rem; }
     #content textarea::placeholder {
-      color: #cfd8dc; }
+      color: #ECEFF1; }
   #content pre#box {
     margin: 0;
     background: transparent;
@@ -138,7 +138,7 @@ body {
   padding-left: 1%;
   padding-right: 1%;
   background: #37474f;
-  color: #fff;
+  color: #ECEFF1;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -173,7 +173,7 @@ body {
     margin-left: auto;
     margin-top: 0;
     font-size: 1rem;
-    color: #ffffff;
+    color: #ECEFF1;
     border-radius: 10px;
     background: rgba(84, 110, 122, 0.6);
     margin-bottom: .5rem;
@@ -201,17 +201,17 @@ body {
     font-size: 1rem;
     transition: all 200ms ease-in-out;
     width: 100%;
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(236, 239, 241, 0.8);
     cursor: text; }
   .md-input input {
     background: transparent;
-    color: #fff;
+    color: #ECEFF1;
     position: absolute;
     z-index: 1;
     width: 20rem;
     font-size: 1rem;
     border: 0;
-    border-bottom: 0.1rem solid rgba(255, 255, 255, 0.8);
+    border-bottom: 0.1rem solid rgba(236, 239, 241, 0.8);
     transition: border-color 200ms ease-in-out;
     outline: none;
     padding: 0;
@@ -220,13 +220,13 @@ body {
     height: 1.8rem; }
   .md-input input:focus,
   .md-input input:valid {
-    border-bottom: 0.2rem solid #f06292; }
+    border-bottom: 0.2rem solid #f9bfd3; }
     .md-input input:focus + .placeholder,
     .md-input input:valid + .placeholder {
       top: -0.45rem;
       cursor: inherit;
       font-size: 0.6rem;
-      color: #f06292; }
+      color: #f9bfd3; }
 
 @keyframes ripple {
   0% {
@@ -243,21 +243,19 @@ body {
   -o-user-select: none; }
 
 ::-webkit-scrollbar {
-  width: 7px;
-  height: 7px; }
+  width: 4px;
+  height: 4px; }
 
+::-webkit-scrollbar-corner,
 ::-webkit-scrollbar-track {
-  background: rgba(55, 71, 79, 0.2); }
+  background: rgba(255, 255, 255, 0.1); }
 
 ::-webkit-scrollbar-thumb {
-  border-radius: 10px;
-  background: rgba(34, 44, 49, 0.5); }
+  border-radius: 8px;
+  background: rgba(249, 191, 211, 0.5); }
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(34, 44, 49, 0.8); }
+    background: rgba(249, 191, 211, 0.8); }
   ::-webkit-scrollbar-thumb:active {
-    background: #222c31; }
-
-::-webkit-scrollbar-corner {
-  background: rgba(55, 71, 79, 0.2); }
+    background: #f9bfd3; }
 
 /*# sourceMappingURL=app.css.map */
