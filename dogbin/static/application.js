@@ -68,7 +68,8 @@ haste_document.prototype.save = function (data, callback) {
     contentType: 'application/json; charset=utf-8',
     success: function (res) {
       callback(null, {
-        key: res.key
+        key: res.key,
+        isUrl: res.isUrl
       });
     },
     error: function (res) {
