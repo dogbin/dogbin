@@ -8,21 +8,21 @@
 	<link rel="preload" href="/static/fonts/hack-regular.woff2?sha=3114f1256" as="font" type="font/woff2" crossorigin>
 	<link rel="preload" href="/static/fonts/hack-bold.woff2?sha=3114f1256" as="font" type="font/woff2" crossorigin>
 	<link rel="preload" href="/static/fonts/hack-italic.woff2?sha=3114f1256" as="font" type="font/woff2" crossorigin>
-
-	{% if document %}
-		<link rel="stylesheet" type="text/css" href="/static/dracula.css" />
-		<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-	{% endif %}
 	
+	<link rel="stylesheet" type="text/css" href="/static/hack.css">
 	<link rel="stylesheet" type="text/css" href="/static/app.css">
-	
-	<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta property="og:title" content="{{ title }}" />
+	<meta property="og:site_name" content="{{ config.APPNAME }}" />
+	<meta name="keywords" content="Pastebin,URL Shortener,code,log,deletescape">
+	<meta name="theme-color" content="#37474f">
 	{% if document %}
+		<meta name="description" content="{{ document.content[0:100] }}">
 		<meta property="og:description" content="{{ document.content[0:100] }}" />
 	{% else %}
-		<meta property="og:description" content="The prettiest, easiest to use pastebin ever made." />
+		<meta name="description" content="The sexiest pastebin and url shortener ever.">
+		<meta property="og:description" content="The sexiest pastebin and url shortener ever." />
 	{% endif %}
 	<meta property="og:image" content="https://del.dog/doggo.jpg" />
 
@@ -83,7 +83,7 @@
 		{% endif %}
 	</div>
 	<div id="footer" class="unselectable">
-		<div id="copyright">Copyright &copy; {{ now.year }} <a href="https://deletescape.ch" target="_blank">deletescape</a></div>
+		<div id="copyright">Copyright &copy; {{ now.year }} <a href="https://deletescape.ch" target="_blank" rel="noopener">deletescape</a></div>
 		{% if document %}
 			<div id="stats">Stats:&nbsp;&nbsp;
 				<div id="views"><img src="/static/icons/eye.svg" alt="Views"><b>{{ document.viewCount }}</b></div>
@@ -91,9 +91,15 @@
 		{% endif %}
 	</div>
 </body>
+
+{% if document %}
+	<link rel="stylesheet" type="text/css" href="/static/dracula.css" />
+	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+{% endif %}
+<script src="/static/jquery-3.3.1.min.js"></script>
 <script type="text/javascript" src="/static/application.js"></script>
 <script type="text/javascript">
-	// Construct app and load initial path
+	// Construct app
 	$(function () {
 		var app = new haste();
 	});
