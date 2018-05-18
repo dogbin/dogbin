@@ -6,6 +6,7 @@ class MongoDocument(db.Document, Document):
     isUrl = db.BooleanField(required=True)
     content = db.StringField(required=True)
     viewCount = db.LongField(required=True)
+    version = db.IntField(required=True, default=0)
 
     def fromDocument(self):
         doc = MongoDocument()
@@ -13,8 +14,13 @@ class MongoDocument(db.Document, Document):
         doc.isUrl = self.isUrl
         doc.content = self.content
         doc.viewCount = self.viewCount
+        doc.version = self.version
         return doc
 
     def increaseViewCount(self):
         self.viewCount += 1
+        self.save()
+
+    def increaseVersion(self):
+        self.version += 1
         self.save()

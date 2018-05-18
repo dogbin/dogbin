@@ -6,7 +6,7 @@ from os import path
 
 import validators
 from flask import (Flask, Response, jsonify, redirect, render_template,
-                   request, send_from_directory, url_for)
+                   request, send_from_directory, url_for, session)
 from flask_mongoengine import MongoEngine
 
 from dogbin import default_config
@@ -45,20 +45,28 @@ for name in app.config['DOCUMENTS']:
         app.logger.info('loading static document: %s - %s', name, path)
         document = store.get(name, True)
         if not document:
-            document = Document(name, False, data, 0)
+            document = Document(name, False, data)
         else:
             app.logger.info('document already in store')
             if document.content != data:
                 app.logger.info('content on disk is different than store content. updating...')
                 document.content = data
                 document.viewCount = 0
+                document.version += 1
         ret = store.set(document, True)
         if(ret == False):
             app.logger.warn('couldn\'t load static document %s', name)
         else:
             app.logger.debug('loaded static document')
 
-
+def viewed(document: Document):
+    if not 'viewed' in session:
+        session['viewed'] = []
+    key = f'{document.slug}@{document.version}'
+    if not key in session['viewed']: 
+        document.increaseViewCount()
+        session['viewed'].append(key)
+        
 @app.route('/<id>')
 def idRoute(id):
     parts = id.split('.')
@@ -70,7 +78,7 @@ def idRoute(id):
             lang = 'nohighlight'
     document = store.get(key)
     if document:
-        document.increaseViewCount()
+        viewed(document)
         if document.isUrl:
             app.logger.info('redirecting to %s', document.content)
             return redirect(document.content, 302)
@@ -92,7 +100,7 @@ def viewRoute(slug):
             lang = 'nohighlight'
     document = store.get(key)
     if document:
-        document.increaseViewCount()
+        viewed(document)
         if(document.isUrl):
             lang = 'nohighlight'
         appname = app.config['APPNAME']
