@@ -66,6 +66,7 @@ def viewed(document: Document):
     if not key in session['viewed']: 
         document.increaseViewCount()
         session['viewed'].append(key)
+        session.modified = True
         
 @app.route('/<id>')
 def idRoute(id):
