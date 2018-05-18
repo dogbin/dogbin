@@ -163,10 +163,6 @@ $linenos-width-plus: $linenos-width + .5rem;
         position: absolute;
         left: $linenos-width-plus;
         font-size: $code-size; 
-        code {
-            padding: 0;
-            background: transparent;
-        }
     } 
 } 
 
