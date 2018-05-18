@@ -112,14 +112,18 @@ body {
     background: transparent;
     position: fixed;
     left: 2.5rem;
+    right: 0;
     border: 0;
     color: #ECEFF1;
     padding: 0;
+    white-space: pre;
     width: 100%;
-    height: 100%;
+    top: 3.6rem;
+    bottom: 1.7rem;
     outline: none;
     resize: none;
-    font-size: 1rem; }
+    font-size: 1rem;
+    overflow-x: auto; }
     #content textarea::placeholder {
       color: #ECEFF1; }
   #content pre#box {

@@ -144,14 +144,18 @@ $linenos-width-plus: $linenos-width + .5rem;
         background: transparent;
         position: fixed;
         left: $linenos-width-plus;
+        right: 0;
         border: 0;
         color: $text-light;
         padding: 0;
+        white-space: pre;
         width: 100%;
-        height: 100%;
+        top: 3.6rem;
+        bottom: 1.7rem;
         outline: none;
         resize: none;
         font-size: $code-size;
+        overflow-x: auto;
         &::placeholder {
             color: $text-light;
         }
