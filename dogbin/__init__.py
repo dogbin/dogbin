@@ -82,12 +82,13 @@ def do_login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        user:User = User.objects(username=username)
-        if not user.is_anonymous and user.check_password(password):
-            login_user(user, remember=True)
-            return redirect('/')
-        else: 
-            return abort(401)
+        query = User.objects(username=username)
+        if query:
+            user:User = query.get(0)
+            if not user.is_anonymous and user.check_password(password):
+                login_user(user, remember=True)
+                return redirect('/')
+        return abort(401)
     else:
         return '''
             <form action="" method="post">
