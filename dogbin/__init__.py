@@ -6,9 +6,9 @@ from os import path
 
 import validators
 from flask import (Flask, Response, jsonify, redirect, render_template,
-                   request, send_from_directory, url_for, session)
+                   request, send_from_directory, url_for, session, abort)
 from flask_mongoengine import MongoEngine
-from flask_login import LoginManager, current_user
+from flask_login import LoginManager, current_user, login_user
 
 from dogbin import default_config
 from dogbin.lib.model.document import Document
@@ -28,7 +28,7 @@ logging.config.dictConfig(app.config['LOGGER_CONFIG'])
 db = MongoEngine(app)
 
 # Initialise flask-login
-from dogbin.lib.model.user import User, anonymous
+from dogbin.lib.model.user import User, anonymous, system_user
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.anonymous_user = anonymous
@@ -52,7 +52,7 @@ for name in app.config['DOCUMENTS']:
         app.logger.info('loading static document: %s - %s', name, path)
         document = store.get(name, True)
         if not document:
-            document = Document(name, False, data)
+            document = Document(name, False, data, owner=system_user())
         else:
             app.logger.info('document already in store')
             if document.content != data:
@@ -60,6 +60,8 @@ for name in app.config['DOCUMENTS']:
                 document.content = data
                 document.viewCount = 0
                 document.version += 1
+            if document.owner != system_user():
+                document.owner = system_user()
         ret = store.set(document, True)
         if(ret == False):
             app.logger.warn('couldn\'t load static document %s', name)
@@ -74,6 +76,48 @@ def load_user(user_id):
     except Exception:
         app.logger.info(f'No user found with user id \'{user_id}\'')
         return None
+
+@app.route('/login', methods=['GET', 'POST'])
+def do_login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        user:User = User.objects(username=username)
+        if not user.is_anonymous and user.check_password(password):
+            login_user(user, remember=True)
+            return redirect('/')
+        else: 
+            return abort(401)
+    else:
+        return '''
+            <form action="" method="post">
+                <p><input type=text name=username required>
+                <p><input type=password name=password required>
+                <p><input type=submit value=Login>
+            </form>
+            '''
+
+@app.route('/register', methods=['GET', 'POST'])
+def do_register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if current_user.is_anonymous:
+            current_user.username = username
+            current_user.is_anonymous = False
+            current_user.set_password(password)
+            current_user.save()
+            login_user(current_user, remember=True)
+            app.logger.debug(current_user)
+        return redirect('/')
+    else:
+        return '''
+            <form action="" method="post">
+                <p><input type=text name=username required>
+                <p><input type=password name=password required>
+                <p><input type=submit value=Register>
+            </form>
+            '''
 
 def viewed(document: Document):
     if not 'viewed' in session:

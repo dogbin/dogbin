@@ -148,6 +148,11 @@ body {
   box-shadow: 0 -3px 3px rgba(0, 0, 0, 0.16), 0 -3px 3px rgba(0, 0, 0, 0.23); }
   #footer #copyright a {
     text-decoration: underline; }
+  #footer #author {
+    position: relative;
+    margin-left: auto;
+    font-size: 1rem;
+    text-align: center; }
   #footer #stats {
     display: flex;
     flex-direction: row;

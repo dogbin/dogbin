@@ -85,6 +85,11 @@
 	<div id="footer" class="unselectable">
 		<div id="copyright">Copyright &copy; {{ now.year }} <a href="https://deletescape.ch" target="_blank" rel="noopener">deletescape</a></div>
 		{% if document %}
+			{% if document.owner%}
+				<div id="author">
+					Created by {{ document.owner.get_display_name() }}
+				</div>
+			{% endif %}
 			<div id="stats">Stats:&nbsp;&nbsp;
 				<div id="views"><img src="/static/icons/eye.svg" alt="Views"><b>{{ document.viewCount }}</b></div>
 			</div>

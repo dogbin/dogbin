@@ -188,6 +188,12 @@ $linenos-width-plus: $linenos-width + .5rem;
             text-decoration: underline;
         }
     }
+    #author {
+        position: relative;
+        margin-left: auto;
+        font-size: $code-size;
+        text-align: center;
+    }
     #stats {
         display: flex;
         flex-direction: row;
