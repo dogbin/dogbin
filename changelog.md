@@ -1,10 +1,8 @@
-# nice, new fixes and changes!
+# hmm, who am i?
 
-* Code highlighting now uses our own custom theme to fit the overall color palette
-* Use the pastel pink instead of the 'normal' pink
-* dogbin now **Actually** shows the shortened URL and allows you to copy the short URL instead of just redirecting there
-* Performance, quality and security improvements to satisfy big bro Google
-* Only count one view per session and document
-* Only allow alphanumeric custom URLs
-* Fix scrolling and word wrapping in the text area
-* The curl api has been fixed
+* you can now edit who you are, but that's not a dogbin feature. however we now allow you to edit pastes
+* a very basic user account system has been created, this is really just barebones (check for yourself on  
+  /register and /login
+* pastes created using the anonymous, session based account are transfered to your user account upon signing in
+ > if you have any pastes you prepared to be editable in the past it is now your chance to create an account 
+ > and PM me on telegram or twitter (both @deletescape) so I can transfer ownership of them there. 
