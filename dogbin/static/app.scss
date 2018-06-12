@@ -71,7 +71,6 @@ body {
     div#slug {
         position: relative;
         margin-left: auto;
-        left: -5rem;
         width: 20rem;
         font-size: $code-size;
         text-align: center;
@@ -261,7 +260,7 @@ $input-width: 20rem;
   .placeholder {
     position:absolute;
     display:block;
-    z-index:2 ;
+    z-index:2;
     font-size: $code-size;
     transition:all $placeholder-transition;
     width:100%;
@@ -289,14 +288,20 @@ $input-width: 20rem;
   }
 
   input:focus,
-  input:valid {
-    & + .placeholder {
+  input:valid,
+  input:disabled {
+      & + .placeholder {
       top: -($input-top / 2);
       cursor:inherit;
       font-size:$placeholder-font-size-small;
+  }
+}
+
+  input:focus,
+  input:valid {
+    & + .placeholder {
       color:$highlight-color;
     }
-
     border-bottom:.2rem solid $highlight-color;
   }
 }

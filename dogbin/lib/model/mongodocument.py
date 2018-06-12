@@ -7,6 +7,7 @@ class MongoDocument(db.Document, Document):
     content = db.StringField(required=True)
     viewCount = db.LongField(required=True)
     version = db.IntField(required=True, default=0)
+    owner = db.ReferenceField(document_type='User', reverse_delete_rule=2)
 
     def fromDocument(self):
         doc = MongoDocument()
@@ -15,12 +16,17 @@ class MongoDocument(db.Document, Document):
         doc.content = self.content
         doc.viewCount = self.viewCount
         doc.version = self.version
+        doc.owner = self.owner
         return doc
 
     def increaseViewCount(self):
         self.viewCount += 1
         self.save()
 
-    def increaseVersion(self):
+    def update_content(self, content:str):
+        self.content = content
         self.version += 1
         self.save()
+
+    def userCanEdit(self, user):
+        return self.owner == user or 'admin' in user.roles

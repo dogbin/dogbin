@@ -10,7 +10,7 @@ class MongoDocumentStore(DocumentStore):
         pass
 
     def set(self, document:Document, skipExpire:bool=False):
-        MongoDocument.fromDocument(document).save()
+        return MongoDocument.fromDocument(document).save()
     
     def get(self, slug:str, skipExpire:bool=False) -> MongoDocument:
         try:

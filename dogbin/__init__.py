@@ -8,6 +8,7 @@ import validators
 from flask import (Flask, Response, jsonify, redirect, render_template,
                    request, send_from_directory, url_for, session)
 from flask_mongoengine import MongoEngine
+from flask_login import LoginManager, current_user
 
 from dogbin import default_config
 from dogbin.lib.model.document import Document
@@ -25,6 +26,12 @@ logging.config.dictConfig(app.config['LOGGER_CONFIG'])
 
 # Initialise MongoEngine
 db = MongoEngine(app)
+
+# Initialise flask-login
+from dogbin.lib.model.user import User, anonymous
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.anonymous_user = anonymous
 
 from dogbin.lib import document_stores, key_generators
 
@@ -58,6 +65,15 @@ for name in app.config['DOCUMENTS']:
             app.logger.warn('couldn\'t load static document %s', name)
         else:
             app.logger.debug('loaded static document')
+
+# Get user for user id
+@login_manager.user_loader
+def load_user(user_id):
+    try:
+        return User.objects.get(id=user_id)
+    except Exception:
+        app.logger.info(f'No user found with user id \'{user_id}\'')
+        return None
 
 def viewed(document: Document):
     if not 'viewed' in session:
@@ -110,6 +126,25 @@ def viewRoute(slug):
     else:
         return redirect('/', 302)
 
+@app.route('/e/<slug>')
+def edit_document(slug):
+    key = slug.split('.')[0]
+    doc = store.get(key)
+    if doc and doc.userCanEdit(current_user):
+        initialValue = doc.content
+        appname = app.config['APPNAME']
+        return render_template('index.html', title=f'{appname} - editing {key}', initialValue=initialValue, edit_key=key)
+    else:
+        return redirect('/', 302)
+
+@app.route('/d/<slug>')
+def duplicate_document(slug):
+    key = slug.split('.')[0]
+    doc = store.get(key)
+    if doc:
+        return render_template('index.html', title=app.config['APPNAME'], initialValue=doc.content)
+    else:
+        return redirect('/', 302)
 
 @app.route('/documents/<slug>')
 def getDocument(slug):
@@ -137,16 +172,19 @@ def getDocumentRaw(slug):
         return Response(document.content, mimetype='text/plain')
 
 
-def handleDocument(content, customSlug):
-    if customSlug:
-        slug = customSlug
-    else: 
+def handleDocument(content, slug:str, update:bool = False):
+    res = None
+    if not slug and not update: 
         keyLength = app.config['KEY_GENERATOR'].get('keyLength', 10)
         slug = keyGenerator.createKey(keyLength)
         while not store.slugAvailable(slug):
             slug = keyGenerator.createKey(keyLength)
-    res = store.set(Document(slug, False, content))
-    if(res == False):
+    if update:
+        res = store.get(slug, True)
+        res.update_content(content)
+    else:
+        res = store.set(Document(slug, False, content, owner=current_user._get_current_object()))
+    if(not res):
         app.logger.info('error adding document')
         return jsonify({'message': 'Error adding document.'}), 500
     else:
@@ -154,16 +192,19 @@ def handleDocument(content, customSlug):
         return jsonify({'key': slug, 'isUrl': False})
 
 
-def handleUrl(content, customSlug):
-    if customSlug:
-        slug = customSlug
-    else: 
+def handleUrl(content, slug:str, update:bool = False):
+    res = None
+    if not slug and not update: 
         keyLength = app.config['URL_KEY_GENERATOR'].get('keyLength', 7)
         slug = urlKeyGenerator.createKey(keyLength)
         while not store.slugAvailable(slug):
             slug = urlKeyGenerator.createKey(keyLength)
-    res = store.set(Document(slug, True, content), True)
-    if(res == False):
+    if update:
+        res = store.get(slug, True)
+        res.update_content(content)
+    else:
+        res = store.set(Document(slug, True, content, owner=current_user._get_current_object()), True)
+    if(not res):
         app.logger.info('error adding url')
         return jsonify({'message': 'Error adding url.'}), 500
     else:
@@ -175,17 +216,18 @@ def handleUrl(content, customSlug):
 def postDocument():
     ct = request.content_type
     content: str = None
-    customSlug: str = None
+    slug: str = None
+    update: bool = False
     if(ct and ct.split(';')[0] == 'multipart/form-data'):
         content = request.forms.get('data').decode('utf-8').strip()
-        customSlug = request.forms.get('slug')
-        if customSlug:
-            customSlug = customSlug.decode('utf-8').strip()
+        slug = request.forms.get('slug')
+        if slug:
+            slug = slug.decode('utf-8').strip()
     elif request.json:
         content = request.json.get('content').strip()
-        customSlug = request.json.get('slug')
-        if customSlug:
-            customSlug = customSlug.strip()
+        slug = request.json.get('slug')
+        if slug:
+            slug = slug.strip()
     else:
         content = request.get_data().decode('utf-8').strip()
 
@@ -194,29 +236,27 @@ def postDocument():
         app.logger.warn('content >maxLength')
         return jsonify({'message': 'Content exceeds maximum length.'}), 400
 
-    if customSlug:
-        if len(customSlug) < 3:
+    if slug:
+        if len(slug) < 3:
             return jsonify({'message': 'Custom URLs need to be atleast 3 characters long'}), 400
-        if not re.match(r'^[\w-]*$', customSlug):
+        if not re.match(r'^[\w-]*$', slug):
             return jsonify({'message': 'Custom URLs must be alphanumeric and cannot contain spaces'}), 400
-        if not store.slugAvailable(customSlug):
-            return jsonify({'message': 'This URL is already in use, please choose a different one'}), 409
+        doc = store.get(slug)
+        if doc:
+            if not doc.userCanEdit(current_user):
+                return jsonify({'message': 'This URL is already in use, please choose a different one'}), 409
+            else:
+                update = True
 
     if(validators.url(content)):
-        return handleUrl(content, customSlug)
+        return handleUrl(content, slug, update)
     else:
-        return handleDocument(content, customSlug)
+        return handleDocument(content, slug, update)
 
 
 @app.route('/')
 def index():
-    initialValue = ''
-    duplicateFrom = request.args.get('duplicate')
-    if(duplicateFrom):
-        ret = store.get(duplicateFrom)
-        if ret:
-            initialValue = ret.content
-    return render_template('index.html', title=app.config['APPNAME'], initialValue=initialValue)
+    return render_template('index.html', title=app.config['APPNAME'])
 
 def custom404(message: str):
     return jsonify({'message': message}), 404

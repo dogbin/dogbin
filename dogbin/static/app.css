@@ -56,7 +56,6 @@ body {
   #header div#slug {
     position: relative;
     margin-left: auto;
-    left: -5rem;
     width: 20rem;
     font-size: 1rem;
     text-align: center; }
@@ -222,14 +221,17 @@ body {
     margin: 0; }
   .md-input input {
     height: 1.8rem; }
+  .md-input input:focus + .placeholder,
+  .md-input input:valid + .placeholder,
+  .md-input input:disabled + .placeholder {
+    top: -0.45rem;
+    cursor: inherit;
+    font-size: 0.6rem; }
   .md-input input:focus,
   .md-input input:valid {
     border-bottom: 0.2rem solid #f9bfd3; }
     .md-input input:focus + .placeholder,
     .md-input input:valid + .placeholder {
-      top: -0.45rem;
-      cursor: inherit;
-      font-size: 0.6rem;
       color: #f9bfd3; }
 
 @keyframes ripple {

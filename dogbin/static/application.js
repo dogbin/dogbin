@@ -47,7 +47,7 @@ lookupExtensionByType = function (type) {
 
 var haste_document = function () {
   var path = window.location.pathname;
-  if (path !== '/') { 
+  if (path !== '/' && path.indexOf('/', 1) === -1) { 
     var parts = path.substring(1, path.length).split('.',2)
     this.key = parts[0];
     hljs.initHighlighting()
@@ -150,7 +150,14 @@ haste.prototype.newDocument = function () {
 // Duplicate the current document
 haste.prototype.duplicateDocument = function () {
   if(this.doc.key){
-    window.location.replace('/?duplicate=' + this.doc.key)
+    window.location.replace('/d/' + this.doc.key)
+  }
+};
+
+// Edit the current document
+haste.prototype.editDocument = function () {
+  if(this.doc.key){
+    window.location.replace('/e/' + this.doc.key)
   }
 };
 
@@ -174,7 +181,6 @@ haste.prototype.configureButtons = function () {
   var _this = this;
   this.buttons = [{
     $where: $('.action.save'),
-    label: 'Save',
     shortcutDescription: 'control + s',
     shortcut: function (evt) {
       return evt.ctrlKey && (evt.keyCode === 83);
@@ -186,52 +192,57 @@ haste.prototype.configureButtons = function () {
     }
   },
   {
+    $where: $('.action.edit'),
+    shortcutDescription: 'control + e',
+    shortcut: function (evt) {
+      return evt.ctrlKey && (evt.keyCode === 69);
+    },
+    action: function () {
+      _this.editDocument();
+    }
+  },
+  {
     $where: $('.action.new'),
-    label: 'New',
+    shortcutDescription: 'control + n',
     shortcut: function (evt) {
       return evt.ctrlKey && evt.keyCode === 78;
     },
-    shortcutDescription: 'control + n',
     action: function () {
       _this.newDocument();
     }
   },
   {
     $where: $('.action.duplicate'),
-    label: 'Duplicate & Edit',
+    shortcutDescription: 'control + d',
     shortcut: function (evt) {
       return evt.ctrlKey && evt.keyCode === 68;
     },
-    shortcutDescription: 'control + d',
     action: function () {
       _this.duplicateDocument();
     }
   },
   {
     $where: $('.action.raw'),
-    label: 'Just Text',
+    shortcutDescription: 'control + shift + r',
     shortcut: function (evt) {
       return evt.ctrlKey && evt.shiftKey && evt.keyCode === 82;
     },
-    shortcutDescription: 'control + shift + r',
     action: function () {
       window.location.href = '/raw/' + _this.doc.key;
     }
   },
   {
     $where: $('.action.twitter'),
-    label: 'Twitter',
+    shortcutDescription: 'control + shift + t',
     shortcut: function (evt) {
       return evt.shiftKey && evt.ctrlKey && evt.keyCode == 84;
     },
-    shortcutDescription: 'control + shift + t',
     action: function () {
       window.open('https://twitter.com/share?url=' + encodeURI(window.location.href));
     }
   },
   {
     $where: $('.btn.copy_url'),
-    label: 'Copy URL',
     action: function () {
       _this.copyTextToClipboard($('#url_display').attr("href"))
     }
