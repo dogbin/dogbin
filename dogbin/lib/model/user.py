@@ -42,11 +42,13 @@ def anonymous() -> User:
     return anon
 
 def system_user() -> User:
-    dgb = User.objects(username='dogbin').get(0)
+    dgb = User.objects(username='dogbin')
     if not dgb:
         dgb = User()
         dgb.username = 'dogbin'
         dgb.is_system = True
         dgb.set_password(dgb.username)
         dgb.save()
+    else:
+        dgb = dgb.get(0)
     return dgb
