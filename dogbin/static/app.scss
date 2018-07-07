@@ -155,6 +155,7 @@ $linenos-width-plus: $linenos-width + .5rem;
         resize: none;
         font-size: $code-size;
         overflow-x: auto;
+        height: calc(100% - 5.6rem);
         &::placeholder {
             color: $text-light;
         }
