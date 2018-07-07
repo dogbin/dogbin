@@ -122,7 +122,8 @@ body {
     outline: none;
     resize: none;
     font-size: 1rem;
-    overflow-x: auto; }
+    overflow-x: auto;
+    height: calc(100% - 5.6rem); }
     #content textarea::placeholder {
       color: #ECEFF1; }
   #content pre#box {
