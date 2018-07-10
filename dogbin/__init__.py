@@ -85,7 +85,7 @@ def do_login():
         query = User.objects(username=username)
         if query:
             user:User = query.get(0)
-            if not user.is_anonymous and user.check_password(password):
+            if not (user.is_anonymous or user.is_system) and user.check_password(password):
                 login_user(user, remember=True)
                 return redirect('/')
         return abort(401)
