@@ -41,5 +41,5 @@ join the [@dogbin](https://t.me/dogbin) channel on Telegram or follow
 
 ## Author
 
-Code and Design by Till Kottmann <deletescape@deletscape.ch>
+Code and Design by Till Kottmann <deletescape@deletescape.ch>
 Hastebin Code by John Crepezzi <john.crepezzi@gmail.com>
