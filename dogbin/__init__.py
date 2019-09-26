@@ -179,13 +179,16 @@ def idRoute(id):
             lines = len(document.content.split('\n'))
             rendered = None
             if (lang == 'md' or lang == 'markdown'):
-                rendered = md.convert(escape(document.content))
-                lines = -1
-                if md.Meta:
-                    if 'description' in md.Meta:
-                        description = '\n'.join(md.Meta['description'])
-                    if 'title' in md.Meta:
-                        title = md.Meta['title'][0]
+                try:
+                    rendered = md.convert(escape(document.content))
+                    lines = -1
+                    if md.Meta:
+                        if 'description' in md.Meta:
+                            description = '\n'.join(md.Meta['description'])
+                        if 'title' in md.Meta:
+                            title = md.Meta['title'][0]
+                except Exception:
+                    app.logger('Failed to render Markdown')
             return render_template('index.html', document=document, lines=lines, title=title, lang=lang, rendered=rendered, description=description)
     else:
         return redirect('/', 302)
