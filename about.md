@@ -41,6 +41,11 @@ To stay up to date about updates, downtimes and other news related to dogbin
 join the [@dogbin](https://t.me/dogbin) channel on Telegram or follow
 [@deldotdog](https://twitter.com/deldotdog) on Twitter!
 
+## Analytics
+
+dogbin collects visitor stats via [Simple Analytics](https://simpleanalytics.io) ([my referral link for 1 month off](https://referral.simpleanalytics.com/deletescape)) for maximum privacy.
+These stats are actually public and can be viewed [here](https://del.dog/analytics). 
+
 ## Author
 
 Code and Design by Till Kottmann <me@deletescape.ch>
