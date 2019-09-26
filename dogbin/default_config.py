@@ -22,7 +22,7 @@ DOCUMENTS = {
 MONGODB_SETTINGS = {
     'db':'dogbin_dev'
 }
-GA_ID = None
+COLLECT_STATS = False
 SECRET_KEY = 'this_isN0T secret, only use this for developing, change this in the local config for a prod system'
 LOGGER_NAME = 'dogbin'
 LOGGER_CONFIG = {

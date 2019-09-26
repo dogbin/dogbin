@@ -84,8 +84,6 @@
 			</div>
 		{% endif %}
 	</div>
-	<script async defer src="https://cdn.simpleanalytics.io/hello.js"></script> 
-	<noscript><img src="https://api.simpleanalytics.io/hello.gif" alt=""></noscript>
 </body>
 
 {% if document %}
@@ -100,5 +98,9 @@
 		var app = new haste();
 	});
 </script>
+{% if config.COLLECT_STATS %}
+	<script async defer src="https://cdn.simpleanalytics.io/hello.js"></script> 
+	<noscript><img src="https://api.simpleanalytics.io/hello.gif" alt=""></noscript>
+{% endif %}
 
 </html>
