@@ -17,8 +17,9 @@ class Document:
     def increaseViewCount(self):
         self.viewCount += 1
 
-    def update_content(self, content:str):
+    def update_content(self, content:str, isUrl:bool):
         self.content = content
+        self.isUrl = isUrl
         self.version += 1
 
     def userCanEdit(self, user):

@@ -23,8 +23,9 @@ class MongoDocument(db.Document, Document):
         self.viewCount += 1
         self.save()
 
-    def update_content(self, content:str):
+    def update_content(self, content:str, isUrl:bool):
         self.content = content
+        self.isUrl = isUrl
         self.version += 1
         self.save()
 

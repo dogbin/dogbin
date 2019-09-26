@@ -259,7 +259,7 @@ def handleDocument(content, slug:str, update:bool = False):
             slug = keyGenerator.createKey(keyLength)
     if update:
         res = store.get(slug, True)
-        res.update_content(content)
+        res.update_content(content, False)
     else:
         res = store.set(Document(slug, False, content, owner=current_user._get_current_object()))
     if(not res):
@@ -279,7 +279,7 @@ def handleUrl(content, slug:str, update:bool = False):
             slug = urlKeyGenerator.createKey(keyLength)
     if update:
         res = store.get(slug, True)
-        res.update_content(content)
+        res.update_content(content, True)
     else:
         res = store.set(Document(slug, True, content, owner=current_user._get_current_object()), True)
     if(not res):
