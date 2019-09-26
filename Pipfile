@@ -10,6 +10,9 @@ flask-mongoengine = "*"
 bcrypt = "*"
 Flask = "*"
 Flask-Login = "*"
+markdown = "*"
+pymdown-extensions = "*"
+pyembed-markdown = "*"
 
 [dev-packages]
 

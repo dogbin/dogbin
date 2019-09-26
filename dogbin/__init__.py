@@ -1,12 +1,14 @@
 import json
 import re
 import logging.config
+import markdown
+import pymdownx.emoji
 from json import JSONEncoder
 from os import path
 
 import validators
 from flask import (Flask, Response, jsonify, redirect, render_template,
-                   request, send_from_directory, url_for, session, abort)
+                   request, send_from_directory, url_for, session, abort, escape)
 from flask_mongoengine import MongoEngine
 from flask_login import LoginManager, current_user, login_user
 
@@ -67,6 +69,32 @@ for name in app.config['DOCUMENTS']:
             app.logger.warn('couldn\'t load static document %s', name)
         else:
             app.logger.debug('loaded static document')
+
+md = markdown.Markdown(
+    extensions=[
+        'meta',
+        'tables',
+        'nl2br',
+        'pymdownx.magiclink',
+        'pymdownx.betterem',
+        'pymdownx.emoji',
+        'pymdownx.tasklist',
+        'pyembed.markdown'
+    ],
+    extension_configs={
+        'pymdownx.magiclink': {
+            'hide_protocol': True,
+            'repo_url_shortener': True,
+            'repo_url_shorthand': True,
+            'social_url_shorthand': True,
+            'user': 'dogbin',
+            'repo': 'server'
+        },
+        'pymdownx.emoji': {
+            'emoji_index': pymdownx.emoji.gemoji
+        }
+    }
+)
 
 # Get user for user id
 @login_manager.user_loader
@@ -146,8 +174,19 @@ def idRoute(id):
             return redirect(document.content, 302)
         else:
             appname = app.config['APPNAME']
+            title = f'{appname} - {document.slug}'
+            description = None
             lines = len(document.content.split('\n'))
-            return render_template('index.html', document=document, lines=lines, title=f'{appname} - {document.slug}', lang=lang)
+            rendered = None
+            if (lang == 'md' or lang == 'markdown'):
+                rendered = md.convert(escape(document.content))
+                lines = -1
+                if md.Meta:
+                    if 'description' in md.Meta:
+                        description = '\n'.join(md.Meta['description'])
+                    if 'title' in md.Meta:
+                        title = md.Meta['title'][0]
+            return render_template('index.html', document=document, lines=lines, title=title, lang=lang, rendered=rendered, description=description)
     else:
         return redirect('/', 302)
 

@@ -1,3 +1,7 @@
+---
+title: dogbin - About
+description: the sexiest pastebin and url shortener ever!
+---
 # dogbin - the sexiest pastebin and url shortener ever! Woof!
 
 Sharing code and logs is all cool, but it should be *easy*! That's where a pastebin
@@ -29,9 +33,7 @@ by search engines.
 
 ## Open Source
 
-dogbin can easily be installed behind your network, and it's all open source!
-
-* [dogbin-server](https://github.com/deletescape/dogbin-server)
+dogbin can easily be installed behind your network, and it's all [open source](https://github.com/deletescape/dogbin-server)!
 
 ## News / Updates
 
@@ -41,5 +43,5 @@ join the [@dogbin](https://t.me/dogbin) channel on Telegram or follow
 
 ## Author
 
-Code and Design by Till Kottmann <deletescape@deletescape.ch>
+Code and Design by Till Kottmann <me@deletescape.ch>
 Hastebin Code by John Crepezzi <john.crepezzi@gmail.com>

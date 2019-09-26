@@ -17,8 +17,13 @@
 	<meta name="keywords" content="Pastebin,URL Shortener,code,log,deletescape">
 	<meta name="theme-color" content="#37474f">
 	{% if document %}
-		<meta name="description" content="{{ document.content[0:100] }}">
-		<meta property="og:description" content="{{ document.content[0:100] }}" />
+		{% if description %}
+			<meta name="description" content="{{ description }}">
+			<meta property="og:description" content="{{ descrption }}" />
+		{% else %}
+			<meta name="description" content="{{ document.content[0:100] }}">
+			<meta property="og:description" content="{{ document.content[0:100] }}" />
+		{% endif %}
 	{% else %}
 		<meta name="description" content="The sexiest pastebin and url shortener ever.">
 		<meta property="og:description" content="The sexiest pastebin and url shortener ever." />
@@ -66,7 +71,7 @@
 				{% else %}>{% endif %}
 		</div>
 		{% if document %}
-			<pre id="box" tabindex="1"><code class="hljs {{ lang }}">{{ document.content }}</code></pre>
+			<pre id="box" tabindex="1" {% if lines != -1 %}class="haslines"{% endif %}><code class="hljs {{ lang }}">{% if rendered %}{{ rendered | safe() }}{% else %}{{ document.content }}{% endif %}</code></pre>
 		{% else %}
 			<textarea spellcheck="false" placeholder="Paste, save, share! (Pasting just a URL will shorten it!)" tabindex="1">{{ initialValue }}</textarea>
 		{% endif %}
