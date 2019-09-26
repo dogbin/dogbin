@@ -74,7 +74,6 @@ md = markdown.Markdown(
     extensions=[
         'meta',
         'tables',
-        'nl2br',
         'pymdownx.magiclink',
         'pymdownx.betterem',
         'pymdownx.emoji',
