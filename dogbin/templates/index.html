@@ -36,7 +36,6 @@
 	<div id="header" class="unselectable">
 		<div id="title"><a href="/">{{ config.APPNAME }}</a></div>
 		<div id="tabs">
-			<a class="tab {% if not document %} active{% endif %}" href="/">PASTE</a>
 			<a class="tab {% if document and document.slug == 'about' %} active{% endif %}" href="/about.md">ABOUT</a>
 			<a class="tab {% if document and document.slug == 'changelog' %} active{% endif %}" href="/changelog.md">CHANGELOG</a>
 		</div>
