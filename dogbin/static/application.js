@@ -54,7 +54,12 @@ var haste_document = function () {
     if(parts.length === 1){
       lang = $('code.hljs')[0].classList[1]
       extension = lookupExtensionByType(lang)
-      window.history.pushState(null, document.title, path + '.' + extension);
+      var newUrl = path + '.' + extension;
+      if (extension === 'md') {
+        window.location.replace(newUrl);
+      } else {
+        window.history.pushState(null, document.title, );
+      }
     }
   } 
 };
