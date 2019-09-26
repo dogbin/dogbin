@@ -142,7 +142,8 @@ $linenos-width-plus: $linenos-width+.5rem;
     width: 100%;
     overflow: auto;
     margin: 0;
-    overflow-y: auto;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
 
     #linenos {
         color: $text-light;

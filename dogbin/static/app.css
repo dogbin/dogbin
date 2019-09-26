@@ -117,7 +117,8 @@ body {
   width: 100%;
   overflow: auto;
   margin: 0;
-  overflow-y: auto;
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
 }
 #content #linenos {
   color: #ECEFF1;
