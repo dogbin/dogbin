@@ -224,15 +224,6 @@ def edit_document(slug):
     else:
         return redirect('/', 302)
 
-@app.route('/d/<slug>')
-def duplicate_document(slug):
-    key = slug.split('.')[0]
-    doc = store.get(key)
-    if doc:
-        return render_template('index.html', title=app.config['APPNAME'], initialValue=doc.content)
-    else:
-        return redirect('/', 302)
-
 @app.route('/documents/<slug>')
 def getDocument(slug):
     key = slug.split('.')[0]

@@ -217,16 +217,6 @@ haste.prototype.configureButtons = function () {
     }
   },
   {
-    $where: $('.action.duplicate'),
-    shortcutDescription: 'control + d',
-    shortcut: function (evt) {
-      return evt.ctrlKey && evt.keyCode === 68;
-    },
-    action: function () {
-      _this.duplicateDocument();
-    }
-  },
-  {
     $where: $('.action.raw'),
     shortcutDescription: 'control + shift + r',
     shortcut: function (evt) {
@@ -234,16 +224,6 @@ haste.prototype.configureButtons = function () {
     },
     action: function () {
       window.location.href = '/raw/' + _this.doc.key;
-    }
-  },
-  {
-    $where: $('.action.twitter'),
-    shortcutDescription: 'control + shift + t',
-    shortcut: function (evt) {
-      return evt.shiftKey && evt.ctrlKey && evt.keyCode == 84;
-    },
-    action: function () {
-      window.open('https://twitter.com/share?url=' + encodeURI(window.location.href));
     }
   },
   {

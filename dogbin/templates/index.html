@@ -57,9 +57,7 @@
 			<button class="save action {% if not document %} enabled {% endif %}" tabindex="3"><img src="/static/icons/save.svg" alt="Save"></button>
 			<button class="edit action {% if document and document.userCanEdit(current_user) %} enabled {% endif %}" tabindex="3"><img src="/static/icons/edit.svg" alt="Edit"></button>
 			<button class="new action enabled" tabindex="3"><img src="/static/icons/create.svg" alt="New"></button>
-			<button class="duplicate action {% if document %} enabled {% endif %}" tabindex="3"><img src="/static/icons/copy.svg" alt="Duplicate &amp; Edit"></button>
 			<button class="raw action {% if document %} enabled {% endif %}" tabindex="3"><img src="/static/icons/raw.svg" alt="Just Text"></button>
-			<button class="twitter action {% if document %} enabled {% endif %}" tabindex="3"><img src="/static/icons/twitter.svg" alt="Twitter"></button>
 		</div>
 	</div>
 	<div id="content">
