@@ -1,0 +1,16 @@
+**/.gradle
+**/build
+**/out
+*.iml
+*.ipr
+*.iws
+!/.idea/copyright
+!/.idea/codeStyles
+/.idea/dictionaries
+/.idea/inspectionProfiles
+/.idea/libraries
+/.idea/caches
+/.idea/markdown-navigator
+/.idea/*.xml
+!/.idea/saveactions_settings.xml
+/.idea/.name
