@@ -1,10 +1,5 @@
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 
-val version: String by project
-val ktorVersion: String by project
-val kotlinVersion: String by project
-val logbackVersion: String by project
-
 plugins {
     base
     kotlin("jvm") version "1.3.0"

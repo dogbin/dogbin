@@ -8,4 +8,4 @@ pluginManagement {
 
 rootProject.name = "dogbin"
 
-include("app", "pebble")
+include("app", "pebble", "data", "data:model", "data:base")

@@ -1,6 +1,7 @@
-package dog.del
+package dog.del.app
 
 import com.mitchellbosecke.pebble.loader.ClasspathLoader
+import dog.del.data.base.Database
 import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.request.*
@@ -11,6 +12,9 @@ import io.ktor.gson.*
 import io.ktor.pebble.Pebble
 import io.ktor.pebble.respondTemplate
 import ktor_health_check.Health
+import org.koin.ktor.ext.Koin
+import org.koin.ktor.ext.get
+import java.io.File
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -27,6 +31,16 @@ fun Application.module(testing: Boolean = false) {
         }
     }
 
+    install(Koin) {
+        val appModule = org.koin.dsl.module {
+            // TODO: introduce config system
+            single { Database(File("dev.xdb"), "dev") }
+        }
+        modules(
+            appModule
+        )
+    }
+
     install(ContentNegotiation) {
         gson {
         }
@@ -34,6 +48,10 @@ fun Application.module(testing: Boolean = false) {
 
     install(Health) {
         healthCheck("running") { true }
+        healthCheck("database") {
+            val db = get<Database>()
+            db.store.isOpen
+        }
     }
 
     install(Pebble) {

@@ -1,6 +1,7 @@
 val ktor_version: String by rootProject
 val kotlin_version: String by rootProject
 val logback_version: String by rootProject
+val koin_version: String by rootProject
 
 plugins {
     application
@@ -21,6 +22,8 @@ dependencies {
     compile(project(":pebble"))
 
     compile("com.github.zensum:ktor-health-check:011a5a8")
+    compile("org.koin:koin-ktor:$koin_version")
+    compile(project(":data:base"))
 
     testCompile("io.ktor:ktor-server-tests:$ktor_version")
 }
