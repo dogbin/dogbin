@@ -24,6 +24,7 @@ dependencies {
     compile("com.github.zensum:ktor-health-check:011a5a8")
     compile("org.koin:koin-ktor:$koin_version")
     compile(project(":data:base"))
+    compile(project(":commons"))
 
     testCompile("io.ktor:ktor-server-tests:$ktor_version")
 }

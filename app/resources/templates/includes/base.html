@@ -1,0 +1,34 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>{{ title }}</title>
+    <link rel="shortcut icon" href="/static/favicon.ico"/>
+    <link rel="preload" href="/static/fonts/hack-regular.woff2?sha=3114f1256" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/static/fonts/hack-bold.woff2?sha=3114f1256" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/static/fonts/hack-italic.woff2?sha=3114f1256" as="font" type="font/woff2" crossorigin>
+
+    <link rel="stylesheet" type="text/css" href="/static/hack.css">
+    <link rel="stylesheet" type="text/css" href="/static/app.css">
+
+    <meta property="og:title" content="{{ title }}"/>
+    <meta property="og:site_name" content="{{ config.APPNAME }}"/>
+    <meta name="keywords" content="Pastebin,URL Shortener,code,log,deletescape">
+    <meta name="theme-color" content="#37474f">
+    {% if description is not null %}
+    <meta name="description" content="{{ description }}">
+    <meta property="og:description" content="{{ description }}"/>
+    {% else %}
+    <meta name="description" content="The sexiest pastebin and url shortener ever.">
+    <meta property="og:description" content="The sexiest pastebin and url shortener ever."/>
+    {% endif %}
+    <meta property="og:image" content="https://del.dog/doggo.jpg"/>
+    {% block head %}
+    {% endblock %}
+</head>
+<body>
+{% block body %}
+{% endblock %}
+</body>
+{% block after_body %}
+{% endblock %}
+</html>

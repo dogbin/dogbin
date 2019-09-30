@@ -1,3 +1,78 @@
-<html>
-    <p>Hello {{ name }}</p>
-</html>
+{% extends 'includes/base' %}
+
+{% block body %}
+<ul id="messages" class="unselectable"></ul>
+<div id="header" class="unselectable">
+    <div id="title"><a href="/">dogbin</a></div>
+    <div id="tabs">
+        <a class="tab {% if document and document.slug == 'about' %} active{% endif %}" href="/about.md">ABOUT</a>
+        <a class="tab {% if document and document.slug == 'changelog' %} active{% endif %}" href="/changelog.md">CHANGELOG</a>
+    </div>
+    <div id="slug">
+        {% if document is null%}
+        <div class="md-input">
+            <label>
+                <input name="slug" required tabindex="1" value="{{ edit_key }}" {% if edit_key is not null %} disabled{%
+                       endif %}>
+                <span class="placeholder">Custom URL</span>
+            </label>
+        </div>
+        {% else %}
+        <a id="url_display" href="https://del.dog/{{ document.slug }}">/{{ document.slug }}</a>
+        <button class="copy_url btn enabled" tabindex="2"><img src="/static/icons/copy.svg" alt="Copy URL"></button>
+        {% endif %}
+    </div>
+    <div id="actions">
+        <button class="save action {% if document is null %} enabled {% endif %}" tabindex="3"><img
+                src="/static/icons/save.svg" alt="Save"></button>
+        <button class="edit action {% if document is not null and editable %} enabled {% endif %}"
+                tabindex="3"><img src="/static/icons/edit.svg" alt="Edit"></button>
+        <button class="new action enabled" tabindex="3"><img src="/static/icons/create.svg" alt="New"></button>
+        <button class="raw action {% if document %} enabled {% endif %}" tabindex="3"><img src="/static/icons/raw.svg"
+                                                                                           alt="Just Text"></button>
+    </div>
+</div>
+<div id="content">
+    <div id="linenos" class="unselectable">
+        {% if lines is not null %}
+        {% for n in range(1, lines + 1) %}
+        <a href="#L{{ n }}" id="L{{ n }}">{{ n }}</a><br/>
+        {% endfor %}
+        {% else %}>{% endif %}
+    </div>
+    {% if document is not null %}
+    <pre id="box" tabindex="1" {% if lines !=-1 %}class="haslines" {% endif %}><code class="hljs {{ lang }}">{% if rendered is not null %}{{ rendered | safe() }}{% else %}{{ document.content }}{% endif %}</code></pre>
+    {% else %}
+    <textarea spellcheck="false" placeholder="Paste, save, share! (Pasting just a URL will shorten it!)" tabindex="1">{{ initialValue }}</textarea>
+    {% endif %}
+</div>
+<div id="footer" class="unselectable">
+    <div id="copyright">&copy; {{ year }} <a href="https://deletescape.ch" target="_blank"
+                                             rel="noopener">deletescape</a>
+    </div>
+    {% if document is not null%}
+    {% if document.owner is not null %}
+    <div id="author">
+        Created by {{ document.owner.get_display_name() }}
+    </div>
+    {% endif %}
+    <div id="stats">Stats:&nbsp;&nbsp;
+        <div id="views"><img src="/static/icons/eye.svg" alt="Views"><b>{{ document.viewCount }}</b></div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+{% block after_body %}}
+{% if document is not null %}
+<link rel="stylesheet" type="text/css" href="/static/hljs-dogbin.css"/>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+{% endif %}
+<script src="/static/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="/static/application.js"></script>
+<script type="text/javascript">
+    // Construct app
+    $(function () {
+        var app = new haste();
+    });
+</script>
+{% endblock %}

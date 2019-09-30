@@ -1,6 +1,7 @@
 package dog.del.app
 
 import com.mitchellbosecke.pebble.loader.ClasspathLoader
+import dog.del.app.frontend.frontend
 import dog.del.data.base.Database
 import io.ktor.application.*
 import io.ktor.response.*
@@ -9,6 +10,9 @@ import io.ktor.features.*
 import io.ktor.routing.*
 import io.ktor.http.*
 import io.ktor.gson.*
+import io.ktor.http.content.resource
+import io.ktor.http.content.resources
+import io.ktor.http.content.static
 import io.ktor.pebble.Pebble
 import io.ktor.pebble.respondTemplate
 import ktor_health_check.Health
@@ -62,15 +66,13 @@ fun Application.module(testing: Boolean = false) {
     }
 
     routing {
-        get("/") {
-            call.respondTemplate("index", mapOf(
-                "name" to "world!"
-            ))
+        static("static") {
+            resources("static")
         }
-
-        get("/json/gson") {
-            call.respond(mapOf("hello" to "world"))
+        static {
+            resource("favicon.ico", resourcePackage = "static")
         }
+        frontend()
     }
 }
 
