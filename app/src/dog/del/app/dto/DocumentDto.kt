@@ -1,5 +1,6 @@
 package dog.del.app.dto
 
+import dog.del.commons.lineCount
 import dog.del.data.base.model.document.XdDocumentType
 import dog.del.data.model.Document
 import dog.del.data.model.DocumentType
@@ -12,7 +13,7 @@ data class DocumentDto(
 ) {
     // Disable for rendered markdown content
     val showLines = true
-    val lines = content?.length ?: 0
+    val lines = content?.lineCount ?: 0
     // Use frontmatter data for rendered markdown content
     val description = content?.take(100) ?: "The sexiest pastebin and url-shortener ever"
     val title = "dogbin - $slug"
