@@ -1,5 +1,6 @@
 package dog.del.data.model
 
+import dog.del.commons.Date
 import java.io.InputStream
 
 interface Document<T: DocumentType, U: User<*>> {
@@ -13,6 +14,8 @@ interface Document<T: DocumentType, U: User<*>> {
     var version: Int
 
     var owner: U
+
+    val created: Date
 }
 
 interface DocumentType

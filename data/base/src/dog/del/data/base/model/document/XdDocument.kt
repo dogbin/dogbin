@@ -1,6 +1,8 @@
 package dog.del.data.base.model.document
 
+import dog.del.commons.Date
 import dog.del.data.base.model.user.XdUser
+import dog.del.data.base.utils.xdRequiredDateProp
 import dog.del.data.model.Document
 import jetbrains.exodus.entitystore.Entity
 import kotlinx.dnq.*
@@ -24,4 +26,7 @@ class XdDocument(entity: Entity): XdEntity(entity), Document<XdDocumentType, XdU
     override var owner by xdLink1(XdUser)
 
     // TODO: add support for expirable documents
+    override val created by xdRequiredDateProp(
+        default = { _, _ -> Date.getInstance() }
+    )
 }

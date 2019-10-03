@@ -4,6 +4,10 @@ import java.util.*
 
 typealias Date = Calendar
 
+fun date(time: Long) = Date.getInstance().apply {
+    timeInMillis = time
+}
+
 var Date.year
     get() = get(Date.YEAR)
     set(value) = set(Date.YEAR, value)

@@ -7,6 +7,7 @@ dependencies {
     compile("at.favre.lib:bcrypt:0.8.0")
 
     compile(project(":data:model"))
+    compile(project(":commons"))
 }
 
 kotlin.sourceSets["main"].kotlin.srcDirs("src")

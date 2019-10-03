@@ -1,11 +1,15 @@
 package dog.del.data.model
 
+import dog.del.commons.Date
+
 interface User<R : UserRole> {
     var username: String
 
     var password: String?
 
     var role: R
+
+    val created: Date
 
     fun checkPassword(password: String): Boolean
 }

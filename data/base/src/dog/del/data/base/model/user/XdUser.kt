@@ -1,6 +1,8 @@
 package dog.del.data.base.model.user
 
+import dog.del.commons.Date
 import dog.del.data.base.security.Password
+import dog.del.data.base.utils.xdRequiredDateProp
 import dog.del.data.model.User
 import jetbrains.exodus.entitystore.Entity
 import kotlinx.dnq.*
@@ -46,6 +48,10 @@ class XdUser(entity: Entity) : XdEntity(entity), User<XdUserRole> {
         requireIf { role.requiresPassword }
     }
     override var role by xdLink1(XdUserRole)
+
+    override val created by xdRequiredDateProp(
+        default = { _, _ -> Date.getInstance() }
+    )
 
     override fun checkPassword(password: String) = this.password != null && Password.verify(password, this.password!!).verified
 }
