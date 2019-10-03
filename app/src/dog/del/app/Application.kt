@@ -3,7 +3,9 @@ package dog.del.app
 import com.mitchellbosecke.pebble.loader.ClasspathLoader
 import dog.del.app.frontend.frontend
 import dog.del.app.frontend.legacyApi
+import dog.del.app.utils.DogbinPebbleExtension
 import dog.del.data.base.Database
+import dog.del.data.base.model.config.Config
 import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.request.*
@@ -41,6 +43,7 @@ fun Application.module(testing: Boolean = false) {
         val appModule = org.koin.dsl.module {
             // TODO: introduce config system
             single { Database.init(File("dev.xdb"), "dev") }
+            single { Config.getConfig(get()) }
         }
         modules(
             appModule
@@ -65,6 +68,7 @@ fun Application.module(testing: Boolean = false) {
             prefix = "templates"
             suffix = ".peb"
         })
+        extension(DogbinPebbleExtension())
     }
 
     routing {

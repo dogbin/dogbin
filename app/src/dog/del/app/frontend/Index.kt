@@ -23,9 +23,7 @@ fun Route.index() = route("/") {
     val store by inject<TransientEntityStore>()
     get {
         call.respondTemplate("index", mapOf(
-            "title" to "dogbin",
-            "description" to "The sexiest pastebin and url-shortener ever",
-            "year" to Date.getInstance().year
+            "title" to "dogbin"
         ))
     }
 
@@ -52,7 +50,6 @@ fun Route.index() = route("/") {
                 "index", mapOf(
                     "title" to documentDto!!.title,
                     "description" to documentDto!!.description,
-                    "year" to Date.getInstance().year,
                     "document" to documentDto!!
                 )
             )

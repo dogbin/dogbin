@@ -4,6 +4,8 @@ import java.util.*
 
 typealias Date = Calendar
 
+fun date() = Date.getInstance()
+
 fun date(time: Long) = Date.getInstance().apply {
     timeInMillis = time
 }
