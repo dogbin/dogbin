@@ -5,6 +5,7 @@ import jetbrains.exodus.entitystore.Entity
 import kotlinx.dnq.XdEnumEntity
 import kotlinx.dnq.enum.XdEnumEntityType
 import kotlinx.dnq.xdBooleanProp
+import kotlinx.dnq.xdStringProp
 
 /**
  * Special roles which can be assigned to a user
@@ -18,6 +19,7 @@ class XdUserRole(entity: Entity) : XdEnumEntity(entity), UserRole {
         val ANON by enumField {
             canSignIn = true
             requiresPassword = false
+            usernameOverride = "Anonymous"
         }
 
         /**
@@ -58,4 +60,5 @@ class XdUserRole(entity: Entity) : XdEnumEntity(entity), UserRole {
     override var requiresPassword by xdBooleanProp()
     override var isMod by xdBooleanProp()
     override var isAdmin by xdBooleanProp()
+    override var usernameOverride by xdStringProp()
 }

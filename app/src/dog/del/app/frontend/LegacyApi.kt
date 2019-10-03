@@ -1,5 +1,6 @@
 package dog.del.app.frontend
 
+import dog.del.app.utils.slug
 import dog.del.commons.year
 import dog.del.data.base.Database
 import dog.del.data.base.model.document.XdDocument
@@ -18,9 +19,8 @@ import org.koin.ktor.ext.inject
 fun Route.legacyApi() = route("/") {
     val database by inject<TransientEntityStore>()
     get("raw/{slug}") {
-        val slug = call.parameters["slug"]!!.substringBeforeLast('.')
         database.transactional(readonly = true) {
-            val doc = XdDocument.find(slug)
+            val doc = XdDocument.find(call.slug)
             if (doc == null) {
                 runBlocking {
                     call.respond(HttpStatusCode.NotFound, "No Document found")

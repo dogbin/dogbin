@@ -1,3 +1,4 @@
+{# @pebvariable name="document" type="dog.del.app.dto.DocumentDto" #}
 {% extends 'includes/base' %}
 
 {% block body %}
@@ -5,22 +6,24 @@
 <div id="header" class="unselectable">
     <div id="title"><a href="/">dogbin</a></div>
     <div id="tabs">
-        <a class="tab {% if document and document.slug == 'about' %} active{% endif %}" href="/about.md">ABOUT</a>
-        <a class="tab {% if document and document.slug == 'changelog' %} active{% endif %}" href="/changelog.md">CHANGELOG</a>
+        <a class="tab {% if document is not null and document.slug == 'about' %} active{% endif %}" href="/about.md">ABOUT</a>
+        <a class="tab {% if document is not null and document.slug == 'changelog' %} active{% endif %}"
+           href="/changelog.md">CHANGELOG</a>
     </div>
     <div id="slug">
-        {% if document is null%}
+    {% if document is null%}
         <div class="md-input">
             <label>
-                <input name="slug" required tabindex="1" value="{{ edit_key }}" {% if edit_key is not null %} disabled{%
-                       endif %}>
+                <input name="slug" required tabindex="1" value="{{ edit_key }}" {% if edit_key is not null %}
+                       disabled{%
+                endif %}>
                 <span class="placeholder">Custom URL</span>
             </label>
         </div>
-        {% else %}
+    {% else %}
         <a id="url_display" href="https://del.dog/{{ document.slug }}">/{{ document.slug }}</a>
         <button class="copy_url btn enabled" tabindex="2"><img src="/static/icons/copy.svg" alt="Copy URL"></button>
-        {% endif %}
+    {% endif %}
     </div>
     <div id="actions">
         <button class="save action {% if document is null %} enabled {% endif %}" tabindex="3"><img
@@ -28,22 +31,25 @@
         <button class="edit action {% if document is not null and editable %} enabled {% endif %}"
                 tabindex="3"><img src="/static/icons/edit.svg" alt="Edit"></button>
         <button class="new action enabled" tabindex="3"><img src="/static/icons/create.svg" alt="New"></button>
-        <button class="raw action {% if document %} enabled {% endif %}" tabindex="3"><img src="/static/icons/raw.svg"
-                                                                                           alt="Just Text"></button>
+        <button class="raw action {% if document is not null %} enabled {% endif %}" tabindex="3"><img
+                src="/static/icons/raw.svg"
+                alt="Just Text"></button>
     </div>
 </div>
 <div id="content">
     <div id="linenos" class="unselectable">
-        {% if lines is not null %}
-        {% for n in range(1, lines + 1) %}
+    {% if document is not null and document.showLines %}
+    {% for n in range(1, document.lines + 1) %}
         <a href="#L{{ n }}" id="L{{ n }}">{{ n }}</a><br/>
-        {% endfor %}
-        {% else %}>{% endif %}
+    {% endfor %}
+    {% else %}>{% endif %}
     </div>
     {% if document is not null %}
-    <pre id="box" tabindex="1" {% if lines !=-1 %}class="haslines" {% endif %}><code class="hljs {{ lang }}">{% if rendered is not null %}{{ rendered | safe() }}{% else %}{{ document.content }}{% endif %}</code></pre>
+        <pre id="box" tabindex="1" {% if document.lines !=-1 %}class="haslines" {% endif %}><code
+                class="hljs {{ lang }}">{% if rendered is not null %}{{ rendered | safe() }}{% else %}{{ document.content }}{% endif %}</code></pre>
     {% else %}
-    <textarea spellcheck="false" placeholder="Paste, save, share! (Pasting just a URL will shorten it!)" tabindex="1">{{ initialValue }}</textarea>
+        <textarea spellcheck="false" placeholder="Paste, save, share! (Pasting just a URL will shorten it!)"
+                  tabindex="1">{{ initialValue }}</textarea>
     {% endif %}
 </div>
 <div id="footer" class="unselectable">
@@ -52,13 +58,13 @@
     </div>
     {% if document is not null%}
     {% if document.owner is not null %}
-    <div id="author">
-        Created by {{ document.owner.get_display_name() }}
-    </div>
+        <div id="author">
+            Created by {{ document.owner.displayName }}
+        </div>
     {% endif %}
-    <div id="stats">Stats:&nbsp;&nbsp;
-        <div id="views"><img src="/static/icons/eye.svg" alt="Views"><b>{{ document.viewCount }}</b></div>
-    </div>
+        <div id="stats">Stats:&nbsp;&nbsp;
+            <div id="views"><img src="/static/icons/eye.svg" alt="Views"><b>{{ document.viewCount }}</b></div>
+        </div>
     {% endif %}
 </div>
 {% endblock %}

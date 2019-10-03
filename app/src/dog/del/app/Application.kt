@@ -63,7 +63,7 @@ fun Application.module(testing: Boolean = false) {
     install(Pebble) {
         loader(ClasspathLoader().apply {
             prefix = "templates"
-            suffix = ".html"
+            suffix = ".peb"
         })
     }
 

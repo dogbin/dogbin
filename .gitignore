@@ -14,4 +14,5 @@
 /.idea/markdown-navigator
 /.idea/*.xml
 !/.idea/saveactions_settings.xml
+!/.idea/templateLanguages.xml
 /.idea/.name

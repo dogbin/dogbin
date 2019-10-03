@@ -7,8 +7,8 @@ import kotlinx.dnq.enum.XdEnumEntityType
 
 class XdDocumentType(entity: Entity) : XdEnumEntity(entity), DocumentType {
     companion object : XdEnumEntityType<XdDocumentType>() {
-        val PASTE by enumField { }
-        val URL by enumField { }
+        val PASTE by enumField {}
+        val URL by enumField {}
 
         // TODO: add support for images and general files
     }

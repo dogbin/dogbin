@@ -19,4 +19,5 @@ interface UserRole {
     var canSignIn: Boolean
     var isMod: Boolean
     var isAdmin: Boolean
+    var usernameOverride: String?
 }
