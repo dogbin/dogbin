@@ -1,21 +1,23 @@
 package dog.del.data.base
 
 import dog.del.data.base.model.document.XdDocument
+import dog.del.data.base.model.document.XdDocumentType
 import dog.del.data.base.model.user.XdUser
 import jetbrains.exodus.database.TransientEntityStore
 import kotlinx.dnq.XdModel
+import kotlinx.dnq.creator.findOrNew
 import kotlinx.dnq.query.size
 import kotlinx.dnq.store.container.StaticStoreContainer
+import kotlinx.dnq.store.container.createTransientEntityStore
 import kotlinx.dnq.util.initMetaData
 import java.io.File
 
-class Database(location: File, environment: String) {
-    val store: TransientEntityStore
+object Database {
 
-    init {
+    fun init(location: File, environment: String): TransientEntityStore {
         XdModel.scanJavaClasspath()
 
-        store = StaticStoreContainer.init(
+        val store = StaticStoreContainer.init(
             dbFolder = location,
             environmentName = "dogbin-$environment"
         )
@@ -24,7 +26,19 @@ class Database(location: File, environment: String) {
 
         store.transactional {
             // Create "dogbin" user if it doesn't exist yet
-            XdUser.findOrNewSystem("dogbin")
+            val usr = XdUser.findOrNewSystem("dogbin")
+
+            // TODO: move out of this class and make more it configurable again
+            XdDocument.findOrNew("about") {
+                owner = usr
+                type = XdDocumentType.PASTE
+                stringContent = """
+                    # About
+                    oof this is kotlin awezomeness
+                """.trimIndent()
+            }
         }
+
+        return store
     }
 }

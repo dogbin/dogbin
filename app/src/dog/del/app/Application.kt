@@ -2,6 +2,7 @@ package dog.del.app
 
 import com.mitchellbosecke.pebble.loader.ClasspathLoader
 import dog.del.app.frontend.frontend
+import dog.del.app.frontend.legacyApi
 import dog.del.data.base.Database
 import io.ktor.application.*
 import io.ktor.response.*
@@ -15,6 +16,7 @@ import io.ktor.http.content.resources
 import io.ktor.http.content.static
 import io.ktor.pebble.Pebble
 import io.ktor.pebble.respondTemplate
+import jetbrains.exodus.database.TransientEntityStore
 import ktor_health_check.Health
 import org.koin.ktor.ext.Koin
 import org.koin.ktor.ext.get
@@ -38,7 +40,7 @@ fun Application.module(testing: Boolean = false) {
     install(Koin) {
         val appModule = org.koin.dsl.module {
             // TODO: introduce config system
-            single { Database(File("dev.xdb"), "dev") }
+            single { Database.init(File("dev.xdb"), "dev") }
         }
         modules(
             appModule
@@ -53,8 +55,8 @@ fun Application.module(testing: Boolean = false) {
     install(Health) {
         healthCheck("running") { true }
         healthCheck("database") {
-            val db = get<Database>()
-            db.store.isOpen
+            val db = get<TransientEntityStore>()
+            db.isOpen
         }
     }
 
@@ -72,6 +74,7 @@ fun Application.module(testing: Boolean = false) {
         static {
             resource("favicon.ico", resourcePackage = "static")
         }
+        legacyApi()
         frontend()
     }
 }
