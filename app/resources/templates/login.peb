@@ -1,0 +1,37 @@
+{% extends 'includes/base' %}
+
+{% block body %}
+<ul id="messages" class="unselectable"></ul>
+<div id="header" class="unselectable">
+    <div id="title"><a href="/">dogbin</a></div>
+    <div id="tabs">
+        <a class="tab" href="/about.md">ABOUT</a>
+        <a class="tab" href="/changelog.md">CHANGELOG</a>
+    </div>
+</div>
+<div id="content">
+    <div class="center-inside">
+        <form action="" method="post" class="card">
+            <h1>{{ formTitle }}</h1>
+            <div class="md-input">
+                <label>
+                    <input name="username" required>
+                    <span class="placeholder">Username</span>
+                </label>
+            </div>
+            <div class="md-input">
+                <label>
+                    <input name="password" required type="password">
+                    <span class="placeholder">Password</span>
+                </label>
+            </div>
+            <button class="md-btn right" type="submit"><span>{{ formTitle | upper }}</span></button>
+            <a class="md-btn md-btn-secondary left" href="{{ secondaryLink }}"><span>{{ secondaryTitle | upper }}</span></a>
+        </form>
+    </div>
+</div>
+<div id="footer" class="unselectable">
+    <div id="copyright">&copy; {{ year }} <a href="https://deletescape.ch" target="_blank" rel="noopener">deletescape</a>
+    </div>
+</div>
+{% endblock %}

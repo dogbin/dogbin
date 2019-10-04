@@ -5,4 +5,5 @@ import io.ktor.routing.route
 
 fun Routing.frontend() = route("/") {
     index()
+    user()
 }

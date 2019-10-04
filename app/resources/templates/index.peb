@@ -42,7 +42,7 @@
     {% for n in range(1, document.lines + 1) %}
         <a href="#L{{ n }}" id="L{{ n }}">{{ n }}</a><br/>
     {% endfor %}
-    {% else %}>{% endif %}
+    {% else %}&gt;{% endif %}
     </div>
     {% if document is not null %}
         <pre id="box" tabindex="1" {% if document.lines !=-1 %}class="haslines" {% endif %}><code

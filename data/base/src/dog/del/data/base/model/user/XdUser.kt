@@ -8,6 +8,7 @@ import jetbrains.exodus.entitystore.Entity
 import kotlinx.dnq.*
 import kotlinx.dnq.creator.findOrNew
 import kotlinx.dnq.query.filter
+import kotlinx.dnq.query.firstOrNull
 import kotlinx.dnq.simple.requireIf
 import java.util.*
 
@@ -23,7 +24,7 @@ class XdUser(entity: Entity) : XdEntity(entity), User<XdUserRole> {
             role = XdUserRole.SYSTEM
         }
 
-        fun find(username: String) = filter { it.username eq username }
+        fun find(username: String) = filter { it.username eq username }.firstOrNull()
 
         /**
          * User used for pastes created via anonymous api

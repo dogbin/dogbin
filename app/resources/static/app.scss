@@ -102,6 +102,10 @@ body {
                 height: $code-size;
             }
         }
+
+        label {
+            width: 100%;
+        }
     }
 
     div#actions {
@@ -314,6 +318,26 @@ $linenos-width-plus: $linenos-width+.5rem;
             }
         }
     }
+
+    .center-inside {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        min-height: 100%;
+
+        h1 {
+            color: $text-light;
+        }
+    }
+}
+
+.card {
+    background-color: $primary;
+    padding: 1rem 2rem;
+    border-radius: 4px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.16), 2px 2px 5px rgba(0, 0, 0, 0.23);
 }
 
 #footer {
@@ -411,7 +435,6 @@ $input-width: 20rem;
 
     label {
         display: block;
-        width: 100%;
         min-height: $input-height + $input-top;
         position: absolute;
     }
@@ -466,6 +489,95 @@ $input-width: 20rem;
     }
 }
 
+.md-btn {
+    position: relative;
+
+    display: block;
+    margin: 10px auto;
+    padding: 0;
+
+    overflow: hidden;
+
+    border-width: 0;
+    outline: none;
+    border-radius: 4px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .6);
+    cursor: pointer;
+
+    background-color: $highlight-color;
+    color: $primary;
+
+    width: fit-content;
+
+    transition: background-color .3s;
+
+    font: 400 13.3333px 'Hack', "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+
+    :hover, :focus {
+        background-color: darken($highlight-color, 10%);
+    }
+
+    > * {
+        position: relative;
+    }
+
+    span {
+        display: block;
+        padding: 12px 24px;
+    }
+
+    :before {
+        content: "";
+
+        position: absolute;
+        top: 50%;
+        left: 50%;
+
+        display: block;
+        width: 0;
+        padding-top: 0;
+
+        border-radius: 100%;
+
+        background-color: rgba(236, 240, 241, .3);
+
+        -webkit-transform: translate(-50%, -50%);
+        -moz-transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+        -o-transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%);
+    }
+
+    :active:before {
+        width: 120%;
+        padding-top: 120%;
+
+        transition: width .2s ease-out, padding-top .2s ease-out;
+    }
+}
+
+.md-btn-secondary {
+    background-color: transparent;
+    box-shadow: none;
+    border-color: $highlight-color;
+    color: $highlight-color;
+    border-width: 2px;
+    border-style: solid;
+    font-weight: bolder;
+
+    :focus, :hover {
+        background-color: fade_out($highlight-color, 0.9);
+        border-color: darken($highlight-color, 10%);
+    }
+}
+
+.left {
+    float: left;
+}
+
+.right {
+    float: right;
+}
 
 @keyframes ripple {
     0% {

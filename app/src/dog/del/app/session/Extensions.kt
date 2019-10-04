@@ -14,9 +14,17 @@ fun ApplicationCall.setWebSession(session: WebSession) {
     sessions.set(session)
 }
 
+fun ApplicationCall.clearWebSession() {
+    sessions.clear<WebSession>()
+}
+
 fun ApplicationCall.getApiSession() = sessions.get<ApiSession>()
 fun ApplicationCall.setApiSession(session: ApiSession) {
     sessions.set(session)
+}
+
+fun ApplicationCall.clearApiSession() {
+    sessions.clear<ApiSession>()
 }
 
 fun ApplicationCall.session() = getWebSession() ?: getApiSession()
