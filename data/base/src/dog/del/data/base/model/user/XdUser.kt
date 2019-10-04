@@ -7,6 +7,7 @@ import dog.del.data.model.User
 import jetbrains.exodus.entitystore.Entity
 import kotlinx.dnq.*
 import kotlinx.dnq.creator.findOrNew
+import kotlinx.dnq.query.filter
 import kotlinx.dnq.simple.requireIf
 import java.util.*
 
@@ -21,6 +22,13 @@ class XdUser(entity: Entity) : XdEntity(entity), User<XdUserRole> {
             this.username = username
             role = XdUserRole.SYSTEM
         }
+
+        fun find(username: String) = filter { it.username eq username }
+
+        /**
+         * User used for pastes created via anonymous api
+         */
+        val apiAnon get() = findOrNewSystem("Anonymous")
     }
 
     fun signUp(username: String, password: String): XdUser {

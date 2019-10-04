@@ -66,7 +66,7 @@ var haste_document = function () {
 
 // Save this document to the server and lock it here
 haste_document.prototype.save = function (data, callback) {
-  $.ajax('/documents', {
+  $.ajax('/documents?frontend=true', {
     type: 'post',
     data: data,
     dataType: 'json',

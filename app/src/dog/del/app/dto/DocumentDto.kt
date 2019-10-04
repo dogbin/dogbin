@@ -5,7 +5,7 @@ import dog.del.data.base.model.document.XdDocumentType
 import dog.del.data.model.Document
 import dog.del.data.model.DocumentType
 
-data class DocumentDto(
+data class FrontendDocumentDto(
     val slug: String,
     val type: DocumentTypeDto,
     val content: String?,
@@ -18,7 +18,7 @@ data class DocumentDto(
     val description = content?.take(100) ?: "The sexiest pastebin and url-shortener ever"
     val title = "dogbin - $slug"
     companion object {
-        fun fromDocument(document: Document<XdDocumentType, *>) = DocumentDto(
+        fun fromDocument(document: Document<XdDocumentType, *>) = FrontendDocumentDto(
             document.slug,
             DocumentTypeDto.fromXdDocumentType(document.type),
             document.stringContent,
@@ -26,6 +26,17 @@ data class DocumentDto(
         )
     }
 }
+
+data class CreateDocumentDto(
+    val content: String,
+    val slug: String? = null
+)
+
+data class CreateDocumentResponseDto(
+    val isUrl: Boolean? = null,
+    val key: String? = null,
+    val message: String? = null
+)
 
 enum class DocumentTypeDto{
     URL, PASTE;

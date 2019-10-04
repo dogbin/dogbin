@@ -1,6 +1,6 @@
 package dog.del.app.frontend
 
-import dog.del.app.dto.DocumentDto
+import dog.del.app.dto.FrontendDocumentDto
 import dog.del.app.utils.slug
 import dog.del.commons.Date
 import dog.del.commons.year
@@ -28,7 +28,7 @@ fun Route.index() = route("/") {
     }
 
     get("/{slug}") {
-        var documentDto: DocumentDto? = null
+        var documentDto: FrontendDocumentDto? = null
         store.transactional {
             val doc = XdDocument.find(call.slug)
             if (doc == null) {
@@ -41,7 +41,7 @@ fun Route.index() = route("/") {
                         call.respondRedirect(doc.stringContent!!, true)
                     }
                 } else {
-                    documentDto = DocumentDto.fromDocument(doc)
+                    documentDto = FrontendDocumentDto.fromDocument(doc)
                 }
             }
         }

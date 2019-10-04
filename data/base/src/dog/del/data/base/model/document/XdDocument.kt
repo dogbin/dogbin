@@ -44,4 +44,6 @@ class XdDocument(entity: Entity): XdEntity(entity), Document<XdDocumentType, XdU
     override val created by xdRequiredDateProp(
         default = { _, _ -> Date.getInstance() }
     )
+
+    fun userCanEdit(user: XdUser) = owner == user || user.role.isAdmin
 }
