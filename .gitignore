@@ -12,6 +12,7 @@
 /.idea/libraries
 /.idea/caches
 /.idea/markdown-navigator
+/.idea/modules
 /.idea/*.xml
 !/.idea/saveactions_settings.xml
 !/.idea/templateLanguages.xml
