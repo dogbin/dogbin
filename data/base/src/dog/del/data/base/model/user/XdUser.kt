@@ -27,7 +27,10 @@ class XdUser(entity: Entity) : XdEntity(entity), User<XdUserRole> {
 
         fun find(username: String) = filter { it.username eq username }.firstOrNull()
 
-        fun findOrNew(username: String, init: XdUser.() -> Unit) = findOrNew(filter { it.username eq username }, init)
+        fun findOrNew(username: String, init: XdUser.() -> Unit) = findOrNew(filter { it.username eq username }) {
+            this.username = username
+            init(this)
+        }
 
         /**
          * User used for pastes created via anonymous api
