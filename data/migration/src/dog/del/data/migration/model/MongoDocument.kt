@@ -10,5 +10,5 @@ data class MongoDocument(
     val content: String,
     val viewCount: Int,
     val version: Int,
-    val owner: Id<User>
+    val owner: Id<User>?
 )

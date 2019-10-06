@@ -28,7 +28,7 @@ class MigationFeature : CliFeature {
             )
         ),
         mapOf(
-            null to "Migrate from MongDb to the new Xodus backend"
+            null to "Migrate from mongodb to the new Xodus backend"
         )
     )
 

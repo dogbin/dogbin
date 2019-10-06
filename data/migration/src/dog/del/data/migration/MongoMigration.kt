@@ -62,11 +62,11 @@ class MongoMigration(
         }
     }
 
-    private fun findUser(id: Id<User>) = users.find("{'_id':ObjectId(\"$id\")}").first()
+    private fun findUser(id: Id<User>?) = if (id == null) null else users.find("{'_id':ObjectId(\"$id\")}").first()
 
-    private fun migrateUser(user: User): XdUser = xdStore.transactional {
+    private fun migrateUser(user: User?): XdUser = xdStore.transactional {
         // Use api anon for all existing anonymous users as sessions will not be preserved anyways
-        if (user.is_anonymous) {
+        if (user == null || user.is_anonymous) {
             XdUser.apiAnon
         } else {
             // Only migrate once and return existing user otherwise
