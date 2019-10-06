@@ -44,7 +44,7 @@ class MongoMigration(
             } catch (e: Exception) {
                 print("Failed to migrate ${it._id}: ${e.message}")
             }
-            val percent = ((i + 1 / count.toDouble()) * 100).roundToDecimals(2)
+            val percent = (((i + 1) / count.toDouble()) * 100).roundToDecimals(2)
             println(" ${i + 1}/$count ($percent%) ")
         }
         println("Done! Migrated $docCount documents and $userCount users")
