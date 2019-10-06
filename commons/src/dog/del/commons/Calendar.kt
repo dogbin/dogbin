@@ -1,5 +1,6 @@
 package dog.del.commons
 
+import java.text.SimpleDateFormat
 import java.util.*
 
 typealias Date = Calendar
@@ -57,3 +58,5 @@ fun Date.sub(
     minutes: Int = 0,
     seconds: Int = 0
 ): Date = add(-years, -months, -weeks, -days, -hours, -minutes, -seconds)
+
+fun Date.format() = SimpleDateFormat().format(time)
