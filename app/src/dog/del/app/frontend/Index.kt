@@ -1,6 +1,8 @@
 package dog.del.app.frontend
 
 import dog.del.app.dto.FrontendDocumentDto
+import dog.del.app.session.session
+import dog.del.app.session.user
 import dog.del.app.utils.slug
 import dog.del.commons.Date
 import dog.del.commons.year
@@ -29,6 +31,7 @@ fun Route.index() = route("/") {
 
     get("/{slug}") {
         var documentDto: FrontendDocumentDto? = null
+        var editable = false
         store.transactional {
             val doc = XdDocument.find(call.slug)
             if (doc == null) {
@@ -42,6 +45,10 @@ fun Route.index() = route("/") {
                     }
                 } else {
                     documentDto = FrontendDocumentDto.fromDocument(doc)
+                    if (call.session() != null) {
+                        val usr = call.user(store)
+                        editable = doc.userCanEdit(usr)
+                    }
                 }
             }
         }
@@ -50,7 +57,8 @@ fun Route.index() = route("/") {
                 "index", mapOf(
                     "title" to documentDto!!.title,
                     "description" to documentDto!!.description,
-                    "document" to documentDto!!
+                    "document" to documentDto!!,
+                    "editable" to editable
                 )
             )
         }
@@ -58,6 +66,7 @@ fun Route.index() = route("/") {
 
     get("/v/{slug}") {
         var documentDto: FrontendDocumentDto? = null
+        var editable = false
         store.transactional {
             val doc = XdDocument.find(call.slug)
             if (doc == null) {
@@ -66,6 +75,10 @@ fun Route.index() = route("/") {
                 }
             } else {
                 documentDto = FrontendDocumentDto.fromDocument(doc)
+                if (call.session() != null) {
+                    val usr = call.user(store)
+                    editable = doc.userCanEdit(usr)
+                }
             }
         }
         if (documentDto != null) {
@@ -73,7 +86,41 @@ fun Route.index() = route("/") {
                 "index", mapOf(
                     "title" to documentDto!!.title,
                     "description" to documentDto!!.description,
-                    "document" to documentDto!!
+                    "document" to documentDto!!,
+                    "editable" to editable
+                )
+            )
+        }
+    }
+
+    get("/e/{slug}") {
+        var documentDto: FrontendDocumentDto? = null
+        var canEdit = false
+        store.transactional {
+            val doc = XdDocument.find(call.slug)
+            if (doc == null) {
+                runBlocking {
+                    call.respondRedirect("/")
+                }
+            } else {
+                documentDto = FrontendDocumentDto.fromDocument(doc)
+                if (call.session() != null) {
+                    val usr = call.user(store)
+                    canEdit = doc.userCanEdit(usr)
+                }
+            }
+        }
+        if (!canEdit) {
+            call.respondRedirect("/")
+            return@get
+        }
+        if (documentDto != null) {
+            call.respondTemplate(
+                "index", mapOf(
+                    "title" to "Editing - ${documentDto!!.title}",
+                    "description" to documentDto!!.description,
+                    "editKey" to call.slug,
+                    "initialValue" to (documentDto!!.content ?: "")
                 )
             )
         }

@@ -1,4 +1,4 @@
-{# @pebvariable name="document" type="dog.del.app.dto.DocumentDto" #}
+{# @pebvariable name="document" type="dog.del.app.dto.FrontendDocumentDto" #}
 {% extends 'includes/base' %}
 
 {% block body %}
@@ -14,7 +14,7 @@
     {% if document is null%}
         <div class="md-input">
             <label>
-                <input name="slug" required tabindex="1" value="{{ edit_key }}" {% if edit_key is not null %}
+                <input name="slug" required tabindex="1" value="{{ editKey }}" {% if editKey is not null %}
                        disabled{%
                 endif %}>
                 <span class="placeholder">Custom URL</span>
