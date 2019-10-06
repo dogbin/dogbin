@@ -335,10 +335,6 @@ $linenos-width-plus: $linenos-width+.5rem;
         align-items: center;
         text-align: center;
         min-height: 100%;
-
-        h1 {
-            color: $text-light;
-        }
     }
 }
 
@@ -347,6 +343,12 @@ $linenos-width-plus: $linenos-width+.5rem;
     padding: 1rem 2rem;
     border-radius: 4px;
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.16), 2px 2px 5px rgba(0, 0, 0, 0.23);
+    color: $text-light;
+
+    a {
+        text-decoration: underline;
+        text-decoration-color: $secondary;
+    }
 }
 
 #footer {

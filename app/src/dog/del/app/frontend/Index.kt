@@ -3,6 +3,7 @@ package dog.del.app.frontend
 import dog.del.app.dto.FrontendDocumentDto
 import dog.del.app.session.session
 import dog.del.app.session.user
+import dog.del.app.utils.locale
 import dog.del.app.utils.slug
 import dog.del.commons.Date
 import dog.del.commons.year
@@ -44,7 +45,7 @@ fun Route.index() = route("/") {
                         call.respondRedirect(doc.stringContent!!, true)
                     }
                 } else {
-                    documentDto = FrontendDocumentDto.fromDocument(doc)
+                    documentDto = FrontendDocumentDto.fromDocument(doc, call.locale)
                     if (call.session() != null) {
                         val usr = call.user(store)
                         editable = doc.userCanEdit(usr)
@@ -74,7 +75,7 @@ fun Route.index() = route("/") {
                     call.respondRedirect("/")
                 }
             } else {
-                documentDto = FrontendDocumentDto.fromDocument(doc)
+                documentDto = FrontendDocumentDto.fromDocument(doc, call.locale)
                 if (call.session() != null) {
                     val usr = call.user(store)
                     editable = doc.userCanEdit(usr)
@@ -103,7 +104,7 @@ fun Route.index() = route("/") {
                     call.respondRedirect("/")
                 }
             } else {
-                documentDto = FrontendDocumentDto.fromDocument(doc)
+                documentDto = FrontendDocumentDto.fromDocument(doc, call.locale)
                 if (call.session() != null) {
                     val usr = call.user(store)
                     canEdit = doc.userCanEdit(usr)

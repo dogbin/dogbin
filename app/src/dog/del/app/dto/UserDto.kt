@@ -4,6 +4,7 @@ import dog.del.commons.formatDate
 import dog.del.commons.formatDateLong
 import dog.del.data.model.User
 import dog.del.data.model.UserRole
+import java.util.*
 
 data class UserDto(
     val username: String,
@@ -12,10 +13,10 @@ data class UserDto(
 ) {
     val displayName = role.usernameOverride ?: username
     companion object {
-        fun fromUser(user: User<*>) = UserDto(
+        fun fromUser(user: User<*>, locale: Locale? = null) = UserDto(
             user.username,
             user.role,
-            user.created.formatDateLong()
+            user.created.formatDate(locale)
         )
     }
 }

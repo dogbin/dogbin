@@ -59,10 +59,46 @@ fun Date.sub(
     seconds: Int = 0
 ): Date = add(-years, -months, -weeks, -days, -hours, -minutes, -seconds)
 
-fun Date.format(): String = SimpleDateFormat.getDateTimeInstance().format(time)
-fun Date.formatLong(): String =
-    SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.LONG, SimpleDateFormat.DEFAULT).format(time)
+fun Date.format(locale: Locale? = null): String =
+    (if (locale == null) SimpleDateFormat.getDateTimeInstance() else SimpleDateFormat.getDateTimeInstance(
+        SimpleDateFormat.DEFAULT,
+        SimpleDateFormat.DEFAULT,
+        locale
+    )).format(time)
 
-fun Date.formatDateLong(): String = SimpleDateFormat.getDateInstance(SimpleDateFormat.LONG).format(time)
-fun Date.formatDate(): String = SimpleDateFormat.getDateInstance().format(time)
-fun Date.formatTime(): String = SimpleDateFormat.getTimeInstance().format(time)
+fun Date.formatShort(locale: Locale? = null): String =
+    (if (locale == null) SimpleDateFormat.getDateTimeInstance(
+        SimpleDateFormat.SHORT,
+        SimpleDateFormat.SHORT
+    ) else SimpleDateFormat.getDateTimeInstance(
+        SimpleDateFormat.SHORT,
+        SimpleDateFormat.SHORT,
+        locale
+    )).format(time)
+
+fun Date.formatLong(locale: Locale? = null): String = (if (locale == null) SimpleDateFormat.getDateTimeInstance(
+    SimpleDateFormat.LONG,
+    SimpleDateFormat.DEFAULT
+) else SimpleDateFormat.getDateTimeInstance(
+    SimpleDateFormat.LONG,
+    SimpleDateFormat.DEFAULT,
+    locale
+)).format(time)
+
+fun Date.formatDateLong(locale: Locale? = null): String =
+    (if (locale == null) SimpleDateFormat.getDateInstance(SimpleDateFormat.LONG) else SimpleDateFormat.getDateInstance(
+        SimpleDateFormat.LONG,
+        locale
+    )).format(time)
+
+fun Date.formatDate(locale: Locale? = null): String =
+    (if (locale == null) SimpleDateFormat.getDateInstance() else SimpleDateFormat.getDateInstance(
+        SimpleDateFormat.DEFAULT,
+        locale
+    )).format(time)
+
+fun Date.formatTime(locale: Locale? = null): String =
+    (if (locale == null) SimpleDateFormat.getTimeInstance() else SimpleDateFormat.getTimeInstance(
+        SimpleDateFormat.DEFAULT,
+        locale
+    )).format(time)

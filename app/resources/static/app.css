@@ -322,15 +322,17 @@ body {
   min-height: 100%;
 }
 
-#content .center-inside h1 {
-  color: #ECEFF1;
-}
-
 .card {
   background-color: #37474f;
   padding: 1rem 2rem;
   border-radius: 4px;
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.16), 2px 2px 5px rgba(0, 0, 0, 0.23);
+  color: #ECEFF1;
+}
+
+.card a {
+  text-decoration: underline;
+  text-decoration-color: #f9bfd3;
 }
 
 #footer {
@@ -589,9 +591,6 @@ body {
   background: #f9bfd3;
 }
 
-/*# sourceMappingURL=app.css.map */
-/*# sourceMappingURL=app.css.map */
-/*# sourceMappingURL=app.css.map */
 /*# sourceMappingURL=app.css.map */
 /*# sourceMappingURL=app.css.map */
 

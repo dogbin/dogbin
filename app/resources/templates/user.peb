@@ -11,7 +11,7 @@
 </div>
 <div id="content">
     <div class="center-inside">
-         <div id="box" tabindex="1" class="unpos no-hljs"><code>
+        <div class="card">
              <h1>{{ user.username }}</h1>
              <p>Joined: {{ user.created }}</p>
              {% if pastes is not empty %}

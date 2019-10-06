@@ -3,10 +3,14 @@ package dog.del.app.frontend
 import dog.del.app.dto.FrontendDocumentDto
 import dog.del.app.dto.UserDto
 import dog.del.app.session.*
+import dog.del.app.utils.hlLang
+import dog.del.app.utils.locale
 import dog.del.data.base.model.document.XdDocument
 import dog.del.data.base.model.user.XdUser
 import dog.del.data.base.model.user.XdUserRole
+import io.ktor.application.application
 import io.ktor.application.call
+import io.ktor.application.log
 import io.ktor.http.HttpStatusCode
 import io.ktor.pebble.respondTemplate
 import io.ktor.request.receiveParameters
@@ -24,6 +28,7 @@ import kotlinx.dnq.query.asSequence
 import kotlinx.dnq.query.filter
 import kotlinx.dnq.query.sortedBy
 import org.koin.ktor.ext.inject
+import java.text.SimpleDateFormat
 
 fun Route.user() = route("/") {
     val store by inject<TransientEntityStore>()
@@ -129,8 +134,8 @@ fun Route.user() = route("/") {
             }
             store.transactional {
                 val docs = XdDocument.filter { it.owner eq usr }.sortedBy(XdDocument::created, asc = false)
-                    .asIterable().map { FrontendDocumentDto.fromDocument(it) }
-                val user = UserDto.fromUser(usr)
+                    .asIterable().map { FrontendDocumentDto.fromDocument(it, call.locale) }
+                val user = UserDto.fromUser(usr, call.locale)
                 runBlocking {
                     call.respondTemplate(
                         "user", mapOf(

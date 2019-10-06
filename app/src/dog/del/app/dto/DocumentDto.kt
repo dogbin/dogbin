@@ -1,10 +1,13 @@
 package dog.del.app.dto
 
+import dog.del.commons.format
 import dog.del.commons.formatLong
+import dog.del.commons.formatShort
 import dog.del.commons.lineCount
 import dog.del.data.base.model.document.XdDocumentType
 import dog.del.data.model.Document
 import dog.del.data.model.DocumentType
+import java.util.*
 
 data class FrontendDocumentDto(
     val slug: String,
@@ -22,12 +25,12 @@ data class FrontendDocumentDto(
     val description = content?.take(100) ?: "The sexiest pastebin and url-shortener ever"
     val title = "dogbin - $slug"
     companion object {
-        fun fromDocument(document: Document<XdDocumentType, *>) = FrontendDocumentDto(
+        fun fromDocument(document: Document<XdDocumentType, *>, locale: Locale? = null) = FrontendDocumentDto(
             document.slug,
             DocumentTypeDto.fromXdDocumentType(document.type),
             document.stringContent,
             UserDto.fromUser(document.owner),
-            document.created.formatLong(),
+            document.created.formatShort(locale),
             document.viewCount
         )
     }
