@@ -100,6 +100,10 @@ body {
   height: 1rem;
 }
 
+#header div#slug label {
+  width: 100%;
+}
+
 #header div#actions {
   margin-left: auto;
 }
@@ -585,6 +589,10 @@ body {
   background: #f9bfd3;
 }
 
+/*# sourceMappingURL=app.css.map */
+/*# sourceMappingURL=app.css.map */
+/*# sourceMappingURL=app.css.map */
+/*# sourceMappingURL=app.css.map */
 /*# sourceMappingURL=app.css.map */
 
 /*# sourceMappingURL=app.css.map */
