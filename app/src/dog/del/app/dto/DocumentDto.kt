@@ -11,7 +11,9 @@ data class FrontendDocumentDto(
     val type: DocumentTypeDto,
     val content: String?,
     val owner: UserDto,
-    val created: String
+    val created: String,
+    // Actually get viewcount from SA eventually
+    val viewCount: Int
 ) {
     // Disable for rendered markdown content
     val showLines = true
@@ -25,7 +27,8 @@ data class FrontendDocumentDto(
             DocumentTypeDto.fromXdDocumentType(document.type),
             document.stringContent,
             UserDto.fromUser(document.owner),
-            document.created.formatLong()
+            document.created.formatLong(),
+            document.viewCount
         )
     }
 }

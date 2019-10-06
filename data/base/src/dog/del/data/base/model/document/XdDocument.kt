@@ -53,5 +53,7 @@ class XdDocument(entity: Entity): XdEntity(entity), Document<XdDocumentType, XdU
         default = { _, _ -> Date.getInstance() }
     )
 
+    override var viewCount by xdIntProp()
+
     fun userCanEdit(user: XdUser) = owner == user || user.role.isAdmin
 }

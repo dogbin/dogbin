@@ -14,8 +14,9 @@ interface Document<T: DocumentType, U: User<*>> {
     var version: Int
 
     var owner: U
+    var viewCount: Int
 
-    val created: Date
+    var created: Date
 }
 
 interface DocumentType
