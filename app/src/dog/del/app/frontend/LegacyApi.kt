@@ -3,6 +3,7 @@ package dog.del.app.frontend
 import dog.del.app.dto.CreateDocumentDto
 import dog.del.app.dto.CreateDocumentResponseDto
 import dog.del.app.session.user
+import dog.del.app.utils.createKey
 import dog.del.app.utils.slug
 import dog.del.commons.isUrl
 import dog.del.commons.keygen.KeyGenerator
@@ -82,8 +83,7 @@ private suspend fun ApplicationCall.createDocument(
         if (dto.slug.isNullOrBlank()) {
             val isUrl = dto.content.isUrl()
             val doc = XdDocument.new {
-                // TODO: Make key length configurable
-                slug = slugGen.createKey(10)
+                slug = slugGen.createKey(db, isUrl)
                 owner = usr
                 stringContent = dto.content
                 type = if (isUrl) XdDocumentType.URL else XdDocumentType.PASTE

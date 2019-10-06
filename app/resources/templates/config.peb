@@ -1,0 +1,32 @@
+{% extends 'includes/base' %}
+
+{% block body %}
+<ul id="messages" class="unselectable"></ul>
+<div id="header" class="unselectable">
+    <div id="title"><a href="/">dogbin</a></div>
+    <div id="tabs">
+        <a class="tab" href="/about.md">ABOUT</a>
+        <a class="tab" href="/changelog.md">CHANGELOG</a>
+    </div>
+</div>
+<div id="content">
+    <div class="center-inside">
+        <form action="" method="post" class="card">
+            <h1>Config</h1>
+            {% for item in config %}
+                <div class="md-input">
+                    <label>
+                        <input name="{{ item.type }}_{{ item.key }}" required value="{{ item.value }}" type="{{ item.type }}">
+                        <span class="placeholder">{{ item.key }}</span>
+                    </label>
+                </div>
+            {% endfor %}
+            <button class="md-btn right" type="submit"><span>SAVE</span></button>
+        </form>
+    </div>
+</div>
+<div id="footer" class="unselectable">
+    <div id="copyright">&copy; {{ year }} <a href="https://deletescape.ch" target="_blank" rel="noopener">deletescape</a>
+    </div>
+</div>
+{% endblock %}

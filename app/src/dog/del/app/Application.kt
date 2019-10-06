@@ -1,6 +1,7 @@
 package dog.del.app
 
 import com.mitchellbosecke.pebble.loader.ClasspathLoader
+import dog.del.app.frontend.admin
 import dog.del.app.frontend.frontend
 import dog.del.app.frontend.legacyApi
 import dog.del.app.session.ApiSession
@@ -98,6 +99,7 @@ fun Application.module(testing: Boolean = false) {
         }
         legacyApi()
         frontend()
+        admin()
     }
 }
 

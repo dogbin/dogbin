@@ -7,22 +7,36 @@ import jetbrains.exodus.database.TransientEntityStore
 import jetbrains.exodus.entitystore.Entity
 import kotlinx.dnq.XdEntity
 import kotlinx.dnq.singleton.XdSingletonEntityType
+import kotlinx.dnq.xdIntProp
 import kotlinx.dnq.xdRequiredStringProp
+import kotlinx.dnq.xdStringProp
 
 class Config(entity: Entity) : XdEntity(entity) {
     companion object : XdSingletonEntityType<Config>() {
         override fun Config.initSingleton() {
-            description = "The sexiest pastebin and url-shortener ever"
-            keywords = "pastebin,code,log,url shortener"
+            initDefaults()
         }
 
         fun getConfig(store: TransientEntityStore): Config = store.transactional {
-            get()
+            get().apply { initDefaults() }
         }
+    }
+
+    private fun initDefaults() {
+        if ("description" !in entity.propertyNames)
+            description = "The sexiest pastebin and url-shortener ever"
+        if ("keywords" !in entity.propertyNames)
+            keywords = "pastebin,code,log,url shortener"
+        if ("pasteKeyLength" !in entity.propertyNames)
+            pasteKeyLength = 10
+        if ("urlKeyLength" !in entity.propertyNames)
+            urlKeyLength = 7
     }
 
     var description by xdRequiredStringProp()
     var keywords by xdRequiredStringProp()
+    var pasteKeyLength by xdIntProp()
+    var urlKeyLength by xdIntProp()
 
     // Cache frozen config for 10 minutes
     // TODO: make this work on all entities
@@ -34,6 +48,7 @@ class Config(entity: Entity) : XdEntity(entity) {
             updatedAt = date()
             field = value
         }
+
     fun freezeCached(store: TransientEntityStore): Map<String, Any?> {
         if (needsUpdate) {
             freezeCache = freeze(store)
