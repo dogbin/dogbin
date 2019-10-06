@@ -1,6 +1,7 @@
 package dog.del.data.base.model.document
 
 import dog.del.commons.Date
+import dog.del.commons.date
 import dog.del.data.base.model.user.XdUser
 import dog.del.data.base.utils.xdRequiredDateProp
 import dog.del.data.model.Document
@@ -24,6 +25,13 @@ class XdDocument(entity: Entity): XdEntity(entity), Document<XdDocumentType, XdU
         fun find(slug: String) = filter { it ->
             it.slug.eq(slug)
         }.firstOrNull()
+
+        override fun new(init: XdDocument.() -> Unit): XdDocument {
+            return super.new {
+                created = date()
+                init(this)
+            }
+        }
     }
 
     override var slug by xdRequiredStringProp(unique = true, trimmed = true) {
@@ -41,7 +49,7 @@ class XdDocument(entity: Entity): XdEntity(entity), Document<XdDocumentType, XdU
     override var owner by xdLink1(XdUser)
 
     // TODO: add support for expirable documents
-    override val created by xdRequiredDateProp(
+    override var created by xdRequiredDateProp(
         default = { _, _ -> Date.getInstance() }
     )
 

@@ -1,6 +1,7 @@
 package dog.del.data.base.model.user
 
 import dog.del.commons.Date
+import dog.del.commons.date
 import dog.del.data.base.security.Password
 import dog.del.data.base.utils.xdRequiredDateProp
 import dog.del.data.model.User
@@ -30,6 +31,13 @@ class XdUser(entity: Entity) : XdEntity(entity), User<XdUserRole> {
          * User used for pastes created via anonymous api
          */
         val apiAnon get() = findOrNewSystem("Anonymous")
+
+        override fun new(init: XdUser.() -> Unit): XdUser {
+            return super.new {
+                created = date()
+                init(this)
+            }
+        }
     }
 
     fun signUp(username: String, password: String): XdUser {
@@ -58,7 +66,7 @@ class XdUser(entity: Entity) : XdEntity(entity), User<XdUserRole> {
     }
     override var role by xdLink1(XdUserRole)
 
-    override val created by xdRequiredDateProp(
+    override var created by xdRequiredDateProp(
         default = { _, _ -> Date.getInstance() }
     )
 
