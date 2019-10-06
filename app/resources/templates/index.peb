@@ -60,7 +60,7 @@
     </div>
     {% if document is not null%}
     {% if document.owner is not null %}
-        <div id="author">
+        <div id="author" title="{{ document.created }}">
             Created by {{ document.owner.displayName }}
         </div>
     {% endif %}
