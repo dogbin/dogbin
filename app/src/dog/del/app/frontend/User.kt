@@ -45,7 +45,7 @@ fun Route.user() = route("/") {
             val username = params.getOrFail("username")
             val password = params.getOrFail("password")
             store.transactional {
-                val usr = XdUser.find("username")
+                val usr = XdUser.find(username)
                 if (usr != null) {
                     if (usr.checkPassword(password)) {
                         call.setWebSession(WebSession(usr.xdId))

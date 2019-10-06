@@ -76,5 +76,6 @@ class XdUser(entity: Entity) : XdEntity(entity), User<XdUserRole> {
         default = { _, _ -> Date.getInstance() }
     )
 
-    override fun checkPassword(password: String) = this.password != null && Password.verify(password, this.password!!).verified
+    override fun checkPassword(password: String) =
+        this._password != null && Password.verify(password, this._password!!).verified
 }
