@@ -1,19 +1,16 @@
 val kotlin_version: String by rootProject
 
 plugins {
-    application
-    kotlin("jvm")
-}
-
-application {
-    mainClassName = "dog.del.cli.DogbinCli"
+    kotlin("kapt")
 }
 
 dependencies {
     compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
 
+    compile("org.litote.kmongo:kmongo:3.11.0")
+    kapt("org.litote.kmongo:kmongo-annotation-processor:3.11.0")
+
     compile(project(":data:base"))
-    compile(project(":data:migration"))
     compile(project(":commons"))
 }
 

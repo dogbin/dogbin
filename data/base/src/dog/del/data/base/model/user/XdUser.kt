@@ -27,6 +27,8 @@ class XdUser(entity: Entity) : XdEntity(entity), User<XdUserRole> {
 
         fun find(username: String) = filter { it.username eq username }.firstOrNull()
 
+        fun findOrNew(username: String, init: XdUser.() -> Unit) = findOrNew(filter { it.username eq username }, init)
+
         /**
          * User used for pastes created via anonymous api
          */
@@ -75,6 +77,13 @@ class XdUser(entity: Entity) : XdEntity(entity), User<XdUserRole> {
     override var created by xdRequiredDateProp(
         default = { _, _ -> Date.getInstance() }
     )
+
+    /**
+     * ONLY ever use this for migration purposes
+     */
+    fun setPasswordHashed(password: String) {
+        _password = password
+    }
 
     override fun checkPassword(password: String) =
         this._password != null && Password.verify(password, this._password!!).verified

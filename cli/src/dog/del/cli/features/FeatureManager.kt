@@ -7,7 +7,8 @@ class FeatureManager {
         EnvironmentHelperFeature(),
         InitStoreFeature(),
         UserFeature(),
-        DocumentFeature()
+        DocumentFeature(),
+        MigationFeature()
     )
 
     fun evaluate(command: String) {

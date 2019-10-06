@@ -1,1 +1,1 @@
-include("model", "base")
+include("model", "migration", "base")
