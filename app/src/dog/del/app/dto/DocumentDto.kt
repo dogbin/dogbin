@@ -1,5 +1,6 @@
 package dog.del.app.dto
 
+import dog.del.commons.formatLong
 import dog.del.commons.lineCount
 import dog.del.data.base.model.document.XdDocumentType
 import dog.del.data.model.Document
@@ -9,7 +10,8 @@ data class FrontendDocumentDto(
     val slug: String,
     val type: DocumentTypeDto,
     val content: String?,
-    val owner: UserDto
+    val owner: UserDto,
+    val created: String
 ) {
     // Disable for rendered markdown content
     val showLines = true
@@ -22,7 +24,8 @@ data class FrontendDocumentDto(
             document.slug,
             DocumentTypeDto.fromXdDocumentType(document.type),
             document.stringContent,
-            UserDto.fromUser(document.owner)
+            UserDto.fromUser(document.owner),
+            document.created.formatLong()
         )
     }
 }

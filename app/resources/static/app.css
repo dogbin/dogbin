@@ -100,10 +100,6 @@ body {
   height: 1rem;
 }
 
-#header div#slug label {
-  width: 100%;
-}
-
 #header div#actions {
   margin-left: auto;
 }
@@ -186,30 +182,38 @@ body {
   margin: 0;
 }
 
-#content pre#box {
+#content #box {
   margin: 0;
   background: transparent;
   position: absolute;
   left: 1rem;
 }
 
-#content pre#box.haslines {
+#content #box.unpos {
+  position: unset;
+  left: unset;
+}
+
+#content #box.no-hljs {
+  color: #ECEFF1;
+}
+
+#content #box.haslines {
   left: 2.5rem !important;
 }
 
-#content pre#box * {
-  margin: 0 !important;
+#content #box * {
   font-size: 1rem;
 }
 
-#content pre#box h1,
-#content pre#box h2,
-#content pre#box h3,
-#content pre#box h4,
-#content pre#box h5,
-#content pre#box h6,
-#content pre#box p,
-#content pre#box ul {
+#content #box h1,
+#content #box h2,
+#content #box h3,
+#content #box h4,
+#content #box h5,
+#content #box h6,
+#content #box p,
+#content #box ul {
   margin-block-start: 0;
   margin-block-end: 0;
   margin-inline-start: 0;
@@ -217,90 +221,90 @@ body {
   padding-inline-start: 0;
 }
 
-#content pre#box img.gemoji {
+#content #box img.gemoji {
   width: 1rem;
   height: 1rem;
 }
 
-#content pre#box ul {
+#content #box ul {
   padding-inline-start: 25px;
 }
 
-#content pre#box h1 {
+#content #box h1 {
   font-size: 1.175rem;
 }
 
-#content pre#box h1 img.gemoji {
+#content #box h1 img.gemoji {
   width: 1.175rem;
   height: 1.175rem;
 }
 
-#content pre#box h2 {
+#content #box h2 {
   font-size: 1.15rem;
 }
 
-#content pre#box h2 img.gemoji {
+#content #box h2 img.gemoji {
   width: 1.15rem;
   height: 1.15rem;
 }
 
-#content pre#box h3 {
+#content #box h3 {
   font-size: 1.125rem;
 }
 
-#content pre#box h3 img.gemoji {
+#content #box h3 img.gemoji {
   width: 1.125rem;
   height: 1.125rem;
 }
 
-#content pre#box h4 {
+#content #box h4 {
   font-size: 1.1rem;
 }
 
-#content pre#box h4 img.gemoji {
+#content #box h4 img.gemoji {
   width: 1.1rem;
   height: 1.1rem;
 }
 
-#content pre#box h5 {
+#content #box h5 {
   font-size: 1.075rem;
 }
 
-#content pre#box h5 img.gemoji {
+#content #box h5 img.gemoji {
   width: 1.075rem;
   height: 1.075rem;
 }
 
-#content pre#box h6 {
+#content #box h6 {
   font-size: 1.05rem;
 }
 
-#content pre#box h6 img.gemoji {
+#content #box h6 img.gemoji {
   width: 1.05rem;
   height: 1.05rem;
 }
 
-#content pre#box a {
+#content #box a {
   text-decoration: underline;
   text-decoration-color: #f9bfd3;
 }
 
-#content pre#box table {
+#content #box table {
   border-collapse: collapse;
 }
 
-#content pre#box table th,
-#content pre#box table td {
+#content #box table th,
+#content #box table td {
   color: #ECEFF1;
   border: 1px solid #ECEFF1;
   padding: 0.2rem;
 }
 
-#content pre#box .task-list-item {
+#content #box .task-list-item {
   list-style-type: none !important;
 }
 
-#content pre#box .task-list-item input[type=checkbox] {
+#content #box .task-list-item input[type=checkbox] {
   margin: 0 4px 0.25em -20px;
   vertical-align: middle;
 }
@@ -410,6 +414,7 @@ body {
   display: block;
   min-height: 2.7rem;
   position: absolute;
+  min-width: 25%;
 }
 
 .md-input .placeholder {
@@ -463,7 +468,7 @@ body {
 .md-btn {
   position: relative;
   display: block;
-  margin: 10px auto;
+  margin: 10px 8px;
   padding: 0;
   overflow: hidden;
   border-width: 0;
@@ -475,6 +480,7 @@ body {
   color: #37474f;
   width: fit-content;
   transition: background-color 0.3s;
+  text-decoration: none !important;
   font: 400 13.3333px "Hack", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
 }
 

@@ -47,7 +47,13 @@ class XdUser(entity: Entity) : XdEntity(entity), User<XdUserRole> {
         return this
     }
 
+    fun changePass(password: String) {
+        this.password = password;
+        // TODO: close all sessions except for the one initiating this request
+    }
+
     override var username by xdRequiredStringProp(unique = true, trimmed = true)
+    // TODO: add support for expiring passwords
     override var password: String? = null
         /**
          * Sets the password of this user **AFTER** hashing it

@@ -1,16 +1,11 @@
 package dog.del.app.frontend
 
 import dog.del.app.dto.FrontendDocumentDto
+import dog.del.app.dto.UserDto
 import dog.del.app.session.*
-import dog.del.app.utils.slug
-import dog.del.commons.Date
-import dog.del.commons.year
-import dog.del.data.base.Database
 import dog.del.data.base.model.document.XdDocument
-import dog.del.data.base.model.document.XdDocumentType
 import dog.del.data.base.model.user.XdUser
 import dog.del.data.base.model.user.XdUserRole
-import dog.del.data.model.DocumentType
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.pebble.respondTemplate
@@ -21,13 +16,14 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
-import io.ktor.sessions.sessions
 import io.ktor.util.getOrFail
 import jetbrains.exodus.database.TransientEntityStore
 import kotlinx.coroutines.runBlocking
-import kotlinx.dnq.query.firstOrNull
+import kotlinx.dnq.query.asIterable
+import kotlinx.dnq.query.asSequence
+import kotlinx.dnq.query.filter
+import kotlinx.dnq.query.sortedBy
 import org.koin.ktor.ext.inject
-import java.util.*
 
 fun Route.user() = route("/") {
     val store by inject<TransientEntityStore>()
@@ -123,7 +119,74 @@ fun Route.user() = route("/") {
 
     route("/me") {
         get {
+            val usr = call.user(store)
+            val isAnon = store.transactional {
+                usr.role == XdUserRole.ANON
+            }
+            if (isAnon) {
+                call.respondRedirect("/register", false)
+                return@get
+            }
+            store.transactional {
+                val docs = XdDocument.filter { it.owner eq usr }.sortedBy(XdDocument::created, asc = false)
+                    .asIterable().map { FrontendDocumentDto.fromDocument(it) }
+                val user = UserDto.fromUser(usr)
+                runBlocking {
+                    call.respondTemplate(
+                        "user", mapOf(
+                            "title" to "Me",
+                            "description" to "View your profile",
+                            "user" to user,
+                            "pastes" to docs
+                        )
+                    )
+                }
+            }
+        }
 
+        route("changepass") {
+            get {
+                val usr = call.user(store)
+                val requiresPassword = store.transactional {
+                    usr.role.requiresPassword
+                }
+                if (!requiresPassword) {
+                    call.respondRedirect("/register", false)
+                    return@get
+                }
+                call.respondTemplate(
+                    "changepass", mapOf(
+                        "title" to "Change password",
+                        "description" to "Change your dogbin password"
+                    )
+                )
+            }
+
+            post {
+                val usr = call.user(store)
+                val requiresPassword = store.transactional {
+                    usr.role.requiresPassword
+                }
+                if (!requiresPassword) {
+                    call.respondRedirect("/", false)
+                    return@post
+                }
+                val params = call.receiveParameters()
+                val current = params.getOrFail("current")
+                val new = params.getOrFail("password")
+                store.transactional {
+                    if (usr.checkPassword(current)) {
+                        usr.changePass(new)
+                        runBlocking {
+                            call.respondRedirect("/me")
+                        }
+                        return@transactional
+                    }
+                    runBlocking {
+                        call.respondRedirect("/me/changepass")
+                    }
+                }
+            }
         }
     }
 }

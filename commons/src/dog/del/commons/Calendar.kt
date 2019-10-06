@@ -5,9 +5,9 @@ import java.util.*
 
 typealias Date = Calendar
 
-fun date() = Date.getInstance()
+fun date(): Calendar = Date.getInstance()
 
-fun date(time: Long) = Date.getInstance().apply {
+fun date(time: Long): Calendar = Date.getInstance().apply {
     timeInMillis = time
 }
 
@@ -59,4 +59,10 @@ fun Date.sub(
     seconds: Int = 0
 ): Date = add(-years, -months, -weeks, -days, -hours, -minutes, -seconds)
 
-fun Date.format() = SimpleDateFormat().format(time)
+fun Date.format(): String = SimpleDateFormat.getDateTimeInstance().format(time)
+fun Date.formatLong(): String =
+    SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.LONG, SimpleDateFormat.DEFAULT).format(time)
+
+fun Date.formatDateLong(): String = SimpleDateFormat.getDateInstance(SimpleDateFormat.LONG).format(time)
+fun Date.formatDate(): String = SimpleDateFormat.getDateInstance().format(time)
+fun Date.formatTime(): String = SimpleDateFormat.getTimeInstance().format(time)
