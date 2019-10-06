@@ -34,6 +34,8 @@
         <button class="raw action {% if document is not null %} enabled {% endif %}" tabindex="3"><img
                 src="/static/icons/raw.svg"
                 alt="Just Text"></button>
+        <button class="profile action enabled" tabindex="3"><img src="/static/icons/user.svg" alt="View profile">
+        </button>
     </div>
 </div>
 <div id="content">

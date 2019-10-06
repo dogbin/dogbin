@@ -226,6 +226,12 @@ haste.prototype.configureButtons = function () {
       window.location.href = '/raw/' + _this.doc.key;
     }
   },
+    {
+      $where: $('.action.profile'),
+      action: function () {
+        window.location.href = '/me';
+      }
+    },
   {
     $where: $('.btn.copy_url'),
     action: function () {

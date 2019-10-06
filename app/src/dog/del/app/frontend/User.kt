@@ -124,7 +124,7 @@ fun Route.user() = route("/") {
                 usr.role == XdUserRole.ANON
             }
             if (isAnon) {
-                call.respondRedirect("/register", false)
+                call.respondRedirect("/login", false)
                 return@get
             }
             store.transactional {
@@ -151,7 +151,7 @@ fun Route.user() = route("/") {
                     usr.role.requiresPassword
                 }
                 if (!requiresPassword) {
-                    call.respondRedirect("/register", false)
+                    call.respondRedirect("/login", false)
                     return@get
                 }
                 call.respondTemplate(
