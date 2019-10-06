@@ -112,11 +112,13 @@ body {
   opacity: 0.4;
   background: transparent;
   border: none;
+  display: none;
 }
 
 #header div#actions button.action.enabled {
   opacity: 0.8;
   cursor: pointer;
+  display: initial;
 }
 
 #header div#actions button.action.enabled:hover {
@@ -591,6 +593,8 @@ body {
   background: #f9bfd3;
 }
 
+/*# sourceMappingURL=app.css.map */
+/*# sourceMappingURL=app.css.map */
 /*# sourceMappingURL=app.css.map */
 /*# sourceMappingURL=app.css.map */
 

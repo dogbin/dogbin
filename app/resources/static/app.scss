@@ -116,10 +116,12 @@ body {
             opacity: 0.4;
             background: transparent;
             border: none;
+            display: none;
 
             &.enabled {
                 opacity: 0.8;
                 cursor: pointer;
+                display: initial;
 
                 &:hover {
                     opacity: 1;
