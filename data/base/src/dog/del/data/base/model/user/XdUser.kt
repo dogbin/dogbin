@@ -36,14 +36,14 @@ class XdUser(entity: Entity) : XdEntity(entity), User<XdUserRole> {
          * User used for pastes created via anonymous api
          */
         val apiAnon get() = findOrNewSystem("Anonymous")
-
-        override fun new(init: XdUser.() -> Unit): XdUser {
-            return super.new {
-                created = date()
-                init(this)
-            }
-        }
     }
+
+    override fun constructor() {
+        super.constructor()
+        // Initialize date
+        created = date()
+    }
+
 
     fun signUp(username: String, password: String): XdUser {
         this.username = username

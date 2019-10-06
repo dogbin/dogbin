@@ -25,13 +25,12 @@ class XdDocument(entity: Entity): XdEntity(entity), Document<XdDocumentType, XdU
         fun find(slug: String) = filter { it ->
             it.slug.eq(slug)
         }.firstOrNull()
+    }
 
-        override fun new(init: XdDocument.() -> Unit): XdDocument {
-            return super.new {
-                created = date()
-                init(this)
-            }
-        }
+    override fun constructor() {
+        super.constructor()
+        // Initialize date
+        created = date()
     }
 
     override var slug by xdRequiredStringProp(unique = true, trimmed = true) {
