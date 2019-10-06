@@ -55,4 +55,27 @@ fun Route.index() = route("/") {
             )
         }
     }
+
+    get("/v/{slug}") {
+        var documentDto: FrontendDocumentDto? = null
+        store.transactional {
+            val doc = XdDocument.find(call.slug)
+            if (doc == null) {
+                runBlocking {
+                    call.respondRedirect("/")
+                }
+            } else {
+                documentDto = FrontendDocumentDto.fromDocument(doc)
+            }
+        }
+        if (documentDto != null) {
+            call.respondTemplate(
+                "index", mapOf(
+                    "title" to documentDto!!.title,
+                    "description" to documentDto!!.description,
+                    "document" to documentDto!!
+                )
+            )
+        }
+    }
 }

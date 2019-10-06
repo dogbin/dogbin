@@ -4,6 +4,7 @@ import dog.del.app.dto.CreateDocumentDto
 import dog.del.app.dto.CreateDocumentResponseDto
 import dog.del.app.session.user
 import dog.del.app.utils.slug
+import dog.del.commons.isUrl
 import dog.del.commons.keygen.KeyGenerator
 import dog.del.data.base.model.document.XdDocument
 import dog.del.data.base.model.document.XdDocumentType
@@ -79,10 +80,9 @@ private suspend fun ApplicationCall.createDocument(
         val isFrontend = parameters["frontend"]?.toBoolean() ?: false
         val usr = user(db, !isFrontend)
         if (dto.slug.isNullOrBlank()) {
-            // Add url check
-            val isUrl = false
+            val isUrl = dto.content.isUrl()
             val doc = XdDocument.new {
-                // Make key length configurable
+                // TODO: Make key length configurable
                 slug = slugGen.createKey(10)
                 owner = usr
                 stringContent = dto.content
@@ -93,7 +93,7 @@ private suspend fun ApplicationCall.createDocument(
                 key = doc.slug
             )
         } else {
-            // Properly validate slug and handle failures
+            // TODO: Properly validate slug and handle failures
             val doc = XdDocument.find(dto.slug)
             if (doc != null) {
                 if (doc.userCanEdit(usr)) {
@@ -108,10 +108,8 @@ private suspend fun ApplicationCall.createDocument(
                     )
                 }
             } else {
-                // Add url check
-                val isUrl = false
+                val isUrl = dto.content.isUrl()
                 val doc = XdDocument.new {
-                    // Make key length configurable
                     slug = dto.slug
                     owner = usr
                     stringContent = dto.content
