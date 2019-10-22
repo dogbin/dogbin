@@ -77,7 +77,17 @@ private suspend fun ApplicationCall.createDocument(
     db: TransientEntityStore,
     slugGen: KeyGenerator
 ) {
-    val result = db.transactional {
+    // TODO: uuh yea this ain't too beautiful
+    val slugError = if (dto.slug != null) XdDocument.verifySlug(dto.slug) else null
+    val result = if (dto.content.isBlank()) {
+        HttpStatusCode.BadRequest to CreateDocumentResponseDto(
+            message = "Paste content cannot be empty"
+        )
+    } else if (slugError != null) {
+        HttpStatusCode.BadRequest to CreateDocumentResponseDto(
+            message = slugError
+        )
+    } else db.transactional {
         val isFrontend = parameters["frontend"]?.toBoolean() ?: false
         val usr = user(db, !isFrontend)
         if (dto.slug.isNullOrBlank()) {

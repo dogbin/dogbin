@@ -8,12 +8,11 @@ import dog.del.data.model.Document
 import jetbrains.exodus.entitystore.Entity
 import kotlinx.dnq.*
 import kotlinx.dnq.creator.findOrNew
-import kotlinx.dnq.query.FilteringContext.eq
 import kotlinx.dnq.query.filter
 import kotlinx.dnq.query.firstOrNull
 import kotlinx.dnq.simple.*
 
-class XdDocument(entity: Entity): XdEntity(entity), Document<XdDocumentType, XdUser> {
+class XdDocument(entity: Entity) : XdEntity(entity), Document<XdDocumentType, XdUser> {
     companion object : XdNaturalEntityType<XdDocument>() {
         fun findOrNew(slug: String, template: (XdDocument.() -> Unit)? = null) = findOrNew(filter { it ->
             it.slug.eq(slug)
@@ -25,6 +24,14 @@ class XdDocument(entity: Entity): XdEntity(entity), Document<XdDocumentType, XdU
         fun find(slug: String) = filter { it ->
             it.slug.eq(slug)
         }.firstOrNull()
+
+        fun verifySlug(slug: String) = if (slug.length < 3) {
+            "Custom Urls need to be at least 3 characters long"
+        } else if (!slug.matches(slugRegex)) {
+            "Custom URLs must be alphanumeric and cannot contain spaces"
+        } else null
+
+        val slugRegex = Regex("^[\\w-]{3,}\$")
     }
 
     override fun constructor() {
@@ -34,8 +41,7 @@ class XdDocument(entity: Entity): XdEntity(entity), Document<XdDocumentType, XdU
     }
 
     override var slug by xdRequiredStringProp(unique = true, trimmed = true) {
-        length(min = 3)
-        regex(Regex("^[\\w-]*\$"))
+        regex(slugRegex)
     }
 
     override var type by xdLink1(XdDocumentType)
@@ -54,5 +60,5 @@ class XdDocument(entity: Entity): XdEntity(entity), Document<XdDocumentType, XdU
 
     override var viewCount by xdIntProp()
 
-    fun userCanEdit(user: XdUser) = owner == user || user.role.isAdmin
+    fun userCanEdit(user: XdUser) = user.role.canSignIn && owner == user || user.role.isAdmin
 }
