@@ -6,6 +6,7 @@ val koin_version: String by rootProject
 plugins {
     application
     kotlin("jvm")
+    id("com.google.cloud.tools.jib") version "1.7.0"
 }
 
 application {
