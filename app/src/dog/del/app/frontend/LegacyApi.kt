@@ -78,7 +78,7 @@ private suspend fun ApplicationCall.createDocument(
     slugGen: KeyGenerator
 ) {
     // TODO: uuh yea this ain't too beautiful
-    val slugError = if (dto.slug != null) XdDocument.verifySlug(dto.slug) else null
+    val slugError = if (!dto.slug.isNullOrBlank()) XdDocument.verifySlug(dto.slug) else null
     val result = if (dto.content.isBlank()) {
         HttpStatusCode.BadRequest to CreateDocumentResponseDto(
             message = "Paste content cannot be empty"
