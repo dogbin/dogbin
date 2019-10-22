@@ -1,6 +1,7 @@
 package dog.del.app
 
 import com.mitchellbosecke.pebble.loader.ClasspathLoader
+import dog.del.app.config.AppConfig
 import dog.del.app.frontend.admin
 import dog.del.app.frontend.frontend
 import dog.del.app.frontend.legacyApi
@@ -20,6 +21,9 @@ import io.ktor.http.content.resource
 import io.ktor.http.content.resources
 import io.ktor.http.content.static
 import io.ktor.pebble.Pebble
+import io.ktor.server.engine.applicationEngineEnvironment
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
 import io.ktor.sessions.SessionTransportTransformerMessageAuthentication
 import io.ktor.sessions.Sessions
 import io.ktor.sessions.cookie
@@ -29,6 +33,7 @@ import jetbrains.exodus.database.TransientEntityStore
 import ktor_health_check.Health
 import org.koin.ktor.ext.Koin
 import org.koin.ktor.ext.get
+import org.slf4j.LoggerFactory
 import java.io.File
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
@@ -36,20 +41,23 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
+    val appConfig = AppConfig(environment.config)
+
     install(Compression) {
         gzip {
             priority = 1.0
         }
         deflate {
             priority = 10.0
-            minimumSize(1024) // condition
+            minimumSize(1024)
         }
     }
 
+
     install(Koin) {
         val appModule = org.koin.dsl.module {
-            // TODO: introduce config system
-            single { Database.init(File("dev.xdb"), "dev") }
+            single { appConfig }
+            single { Database.init(appConfig.db.location, appConfig.db.environment) }
             single { Config.getConfig(get()) }
             single<KeyGenerator> { PhoneticKeyGenerator() }
         }
@@ -80,13 +88,11 @@ fun Application.module(testing: Boolean = false) {
     }
 
     install(Sessions) {
-        // TODO: move these to config and make them more secure
-        val key = hex("DEADBEEF")
         cookie<WebSession>("doggie_session", XdSessionStorage()) {
-            transform(SessionTransportTransformerMessageAuthentication(key))
+            transform(SessionTransportTransformerMessageAuthentication(appConfig.keys.session))
         }
         header<ApiSession>("session", XdSessionStorage()) {
-            transform(SessionTransportTransformerMessageAuthentication(key))
+            transform(SessionTransportTransformerMessageAuthentication(appConfig.keys.session))
         }
     }
 

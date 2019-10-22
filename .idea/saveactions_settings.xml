@@ -4,7 +4,7 @@
     <option name="actions">
       <set>
         <option value="activate" />
-        <option value="reformatChangedCode" />
+        <option value="reformat" />
       </set>
     </option>
     <option name="configurationPath" value="" />
