@@ -83,4 +83,5 @@
         var app = new haste();
     });
 </script>
+{{ stats_embed | raw }}
 {% endblock %}

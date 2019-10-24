@@ -8,12 +8,18 @@ import dog.del.app.frontend.legacyApi
 import dog.del.app.session.ApiSession
 import dog.del.app.session.WebSession
 import dog.del.app.session.XdSessionStorage
+import dog.del.app.stats.StatisticsReporter
 import dog.del.app.utils.DogbinPebbleExtension
 import dog.del.commons.keygen.KeyGenerator
 import dog.del.commons.keygen.PhoneticKeyGenerator
 import dog.del.data.base.Database
 import dog.del.data.base.model.config.Config
 import io.ktor.application.*
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.apache.Apache
+import io.ktor.client.features.json.GsonSerializer
+import io.ktor.client.features.json.JsonFeature
+import io.ktor.client.features.json.JsonSerializer
 import io.ktor.features.*
 import io.ktor.routing.*
 import io.ktor.gson.*
@@ -60,6 +66,15 @@ fun Application.module(testing: Boolean = false) {
             single { Database.init(appConfig.db.location, appConfig.db.environment) }
             single { Config.getConfig(get()) }
             single<KeyGenerator> { PhoneticKeyGenerator() }
+            single { StatisticsReporter.getReporter(appConfig) }
+            single { this@module.log }
+            single {
+                HttpClient(Apache) {
+                    install(JsonFeature) {
+                        serializer = GsonSerializer()
+                    }
+                }
+            }
         }
         modules(
             appModule

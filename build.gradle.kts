@@ -13,7 +13,6 @@ allprojects {
     apply(plugin = "kotlin")
 
     repositories {
-        mavenLocal()
         jcenter()
         maven { url = uri("https://kotlin.bintray.com/ktor") }
         maven { url = uri("https://plugins.gradle.org/m2/") }

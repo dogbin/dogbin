@@ -1,5 +1,6 @@
 package dog.del.app.dto
 
+import dog.del.app.stats.StatisticsReporter
 import dog.del.commons.format
 import dog.del.commons.formatLong
 import dog.del.commons.formatShort
@@ -7,6 +8,7 @@ import dog.del.commons.lineCount
 import dog.del.data.base.model.document.XdDocumentType
 import dog.del.data.model.Document
 import dog.del.data.model.DocumentType
+import kotlinx.coroutines.runBlocking
 import java.util.*
 
 data class FrontendDocumentDto(
@@ -24,15 +26,22 @@ data class FrontendDocumentDto(
     // Use frontmatter data for rendered markdown content
     val description = content?.take(100) ?: "The sexiest pastebin and url-shortener ever"
     val title = "dogbin - $slug"
+
     companion object {
-        fun fromDocument(document: Document<XdDocumentType, *>, locale: Locale? = null) = FrontendDocumentDto(
-            document.slug,
-            DocumentTypeDto.fromXdDocumentType(document.type),
-            document.stringContent,
-            UserDto.fromUser(document.owner),
-            document.created.formatShort(locale),
-            document.viewCount
-        )
+        fun fromDocument(
+            document: Document<XdDocumentType, *>,
+            reporter: StatisticsReporter? = null,
+            locale: Locale? = null
+        ) = runBlocking {
+            FrontendDocumentDto(
+                document.slug,
+                DocumentTypeDto.fromXdDocumentType(document.type),
+                document.stringContent,
+                UserDto.fromUser(document.owner),
+                document.created.formatShort(locale),
+                reporter?.getImpressions(document.slug) ?: document.viewCount
+            )
+        }
     }
 }
 
@@ -47,11 +56,11 @@ data class CreateDocumentResponseDto(
     val message: String? = null
 )
 
-enum class DocumentTypeDto{
+enum class DocumentTypeDto {
     URL, PASTE;
 
     companion object {
-        fun fromXdDocumentType(documentType: XdDocumentType) = when(documentType) {
+        fun fromXdDocumentType(documentType: XdDocumentType) = when (documentType) {
             XdDocumentType.PASTE -> PASTE
             XdDocumentType.URL -> URL
             else -> throw IllegalStateException()

@@ -3,6 +3,7 @@ package dog.del.app.frontend
 import dog.del.app.dto.FrontendDocumentDto
 import dog.del.app.dto.UserDto
 import dog.del.app.session.*
+import dog.del.app.stats.StatisticsReporter
 import dog.del.app.utils.hlLang
 import dog.del.app.utils.locale
 import dog.del.data.base.model.document.XdDocument
@@ -32,6 +33,7 @@ import java.text.SimpleDateFormat
 
 fun Route.user() = route("/") {
     val store by inject<TransientEntityStore>()
+    val reporter by inject<StatisticsReporter>()
 
     route("/login") {
         post {
@@ -66,13 +68,15 @@ fun Route.user() = route("/") {
             }
         }
         get {
-            call.respondTemplate("login", mapOf(
-                "title" to "Login to dogbin",
-                "description" to "Login to dogbin",
-                "formTitle" to "Login",
-                "secondaryLink" to "/register",
-                "secondaryTitle" to "Register"
-            ))
+            call.respondTemplate(
+                "login", mapOf(
+                    "title" to "Login to dogbin",
+                    "description" to "Login to dogbin",
+                    "formTitle" to "Login",
+                    "secondaryLink" to "/register",
+                    "secondaryTitle" to "Register"
+                )
+            )
         }
     }
 
@@ -106,19 +110,22 @@ fun Route.user() = route("/") {
                 } else {
                     existingUser.signUp(username, password)
                     runBlocking {
+                        reporter.reportEvent(StatisticsReporter.Event.USER_REGISTER, call.request)
                         call.respondRedirect("/me", false)
                     }
                 }
             }
         }
         get {
-            call.respondTemplate("login", mapOf(
-                "title" to "Register for dogbin",
-                "description" to "Register for dogbin",
-                "formTitle" to "Register",
-                "secondaryLink" to "/login",
-                "secondaryTitle" to "Login"
-            ))
+            call.respondTemplate(
+                "login", mapOf(
+                    "title" to "Register for dogbin",
+                    "description" to "Register for dogbin",
+                    "formTitle" to "Register",
+                    "secondaryLink" to "/login",
+                    "secondaryTitle" to "Login"
+                )
+            )
         }
     }
 
@@ -134,7 +141,7 @@ fun Route.user() = route("/") {
             }
             store.transactional {
                 val docs = XdDocument.filter { it.owner eq usr }.sortedBy(XdDocument::created, asc = false)
-                    .asIterable().map { FrontendDocumentDto.fromDocument(it, call.locale) }
+                    .asIterable().map { FrontendDocumentDto.fromDocument(it, reporter, call.locale) }
                 val user = UserDto.fromUser(usr, call.locale)
                 runBlocking {
                     call.respondTemplate(
