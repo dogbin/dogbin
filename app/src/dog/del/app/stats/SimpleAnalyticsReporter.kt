@@ -27,7 +27,6 @@ import org.koin.core.inject
 import org.slf4j.Logger
 import java.util.concurrent.TimeUnit
 
-// TODO: Modify embedded js to strip /v/ and file extensions
 // TODO: Add events code
 class SimpleAnalyticsReporter : StatisticsReporter, KoinComponent {
     private val client by inject<HttpClient>()
@@ -53,7 +52,7 @@ class SimpleAnalyticsReporter : StatisticsReporter, KoinComponent {
         }
 
     override val embedCode = """
-        <script async defer src="https://cdn.simpleanalytics.io/hello.js"></script>
+        <script async defer src="/static/SA.min.js"></script>
         <noscript><img src="https://api.simpleanalytics.io/hello.gif" alt=""></noscript>
     """.trimIndent()
 
