@@ -11,7 +11,7 @@ import io.ktor.util.toMap
 private const val botRegexPattern = "(bot|spider|crawl)"
 private val botRegex = botRegexPattern.toRegex(setOf(RegexOption.IGNORE_CASE))
 
-val ApplicationRequest.dnt get() = header("dnt")?.toBoolean() == true
+val ApplicationRequest.dnt get() = header("dnt")?.startsWith('1') == true
 val ApplicationRequest.isBot get() = userAgent()?.contains(botRegex) == true
 val ApplicationRequest.refs
     get() = queryParameters.filter { key, _ ->
