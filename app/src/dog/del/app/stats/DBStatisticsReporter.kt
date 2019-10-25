@@ -15,12 +15,10 @@ class DBStatisticsReporter : StatisticsReporter, KoinComponent {
 
     override val embedCode = ""
 
-    override suspend fun reportImpression(slug: String, frontend: Boolean, request: ApplicationRequest) {
-        scope.launch {
-            db.transactional {
-                XdDocument.find(slug)?.apply {
-                    viewCount++
-                }
+    override fun reportImpression(slug: String, frontend: Boolean, request: ApplicationRequest) {
+        db.transactional {
+            XdDocument.find(slug)?.apply {
+                viewCount++
             }
         }
     }
@@ -29,7 +27,7 @@ class DBStatisticsReporter : StatisticsReporter, KoinComponent {
         XdDocument.find(slug)?.viewCount ?: 0
     }
 
-    override suspend fun reportEvent(event: StatisticsReporter.Event, request: ApplicationRequest) {
+    override fun reportEvent(event: StatisticsReporter.Event, request: ApplicationRequest) {
         // Not implemented for our basic db reporter
     }
 }

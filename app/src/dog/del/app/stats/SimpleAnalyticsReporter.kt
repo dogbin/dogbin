@@ -57,22 +57,22 @@ class SimpleAnalyticsReporter : StatisticsReporter, KoinComponent {
         <noscript><img src="https://api.simpleanalytics.io/hello.gif" alt=""></noscript>
     """.trimIndent()
 
-    override suspend fun reportImpression(slug: String, frontend: Boolean, request: ApplicationRequest) {
+    override fun reportImpression(slug: String, frontend: Boolean, request: ApplicationRequest) {
         // Reporting of frontend impressions is handled by the embedded script
         if (!frontend) {
             // only get timezone for IP if dnt is disabled
-            val tz = if (!request.dnt) timezoneCache[request.origin.remoteHost].asDeferred().await() else null
+            val tz = if (!request.dnt) timezoneCache[request.origin.remoteHost].asDeferred() else null
             val url = url {
                 protocol = URLProtocol.createOrDefault(request.origin.scheme)
                 host = request.host()
                 path(slug)
-            }.toString()
+            }
             scope.launch {
                 client.post("https://api.simpleanalytics.io/post") {
                     body = defaultSerializer().write(
                         ImpressionRequest(
                             url = url,
-                            timezone = tz,
+                            timezone = tz?.await(),
                             referrer = request.referer,
                             urlReferrer = request.refs,
                             // No way for us to know
@@ -111,7 +111,7 @@ class SimpleAnalyticsReporter : StatisticsReporter, KoinComponent {
         }
     }
 
-    override suspend fun reportEvent(event: StatisticsReporter.Event, request: ApplicationRequest) {
+    override fun reportEvent(event: StatisticsReporter.Event, request: ApplicationRequest) {
         scope.launch {
 
         }

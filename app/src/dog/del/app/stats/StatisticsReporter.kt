@@ -17,22 +17,22 @@ interface StatisticsReporter {
     }
 
     val embedCode: String
-    suspend fun reportImpression(slug: String, frontend: Boolean, request: ApplicationRequest)
+    fun reportImpression(slug: String, frontend: Boolean, request: ApplicationRequest)
     suspend fun getImpressions(slug: String): Int
-    suspend fun reportEvent(event: Event, request: ApplicationRequest)
+    fun reportEvent(event: Event, request: ApplicationRequest)
 
 
     class NopReporter : StatisticsReporter {
         override val embedCode = ""
 
-        override suspend fun reportImpression(slug: String, frontend: Boolean, request: ApplicationRequest) {
+        override fun reportImpression(slug: String, frontend: Boolean, request: ApplicationRequest) {
             // nop
         }
 
         // -1 hides the view count on the frontend
         override suspend fun getImpressions(slug: String) = -1
 
-        override suspend fun reportEvent(event: Event, request: ApplicationRequest) {
+        override fun reportEvent(event: Event, request: ApplicationRequest) {
             // nop
         }
     }
@@ -45,7 +45,7 @@ interface StatisticsReporter {
             .expiration(10, TimeUnit.MINUTES)
             .build<String, Boolean>()
 
-        override suspend fun reportImpression(slug: String, frontend: Boolean, request: ApplicationRequest) {
+        override fun reportImpression(slug: String, frontend: Boolean, request: ApplicationRequest) {
             // Ignore bot impressions
             if (!request.isBot) {
                 // Ignore repeated impressions within 10 minutes
@@ -62,7 +62,7 @@ interface StatisticsReporter {
         override suspend fun getImpressions(slug: String) =
             reporter.getImpressions(slug)
 
-        override suspend fun reportEvent(event: Event, request: ApplicationRequest) {
+        override fun reportEvent(event: Event, request: ApplicationRequest) {
             // Ignore bot events
             if (!request.isBot) {
                 reporter.reportEvent(event, request)
