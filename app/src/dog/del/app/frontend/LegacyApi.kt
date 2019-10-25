@@ -44,8 +44,10 @@ fun Route.legacyApi() = route("/") {
                 }
             } else {
                 runBlocking {
-                    reporter.reportImpression(doc.slug, false, call.request)
                     call.respondText(doc.stringContent!!)
+                }
+                GlobalScope.launch {
+                    reporter.reportImpression(doc.slug, false, call.request)
                 }
             }
         }

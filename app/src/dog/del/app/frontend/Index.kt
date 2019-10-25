@@ -16,6 +16,8 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.route
 import jetbrains.exodus.database.TransientEntityStore
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.koin.ktor.ext.inject
@@ -44,9 +46,11 @@ fun Route.index() = route("/") {
             } else {
                 if (doc.type == XdDocumentType.URL) {
                     runBlocking {
+                        call.respondRedirect(doc.stringContent!!, true)
+                    }
+                    GlobalScope.launch {
                         reporter.reportImpression(doc.slug, false, call.request)
                         reporter.reportEvent(Event.URL_REDIRECT, call.request)
-                        call.respondRedirect(doc.stringContent!!, true)
                     }
                 } else {
                     documentDto = FrontendDocumentDto.fromDocument(doc, reporter, call.locale)
@@ -56,9 +60,9 @@ fun Route.index() = route("/") {
                     }
                 }
             }
+            Unit
         }
         if (documentDto != null) {
-            reporter.reportImpression(documentDto!!.slug, true, call.request)
             call.respondTemplate(
                 "index", mapOf(
                     "title" to documentDto!!.title,
@@ -67,6 +71,9 @@ fun Route.index() = route("/") {
                     "editable" to editable
                 )
             )
+            GlobalScope.launch {
+                reporter.reportImpression(documentDto!!.slug, true, call.request)
+            }
         }
     }
 
@@ -88,7 +95,6 @@ fun Route.index() = route("/") {
             }
         }
         if (documentDto != null) {
-            reporter.reportImpression(documentDto!!.slug, true, call.request)
             call.respondTemplate(
                 "index", mapOf(
                     "title" to documentDto!!.title,
@@ -97,6 +103,9 @@ fun Route.index() = route("/") {
                     "editable" to editable
                 )
             )
+            GlobalScope.launch {
+                reporter.reportImpression(documentDto!!.slug, true, call.request)
+            }
         }
     }
 

@@ -23,6 +23,8 @@ import io.ktor.routing.post
 import io.ktor.routing.route
 import io.ktor.util.getOrFail
 import jetbrains.exodus.database.TransientEntityStore
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.dnq.query.asIterable
 import kotlinx.dnq.query.asSequence
@@ -110,8 +112,10 @@ fun Route.user() = route("/") {
                 } else {
                     existingUser.signUp(username, password)
                     runBlocking {
-                        reporter.reportEvent(StatisticsReporter.Event.USER_REGISTER, call.request)
                         call.respondRedirect("/me", false)
+                    }
+                    GlobalScope.launch {
+                        reporter.reportEvent(StatisticsReporter.Event.USER_REGISTER, call.request)
                     }
                 }
             }
