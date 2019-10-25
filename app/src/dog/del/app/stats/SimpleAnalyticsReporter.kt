@@ -7,19 +7,19 @@ import dog.del.app.utils.dnt
 import dog.del.app.utils.emptyAsNull
 import dog.del.app.utils.referer
 import dog.del.app.utils.refs
+import dog.del.commons.date
+import dog.del.commons.format
 import dog.del.data.base.model.document.XdDocument
 import io.ktor.client.HttpClient
 import io.ktor.client.features.json.defaultSerializer
 import io.ktor.client.request.get
 import io.ktor.client.request.post
-import io.ktor.client.request.request
 import io.ktor.features.origin
 import io.ktor.http.URLProtocol
 import io.ktor.request.*
 import io.ktor.util.url
 import jetbrains.exodus.database.TransientEntityStore
 import kotlinx.coroutines.*
-import kotlinx.coroutines.future.asCompletableFuture
 import kotlinx.coroutines.future.asDeferred
 import kotlinx.coroutines.future.future
 import org.koin.core.KoinComponent
@@ -27,7 +27,6 @@ import org.koin.core.inject
 import org.slf4j.Logger
 import java.util.concurrent.TimeUnit
 
-// TODO: Add events code
 class SimpleAnalyticsReporter : StatisticsReporter, KoinComponent {
     private val client by inject<HttpClient>()
     private val db by inject<TransientEntityStore>()
@@ -110,15 +109,26 @@ class SimpleAnalyticsReporter : StatisticsReporter, KoinComponent {
         }
     }
 
+    // TODO: report with past events?
     override fun reportEvent(event: StatisticsReporter.Event, request: ApplicationRequest) {
         scope.launch {
-
+            client.post("https://api.simpleanalytics.io/events") {
+                body = defaultSerializer().write(
+                    EventData(
+                        ua = request.userAgent(),
+                        hostname = request.origin.host,
+                        ref = request.refs,
+                        date = date().format("yyyy-MM-dd"),
+                        events = listOf(event.name)
+                    )
+                )
+            }
         }
     }
 
     private suspend fun getSaViewCount(slug: String): Int {
         try {
-            return client.request<StatsResult>("https://simpleanalytics.com/${config.host}/$slug.json") {}.pageviews
+            return client.get<StatsResult>("https://simpleanalytics.com/${config.host}/$slug.json").pageviews
         } catch (e: Exception) {
             log.error("Error while trying to get stats from SA", e)
         }
@@ -146,6 +156,18 @@ class SimpleAnalyticsReporter : StatisticsReporter, KoinComponent {
         val urlReferrer: String?,
         val width: Int?,
         val ua: String?
+    )
+
+    // See: https://docs.simpleanalytics.com/events/ios,
+    // https://github.com/simpleanalytics/scripts/blob/master/src/external.js,
+    // https://github.com/simpleanalytics/scripts/blob/master/src/iframe.js
+    data class EventData(
+        val ua: String?,
+        val hostname: String,
+        val date: String,
+        val ref: String?,
+        val events: List<String>,
+        val v: Int = 1
     )
 
     data class StatsResult(
