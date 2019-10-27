@@ -2,6 +2,7 @@ package dog.del.data.base.model.config
 
 import dog.del.commons.add
 import dog.del.commons.date
+import dog.del.commons.keygen.RandomKeyGenerator
 import dog.del.data.base.utils.freeze
 import jetbrains.exodus.database.TransientEntityStore
 import jetbrains.exodus.entitystore.Entity

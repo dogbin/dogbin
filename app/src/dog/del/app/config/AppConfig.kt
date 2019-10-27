@@ -22,7 +22,12 @@ class AppConfig(config: ApplicationConfig) {
         useSA = config.property("dogbin.stats.useSA").getString().toBoolean()
     )
 
+    val api = Api(
+        keyLength = 22
+    )
+
     data class DbConfig(val location: File, val environment: String)
     data class Keys(val session: ByteArray)
     data class Stats(val enabled: Boolean, val useSA: Boolean)
+    data class Api(val keyLength: Int)
 }
