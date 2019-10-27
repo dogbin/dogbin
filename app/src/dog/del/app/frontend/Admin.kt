@@ -24,7 +24,7 @@ fun Route.admin() = route("/a") {
     val db by inject<TransientEntityStore>()
 
     intercept(ApplicationCallPipeline.Call) {
-        val isAdmin = call.session() != null && db.transactional { call.user(db).role.isAdmin }
+        val isAdmin = call.session() != null && db.transactional(readonly = true) { call.user(db).role.isAdmin }
         if (!isAdmin) {
             call.respond(HttpStatusCode.Unauthorized, "Nice try.")
             finish()

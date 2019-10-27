@@ -35,7 +35,7 @@ class XdSessionStorage : SessionStorage, KoinComponent {
     }
 
     override suspend fun <R> read(id: String, consumer: suspend (ByteReadChannel) -> R): R = withContext(context) {
-        val stream = db.transactional {
+        val stream = db.transactional(readonly = true) {
             XdSession.find(id)?.content
         } ?: throw NoSuchElementException("Session $id not found")
         consumer(stream.toByteReadChannel())

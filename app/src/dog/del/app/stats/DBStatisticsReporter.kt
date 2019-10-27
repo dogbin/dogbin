@@ -23,7 +23,7 @@ class DBStatisticsReporter : StatisticsReporter, KoinComponent {
         }
     }
 
-    override suspend fun getImpressions(slug: String): Int = db.transactional {
+    override suspend fun getImpressions(slug: String): Int = db.transactional(readonly = true) {
         XdDocument.find(slug)?.viewCount ?: 0
     }
 

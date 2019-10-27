@@ -33,7 +33,7 @@ class DocumentFeature : CliFeature {
     }
 
     fun showDocument(slug: String) {
-        DogbinCli.Companion.Globals.getStore().transactional {
+        DogbinCli.Companion.Globals.getStore().transactional(readonly = true) {
             val doc = XdDocument.find(slug)!!
             println("Slug: ${doc.slug}")
             println("Type: ${doc.type.name}")

@@ -37,7 +37,7 @@ fun Route.index() = route("/") {
     get("/{slug}") {
         var documentDto: FrontendDocumentDto? = null
         var editable = false
-        store.transactional {
+        store.transactional(readonly = true) {
             val doc = XdDocument.find(call.slug)
             if (doc == null) {
                 runBlocking {
@@ -80,7 +80,7 @@ fun Route.index() = route("/") {
     get("/v/{slug}") {
         var documentDto: FrontendDocumentDto? = null
         var editable = false
-        store.transactional {
+        store.transactional(readonly = true) {
             val doc = XdDocument.find(call.slug)
             if (doc == null) {
                 runBlocking {
@@ -112,7 +112,7 @@ fun Route.index() = route("/") {
     get("/e/{slug}") {
         var documentDto: FrontendDocumentDto? = null
         var canEdit = false
-        store.transactional {
+        store.transactional(readonly = true) {
             val doc = XdDocument.find(call.slug)
             if (doc == null) {
                 runBlocking {

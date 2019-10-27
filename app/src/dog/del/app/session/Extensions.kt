@@ -23,7 +23,7 @@ fun ApplicationCall.user(db: TransientEntityStore, isApi: Boolean = false): XdUs
     val session = session()
     if (session != null) {
         try {
-            return db.transactional {
+            return db.transactional(readonly = true) {
                 XdUser.findById(session.user)
             }
         } catch (e: Exception) {

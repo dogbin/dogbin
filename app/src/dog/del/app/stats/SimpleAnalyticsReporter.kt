@@ -104,7 +104,7 @@ class SimpleAnalyticsReporter : StatisticsReporter, KoinComponent {
             }
         }
         // Get value that was last written to the db
-        return@withContext db.transactional {
+        return@withContext db.transactional(readonly = true) {
             XdDocument.find(slug)?.viewCount ?: 0
         }
     }

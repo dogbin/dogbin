@@ -42,7 +42,7 @@ fun Route.user() = route("/") {
             // This will either get the existing (anonymous) user or create a new anon user and add it to the session
             if (call.session() != null) {
                 val existingUser = call.user(store)
-                val isAnon = store.transactional {
+                val isAnon = store.transactional(readonly = true) {
                     existingUser.role == XdUserRole.ANON
                 }
                 if (!isAnon) {
@@ -53,7 +53,7 @@ fun Route.user() = route("/") {
             val params = call.receiveParameters()
             val username = params.getOrFail("username")
             val password = params.getOrFail("password")
-            store.transactional {
+            store.transactional(readonly = true) {
                 val usr = XdUser.find(username)
                 if (usr != null) {
                     if (usr.checkPassword(password)) {
@@ -93,7 +93,7 @@ fun Route.user() = route("/") {
         post {
             // This will either get the existing (anonymous) user or create a new anon user and add it to the session
             val existingUser = call.user(store)
-            val isAnon = store.transactional {
+            val isAnon = store.transactional(readonly = true) {
                 existingUser.role == XdUserRole.ANON
             }
             if (!isAnon) {
@@ -136,14 +136,14 @@ fun Route.user() = route("/") {
     route("/me") {
         get {
             val usr = call.user(store)
-            val isAnon = store.transactional {
+            val isAnon = store.transactional(readonly = true) {
                 usr.role == XdUserRole.ANON
             }
             if (isAnon) {
                 call.respondRedirect("/login", false)
                 return@get
             }
-            store.transactional {
+            store.transactional(readonly = true) {
                 val docs = XdDocument.filter { it.owner eq usr }.sortedBy(XdDocument::created, asc = false)
                     .asIterable().map { FrontendDocumentDto.fromDocument(it, reporter, call.locale) }
                 val user = UserDto.fromUser(usr, call.locale)
@@ -163,7 +163,7 @@ fun Route.user() = route("/") {
         route("changepass") {
             get {
                 val usr = call.user(store)
-                val requiresPassword = store.transactional {
+                val requiresPassword = store.transactional(readonly = true) {
                     usr.role.requiresPassword
                 }
                 if (!requiresPassword) {
@@ -180,7 +180,7 @@ fun Route.user() = route("/") {
 
             post {
                 val usr = call.user(store)
-                val requiresPassword = store.transactional {
+                val requiresPassword = store.transactional(readonly = true) {
                     usr.role.requiresPassword
                 }
                 if (!requiresPassword) {

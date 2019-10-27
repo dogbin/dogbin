@@ -42,7 +42,7 @@ class UserFeature : CliFeature {
     }
 
     private fun showUser(username: String) {
-        DogbinCli.Companion.Globals.getStore().transactional {
+        DogbinCli.Companion.Globals.getStore().transactional(readonly = true) {
             val usr = XdUser.find(username)!!
             println("Username: ${usr.username}")
             println("Role: ${usr.role.name}")
@@ -76,7 +76,7 @@ class UserFeature : CliFeature {
     private fun promoteUser(username: String, newRole: String?) {
         DogbinCli.Companion.Globals.getStore().transactional {
             XdUser.find(username)!!.apply {
-                role = when(newRole) {
+                role = when (newRole) {
                     "admin" -> XdUserRole.ADMIN
                     "mod" -> XdUserRole.MOD
                     else -> error("Unknown role $newRole")
