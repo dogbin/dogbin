@@ -18,16 +18,7 @@ fun ApplicationCall.clearWebSession() {
     sessions.clear<WebSession>()
 }
 
-fun ApplicationCall.getApiSession() = sessions.get<ApiSession>()
-fun ApplicationCall.setApiSession(session: ApiSession) {
-    sessions.set(session)
-}
-
-fun ApplicationCall.clearApiSession() {
-    sessions.clear<ApiSession>()
-}
-
-fun ApplicationCall.session() = getWebSession() ?: getApiSession()
+fun ApplicationCall.session() = getWebSession()
 fun ApplicationCall.user(db: TransientEntityStore, isApi: Boolean = false): XdUser {
     val session = session()
     if (session != null) {
@@ -37,11 +28,7 @@ fun ApplicationCall.user(db: TransientEntityStore, isApi: Boolean = false): XdUs
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            if (session is WebSession) {
-                sessions.clear<WebSession>()
-            } else {
-                sessions.clear<ApiSession>()
-            }
+            sessions.clear<WebSession>()
         }
     }
 
