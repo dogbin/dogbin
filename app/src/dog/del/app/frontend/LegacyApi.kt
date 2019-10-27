@@ -46,8 +46,9 @@ fun Route.legacyApi() = route("/") {
                 runBlocking {
                     call.respondText(doc.stringContent!!)
                 }
+                val slug = doc.slug
                 GlobalScope.launch {
-                    reporter.reportImpression(doc.slug, false, call.request)
+                    reporter.reportImpression(slug, false, call.request)
                 }
             }
         }

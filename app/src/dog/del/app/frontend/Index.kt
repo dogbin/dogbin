@@ -48,8 +48,9 @@ fun Route.index() = route("/") {
                     runBlocking {
                         call.respondRedirect(doc.stringContent!!, true)
                     }
+                    val slug = doc.slug
                     GlobalScope.launch {
-                        reporter.reportImpression(doc.slug, false, call.request)
+                        reporter.reportImpression(slug, false, call.request)
                         reporter.reportEvent(Event.URL_REDIRECT, call.request)
                     }
                 } else {
