@@ -6,7 +6,7 @@ val koin_version: String by rootProject
 plugins {
     application
     kotlin("jvm")
-    id("com.google.cloud.tools.jib") version "1.7.0"
+    id("com.github.johnrengelman.shadow") version "5.0.0"
 }
 
 application {
@@ -43,4 +43,12 @@ kotlin.sourceSets["test"].kotlin.srcDirs("test")
 sourceSets["main"].resources.srcDirs("resources")
 sourceSets["test"].resources.srcDirs("testresources")
 
-jib.to.image = "docker.pkg.github.com/deletescape/dogbin-kt/dogbin"
+tasks.withType<Jar> {
+    manifest {
+        attributes(
+            mapOf(
+                "Main-Class" to application.mainClassName
+            )
+        )
+    }
+}

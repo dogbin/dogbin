@@ -5,6 +5,7 @@
 *.iml
 *.ipr
 *.iws
+.env
 !/.idea/copyright
 !/.idea/codeStyles
 /.idea/dictionaries

@@ -1,0 +1,24 @@
+version: '3'
+services:
+  reverse-proxy:
+    image: traefik:v2.0
+    command: --api.insecure=true --providers.docker
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - "traefik.http.routers.reverse-proxy.rule=Host(`traefik.docker.localhost`)"
+  dogbin:
+    build: .
+    image: dogbin
+    environment:
+      - SESSION_KEY=${SESSION_KEY}
+      - DB_LOCATION=/dogbin.xdb
+    volumes:
+      - ./dogbin.xdb:/dogbin.xdb
+    expose:
+      - 8080
+    labels:
+      - "traefik.http.routers.dogbin.rule=Host(`l.del.dog`)"
