@@ -1,0 +1,37 @@
+{% extends 'includes/base' %}
+
+{% block body %}
+<ul id="messages" class="unselectable"></ul>
+<div id="header" class="unselectable">
+    <div id="title"><a href="/">dogbin</a></div>
+    <div id="tabs">
+        <a class="tab" href="/about.md">ABOUT</a>
+        <a class="tab" href="/changelog.md">CHANGELOG</a>
+    </div>
+</div>
+<div id="content">
+    <div class="center-inside">
+        <div class="card">
+            <h1>{{ user.username }}</h1>
+            <p>Joined: {{ user.created }}</p>
+            {% if pastes is not empty %}
+                <h2>Documents</h2>
+            {% for paste in pastes %}
+                <p><a href="/{{ paste.slug }}">{{ paste.slug }}</a> ({{ paste.created }})</p>
+            {% endfor %}
+            {% endif %}
+            <h2><a href="/me/api">Manage API keys</a></h2>
+            <a class="md-btn md-btn-secondary left" href="/me/changepass"><span>CHANGE PASSWORD</span></a>
+            <a class="md-btn md-btn-secondary right" href="/logout"><span>LOG OUT</span></a>
+        </div>
+    </div>
+</div>
+<div id="footer" class="unselectable">
+    <div id="copyright">&copy; {{ year }} <a href="https://deletescape.ch" target="_blank"
+                                             rel="noopener">deletescape</a>
+    </div>
+</div>
+{% endblock %}
+{% block after_body %}
+{{ stats_embed | raw }}
+{% endblock %}

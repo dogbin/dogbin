@@ -1,5 +1,6 @@
 package dog.del.app.frontend
 
+import dog.del.app.api.apiCredentials
 import dog.del.app.dto.CreateDocumentDto
 import dog.del.app.dto.CreateDocumentResponseDto
 import dog.del.app.session.user
@@ -97,28 +98,42 @@ private suspend fun ApplicationCall.createDocument(
         )
     } else db.transactional {
         val isFrontend = parameters["frontend"]?.toBoolean() ?: false
-        val usr = user(db, !isFrontend)
+        val apiCreds = if (isFrontend) null else apiCredentials(db)
+        val usr = apiCreds?.user ?: user(db, !isFrontend)
+        val canCreate = apiCreds?.canCreateDocuments ?: true
+        // If the user is able to edit documents in general
+        val canEdit = apiCreds?.canUpdateDocuments ?: true
         if (dto.slug.isNullOrBlank()) {
-            val isUrl = dto.content.isUrl()
-            val doc = XdDocument.new {
-                slug = slugGen.createKey(db, isUrl)
-                owner = usr
-                stringContent = dto.content
-                type = if (isUrl) XdDocumentType.URL else XdDocumentType.PASTE
+            if (!canCreate) {
+                HttpStatusCode.Forbidden to CreateDocumentResponseDto(
+                    message = "You do not have the permission to create documents"
+                )
+            } else {
+                val isUrl = dto.content.isUrl()
+                val doc = XdDocument.new {
+                    slug = slugGen.createKey(db, isUrl)
+                    owner = usr
+                    stringContent = dto.content
+                    type = if (isUrl) XdDocumentType.URL else XdDocumentType.PASTE
+                }
+                GlobalScope.launch {
+                    val event = if (isUrl) Event.URL_CREATE else Event.PASTE_CREATE
+                    reporter.reportEvent(event, request)
+                }
+                HttpStatusCode.OK to CreateDocumentResponseDto(
+                    isUrl = isUrl,
+                    key = doc.slug
+                )
             }
-            GlobalScope.launch {
-                val event = if (isUrl) Event.URL_CREATE else Event.PASTE_CREATE
-                reporter.reportEvent(event, request)
-            }
-            HttpStatusCode.OK to CreateDocumentResponseDto(
-                isUrl = isUrl,
-                key = doc.slug
-            )
         } else {
             // TODO: Properly validate slug and handle failures
             val doc = XdDocument.find(dto.slug)
             if (doc != null) {
-                if (doc.userCanEdit(usr)) {
+                if (!canEdit) {
+                    HttpStatusCode.Forbidden to CreateDocumentResponseDto(
+                        message = "You do not have the permission to edit documents"
+                    )
+                } else if (doc.userCanEdit(usr)) {
                     val isUrl = dto.content.isUrl()
                     doc.stringContent = dto.content
                     doc.type = if (isUrl) XdDocumentType.URL else XdDocumentType.PASTE
@@ -136,22 +151,28 @@ private suspend fun ApplicationCall.createDocument(
                     )
                 }
             } else {
-                val isUrl = dto.content.isUrl()
-                val doc = XdDocument.new {
-                    slug = dto.slug
-                    owner = usr
-                    stringContent = dto.content
-                    type = if (isUrl) XdDocumentType.URL else XdDocumentType.PASTE
-                }
+                if (!canCreate) {
+                    HttpStatusCode.Forbidden to CreateDocumentResponseDto(
+                        message = "You do not have the permission to create documents"
+                    )
+                } else {
+                    val isUrl = dto.content.isUrl()
+                    val doc = XdDocument.new {
+                        slug = dto.slug
+                        owner = usr
+                        stringContent = dto.content
+                        type = if (isUrl) XdDocumentType.URL else XdDocumentType.PASTE
+                    }
 
-                GlobalScope.launch {
-                    val event = if (isUrl) Event.URL_CREATE else Event.PASTE_CREATE
-                    reporter.reportEvent(event, request)
+                    GlobalScope.launch {
+                        val event = if (isUrl) Event.URL_CREATE else Event.PASTE_CREATE
+                        reporter.reportEvent(event, request)
+                    }
+                    HttpStatusCode.OK to CreateDocumentResponseDto(
+                        isUrl = isUrl,
+                        key = doc.slug
+                    )
                 }
-                HttpStatusCode.OK to CreateDocumentResponseDto(
-                    isUrl = isUrl,
-                    key = doc.slug
-                )
             }
         }
     }

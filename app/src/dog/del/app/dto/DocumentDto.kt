@@ -17,13 +17,12 @@ data class FrontendDocumentDto(
     val content: String?,
     val owner: UserDto,
     val created: String,
-    // Actually get viewcount from SA eventually
     val viewCount: Int
 ) {
-    // Disable for rendered markdown content
+    // todo: Disable for rendered markdown content
     val showLines = true
     val lines = content?.lineCount ?: 0
-    // Use frontmatter data for rendered markdown content
+    // todo: Use frontmatter data for rendered markdown content
     val description = content?.take(100) ?: "The sexiest pastebin and url-shortener ever"
     val title = "dogbin - $slug"
 

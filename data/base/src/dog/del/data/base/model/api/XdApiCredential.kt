@@ -11,6 +11,7 @@ import jetbrains.exodus.entitystore.Entity
 import kotlinx.dnq.*
 import kotlinx.dnq.query.filter
 import kotlinx.dnq.query.firstOrNull
+import kotlinx.dnq.query.toList
 
 class XdApiCredential(entity: Entity) : XdEntity(entity), ApiCredential<XdUser> {
     companion object : XdNaturalEntityType<XdApiCredential>() {
@@ -25,6 +26,8 @@ class XdApiCredential(entity: Entity) : XdEntity(entity), ApiCredential<XdUser> 
             val hash = key.sha256()
             return filter { it.keyHash eq hash }.firstOrNull()
         }
+
+        fun findForUser(user: XdUser) = filter { it.user eq user }.toList()
     }
 
     override fun constructor() {

@@ -12,17 +12,12 @@
 <div id="content">
     <div class="center-inside">
         <div class="card">
-            <h1>{{ user.username }}</h1>
-            <p>Joined: {{ user.created }}</p>
-            {% if pastes is not empty %}
-                <h2>Documents</h2>
-            {% for paste in pastes %}
-                <p><a href="/{{ paste.slug }}">{{ paste.slug }}</a> ({{ paste.created }})</p>
-            {% endfor %}
-            {% endif %}
-            <a class="md-btn md-btn-secondary left" href="/me/changepass"><span>CHANGE PASSWORD</span></a>
-            <a class="md-btn md-btn-secondary right" href="/logout"><span>LOG OUT</span></a>
-            </code></div>
+            <h1>{{ cred.name }}</h1>
+            <p><b>WARNING:</b> You will only be shown this key once, make sure to store it safely and use responsibly.
+            </p>
+            <p>Key: <code>{{ cred.key }}</code></p>
+            <a class="md-btn md-btn-secondary left" href="/me/api"><span>BACK</span></a>
+        </div>
     </div>
 </div>
 <div id="footer" class="unselectable">
@@ -30,7 +25,4 @@
                                              rel="noopener">deletescape</a>
     </div>
 </div>
-{% endblock %}
-{% block after_body %}
-{{ stats_embed | raw }}
 {% endblock %}

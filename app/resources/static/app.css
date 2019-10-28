@@ -473,6 +473,73 @@ body {
   color: #f9bfd3;
 }
 
+.checkbox {
+  display: inline-block;
+  position: relative;
+  margin: 0 0 10px;
+  font-size: 16px;
+  line-height: 24px;
+  float: left;
+}
+
+.checkbox__input {
+  position: absolute;
+  top: 4px;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  opacity: 0;
+  z-index: 0;
+}
+
+.checkbox__label {
+  display: block;
+  padding: 2px 0 0 28px;
+  cursor: pointer;
+}
+
+.checkbox__label:before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  background-color: transparent;
+  border: 2px solid #ECEFF1;
+  border-radius: 2px;
+  z-index: 1;
+  transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-property: background-color, border-color;
+}
+
+.checkbox__label:after {
+  content: "";
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: 6px;
+  height: 12px;
+  border-bottom: 2px solid transparent;
+  border-right: 2px solid transparent;
+  transform: rotate(45deg);
+  z-index: 2;
+  transition: border-color 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.checkbox__input:checked + .checkbox__label:before {
+  background-color: #f9bfd3;
+  border-color: #f9bfd3;
+}
+
+.checkbox__input:checked + .checkbox__label:after {
+  border-color: #37474f;
+}
+
+.checkbox__input:focus + .checkbox__label:before {
+  outline: 1px dotted currentColor;
+}
+
 .md-btn {
   position: relative;
   display: block;
@@ -593,8 +660,6 @@ body {
   background: #f9bfd3;
 }
 
-/*# sourceMappingURL=app.css.map */
-/*# sourceMappingURL=app.css.map */
 /*# sourceMappingURL=app.css.map */
 /*# sourceMappingURL=app.css.map */
 

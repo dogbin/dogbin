@@ -1,0 +1,30 @@
+{% extends 'includes/base' %}
+
+{% block body %}
+<ul id="messages" class="unselectable"></ul>
+<div id="header" class="unselectable">
+    <div id="title"><a href="/">dogbin</a></div>
+    <div id="tabs">
+        <a class="tab" href="/about.md">ABOUT</a>
+        <a class="tab" href="/changelog.md">CHANGELOG</a>
+    </div>
+</div>
+<div id="content">
+    <div class="center-inside">
+        <div class="card">
+            <h1>API credentials</h1>
+            {% for cred in credentials %}
+                <p>{{ cred.name }} - ({{ cred.created }}) <a href="/me/api/delete/{{ cred.id }}"
+                                                             title="Delete {{ cred.name }}">X</a></p>
+            {% endfor %}
+            <a class="md-btn md-btn-secondary left" href="/me"><span>BACK TO PROFILE</span></a>
+            <a class="md-btn md-btn-secondary right" href="/me/api/new"><span>NEW KEY</span></a>
+        </div>
+    </div>
+</div>
+<div id="footer" class="unselectable">
+    <div id="copyright">&copy; {{ year }} <a href="https://deletescape.ch" target="_blank"
+                                             rel="noopener">deletescape</a>
+    </div>
+</div>
+{% endblock %}

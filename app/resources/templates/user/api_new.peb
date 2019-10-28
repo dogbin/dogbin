@@ -1,0 +1,46 @@
+{% extends 'includes/base' %}
+
+{% block body %}
+<ul id="messages" class="unselectable"></ul>
+<div id="header" class="unselectable">
+    <div id="title"><a href="/">dogbin</a></div>
+    <div id="tabs">
+        <a class="tab" href="/about.md">ABOUT</a>
+        <a class="tab" href="/changelog.md">CHANGELOG</a>
+    </div>
+</div>
+<div id="content">
+    <div class="center-inside">
+        <form action="" method="post" class="card">
+            <h1>{{ formTitle }}</h1>
+            <div class="md-input">
+                <label>
+                    <input name="name" required>
+                    <span class="placeholder">Name</span>
+                </label>
+            </div>
+            <div class="checkbox">
+                <input type="checkbox" id="canCreateDocuments" name="canCreateDocuments" class="checkbox__input">
+                <label for="canCreateDocuments" class="checkbox__label">Can create new Documents</label>
+            </div>
+            <br>
+            <div class="checkbox">
+                <input type="checkbox" id="canUpdateDocuments" name="canUpdateDocuments" class="checkbox__input">
+                <label for="canUpdateDocuments" class="checkbox__label">Can update existing Documents</label>
+            </div>
+            <br>
+            <div class="checkbox">
+                <input type="checkbox" id="canDeleteDocuments" name="canDeleteDocuments" class="checkbox__input">
+                <label for="canDeleteDocuments" class="checkbox__label">Can delete Documents</label>
+            </div>
+            <br>
+            <button class="md-btn right" type="submit"><span>CREATE</span></button>
+        </form>
+    </div>
+</div>
+<div id="footer" class="unselectable">
+    <div id="copyright">&copy; {{ year }} <a href="https://deletescape.ch" target="_blank"
+                                             rel="noopener">deletescape</a>
+    </div>
+</div>
+{% endblock %}

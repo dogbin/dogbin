@@ -23,7 +23,7 @@ class AppConfig(config: ApplicationConfig) {
     )
 
     val api = Api(
-        keyLength = 22
+        keyLength = 40
     )
 
     data class DbConfig(val location: File, val environment: String)

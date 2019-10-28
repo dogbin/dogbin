@@ -60,7 +60,8 @@ fun Date.sub(
     seconds: Int = 0
 ): Date = add(-years, -months, -weeks, -days, -hours, -minutes, -seconds)
 
-fun Date.format(format: String, locale: Locale? = null): String = SimpleDateFormat(format, locale).format(time)
+fun Date.format(format: String, locale: Locale? = null): String =
+    SimpleDateFormat(format, locale ?: Locale.getDefault()).format(time)
 
 fun Date.format(locale: Locale? = null): String =
     (if (locale == null) SimpleDateFormat.getDateTimeInstance() else SimpleDateFormat.getDateTimeInstance(

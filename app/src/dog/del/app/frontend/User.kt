@@ -1,11 +1,16 @@
 package dog.del.app.frontend
 
+import dog.del.app.config.AppConfig
+import dog.del.app.dto.ApiCredentialDto
 import dog.del.app.dto.FrontendDocumentDto
+import dog.del.app.dto.NewApiCredentialDto
 import dog.del.app.dto.UserDto
 import dog.del.app.session.*
 import dog.del.app.stats.StatisticsReporter
 import dog.del.app.utils.hlLang
 import dog.del.app.utils.locale
+import dog.del.commons.keygen.RandomKeyGenerator
+import dog.del.data.base.model.api.XdApiCredential
 import dog.del.data.base.model.document.XdDocument
 import dog.del.data.base.model.user.XdUser
 import dog.del.data.base.model.user.XdUserRole
@@ -30,12 +35,14 @@ import kotlinx.dnq.query.asIterable
 import kotlinx.dnq.query.asSequence
 import kotlinx.dnq.query.filter
 import kotlinx.dnq.query.sortedBy
+import kotlinx.dnq.util.findById
 import org.koin.ktor.ext.inject
 import java.text.SimpleDateFormat
 
 fun Route.user() = route("/") {
     val store by inject<TransientEntityStore>()
     val reporter by inject<StatisticsReporter>()
+    val appConfig by inject<AppConfig>()
 
     route("/login") {
         post {
@@ -71,7 +78,7 @@ fun Route.user() = route("/") {
         }
         get {
             call.respondTemplate(
-                "login", mapOf(
+                "user/login", mapOf(
                     "title" to "Login to dogbin",
                     "description" to "Login to dogbin",
                     "formTitle" to "Login",
@@ -122,7 +129,7 @@ fun Route.user() = route("/") {
         }
         get {
             call.respondTemplate(
-                "login", mapOf(
+                "user/login", mapOf(
                     "title" to "Register for dogbin",
                     "description" to "Register for dogbin",
                     "formTitle" to "Register",
@@ -149,7 +156,7 @@ fun Route.user() = route("/") {
                 val user = UserDto.fromUser(usr, call.locale)
                 runBlocking {
                     call.respondTemplate(
-                        "user", mapOf(
+                        "user/user", mapOf(
                             "title" to "Me",
                             "description" to "View your profile",
                             "user" to user,
@@ -171,7 +178,7 @@ fun Route.user() = route("/") {
                     return@get
                 }
                 call.respondTemplate(
-                    "changepass", mapOf(
+                    "user/changepass", mapOf(
                         "title" to "Change password",
                         "description" to "Change your dogbin password"
                     )
@@ -200,6 +207,108 @@ fun Route.user() = route("/") {
                     }
                     runBlocking {
                         call.respondRedirect("/me/changepass")
+                    }
+                }
+            }
+        }
+        // TODO: this is currently pretty messy, just like most of our frontend code. We NEED to clean this up.
+        route("api") {
+            get {
+                val usr = call.user(store)
+                val requiresPassword = store.transactional(readonly = true) {
+                    usr.role.requiresPassword
+                }
+                if (!requiresPassword) {
+                    call.respondRedirect("/login", false)
+                    return@get
+                }
+                call.respondTemplate(
+                    "user/api", mapOf(
+                        "title" to "API Credentials",
+                        "description" to "Manage your API credentials",
+                        "credentials" to store.transactional(readonly = true) {
+                            XdApiCredential.findForUser(usr).map { ApiCredentialDto.fromApiCredential(it, call.locale) }
+                        }
+                    )
+                )
+            }
+
+            route("new") {
+                get {
+                    val usr = call.user(store)
+                    val requiresPassword = store.transactional(readonly = true) {
+                        usr.role.requiresPassword
+                    }
+                    if (!requiresPassword) {
+                        call.respondRedirect("/login", false)
+                        return@get
+                    }
+                    call.respondTemplate(
+                        "user/api_new", mapOf(
+                            "title" to "New API key",
+                            "description" to "Create a new API key"
+                        )
+                    )
+                }
+                post {
+                    val usr = call.user(store)
+                    val requiresPassword = store.transactional(readonly = true) {
+                        usr.role.requiresPassword
+                    }
+                    if (!requiresPassword) {
+                        call.respondRedirect("/", false)
+                        return@post
+                    }
+                    val params = call.receiveParameters()
+                    val name = params.getOrFail("name")
+                    val canCreateDocuments = params.get("canCreateDocuments") == "on"
+                    val canUpdateDocuments = params.get("canUpdateDocuments") == "on"
+                    val canDeleteDocuments = params.get("canDeleteDocuments") == "on"
+                    val key = RandomKeyGenerator().createKey(appConfig.api.keyLength)
+
+                    // Actually create the credentials in the db
+                    store.transactional {
+                        XdApiCredential.new(key, usr)?.apply {
+                            this.name = name
+                            this.canCreateDocuments = canCreateDocuments
+                            this.canUpdateDocuments = canUpdateDocuments
+                            this.canDeleteDocuments = canDeleteDocuments
+                        }
+                    }
+                    call.respondTemplate(
+                        "user/api_created", mapOf(
+                            "title" to "New API Key",
+                            "description" to "Create a new API key",
+                            "cred" to NewApiCredentialDto(name, key)
+                        )
+                    )
+                }
+            }
+
+            route("delete/{id}") {
+                get {
+                    val usr = call.user(store)
+                    val requiresPassword = store.transactional(readonly = true) {
+                        usr.role.requiresPassword
+                    }
+                    if (!requiresPassword) {
+                        call.respondRedirect("/", false)
+                        return@get
+                    }
+                    val id = call.parameters["id"]!!
+                    store.transactional {
+                        XdApiCredential.findById(id).apply {
+                            if (usr != user) {
+                                runBlocking {
+                                    call.respondRedirect("/", false)
+                                }
+                            } else {
+                                delete()
+                                runBlocking {
+                                    call.respondRedirect("/me/api", false)
+                                }
+                            }
+                        }
                     }
                 }
             }
