@@ -3,6 +3,9 @@ package dog.del.app
 import com.google.gson.Gson
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import dog.del.app.utils.testingModule
+import io.ktor.application.Application
+import io.ktor.config.MapApplicationConfig
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.handleRequest
@@ -14,7 +17,9 @@ import kotlin.test.assertTrue
 class ApplicationTest {
     @Test
     fun `Application is running`() {
-        withTestApplication({ module(testing = true) }) {
+        withTestApplication({
+            testingModule()
+        }) {
             handleRequest(HttpMethod.Get, "/healthz").apply {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertTrue { response.content.parseJson()["running"].asBoolean }

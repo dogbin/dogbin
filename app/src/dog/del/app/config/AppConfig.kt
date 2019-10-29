@@ -7,11 +7,11 @@ import java.io.File
 
 
 class AppConfig(config: ApplicationConfig) {
-    val host = config.property("dogbin.host").getString()
+    val host = config.propertyOrNull("dogbin.host")?.getString() ?: "localhost"
 
     val db = DbConfig(
         location = File(config.property("dogbin.db.location").getString()),
-        environment = config.property("dogbin.db.environment").getString()
+        environment = config.propertyOrNull("dogbin.db.environment")?.getString() ?: "prod"
     )
 
     val keys = Keys(
@@ -19,8 +19,8 @@ class AppConfig(config: ApplicationConfig) {
     )
 
     val stats = Stats(
-        enabled = config.property("dogbin.stats.enabled").getString().toBoolean(),
-        useSA = config.property("dogbin.stats.useSA").getString().toBoolean()
+        enabled = config.propertyOrNull("dogbin.stats.enabled")?.getString()?.toBoolean() ?: true,
+        useSA = config.propertyOrNull("dogbin.stats.useSA")?.getString()?.toBoolean() == true
     )
 
     val api = Api(
@@ -28,7 +28,7 @@ class AppConfig(config: ApplicationConfig) {
     )
 
     val documents = Documents(
-        docsPath = config.property("dogbin.documents.docsPath").getString(),
+        docsPath = config.propertyOrNull("dogbin.documents.docsPath")?.getString() ?: "documents/",
         addDocsPath = config.propertyOrNull("dogbin.documents.addDocsPath")?.getString().emptyAsNull()
     )
 
