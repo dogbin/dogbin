@@ -9,10 +9,14 @@ import dog.del.app.session.WebSession
 import dog.del.app.session.XdSessionStorage
 import dog.del.app.stats.StatisticsReporter
 import dog.del.app.utils.DogbinPebbleExtension
+import dog.del.commons.isUrl
 import dog.del.commons.keygen.KeyGenerator
 import dog.del.commons.keygen.PhoneticKeyGenerator
 import dog.del.data.base.Database
 import dog.del.data.base.model.config.Config
+import dog.del.data.base.model.document.XdDocument
+import dog.del.data.base.model.document.XdDocumentType
+import dog.del.data.base.model.user.XdUser
 import io.ktor.application.*
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache.Apache
@@ -40,6 +44,8 @@ import org.koin.ktor.ext.Koin
 import org.koin.ktor.ext.get
 import org.slf4j.LoggerFactory
 import java.io.File
+import java.nio.file.Path
+import java.nio.file.Paths
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -62,7 +68,9 @@ fun Application.module(testing: Boolean = false) {
     install(Koin) {
         val appModule = org.koin.dsl.module {
             single { appConfig }
-            single { Database.init(appConfig.db.location, appConfig.db.environment) }
+            single {
+                initDb(appConfig, Database.init(appConfig.db.location, appConfig.db.environment))
+            }
             single { Config.getConfig(get()) }
             single<KeyGenerator> { PhoneticKeyGenerator() }
             single { StatisticsReporter.getReporter(appConfig) }
@@ -120,3 +128,30 @@ fun Application.module(testing: Boolean = false) {
     }
 }
 
+// Initialize system documents (/about, /changelog, etc)
+private fun initDb(appConfig: AppConfig, db: TransientEntityStore): TransientEntityStore {
+    val usr = db.transactional(readonly = true) { XdUser.find("dogbin")!! }
+    var files = File(appConfig.documents.docsPath).walk().asSequence()
+    if (!appConfig.documents.addDocsPath.isNullOrBlank()) {
+        files += File(appConfig.documents.addDocsPath).walk().asSequence()
+    }
+    files.forEach { file ->
+        if (file.isFile) {
+            val slug = file.nameWithoutExtension
+            val content = file.readText()
+            db.transactional {
+                XdDocument.findOrNew(slug) {
+                    version = -1
+                }.apply {
+                    if (stringContent != content || owner != usr) {
+                        stringContent = content
+                        owner = usr
+                        version++
+                        type = if (content.isUrl()) XdDocumentType.URL else XdDocumentType.PASTE
+                    }
+                }
+            }
+        }
+    }
+    return db
+}

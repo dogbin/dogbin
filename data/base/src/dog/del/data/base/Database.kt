@@ -26,17 +26,7 @@ object Database {
 
         store.transactional {
             // Create "dogbin" user if it doesn't exist yet
-            val usr = XdUser.findOrNewSystem("dogbin")
-
-            // TODO: move out of this class and make more it configurable again
-            XdDocument.findOrNew("about") {
-                owner = usr
-                type = XdDocumentType.PASTE
-                stringContent = """
-                    # About
-                    oof this is kotlin awezomeness
-                """.trimIndent()
-            }
+            XdUser.findOrNewSystem("dogbin")
         }
 
         return store

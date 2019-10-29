@@ -1,5 +1,6 @@
 package dog.del.app.config
 
+import dog.del.app.utils.emptyAsNull
 import io.ktor.config.ApplicationConfig
 import io.ktor.util.hex
 import java.io.File
@@ -26,8 +27,14 @@ class AppConfig(config: ApplicationConfig) {
         keyLength = 40
     )
 
+    val documents = Documents(
+        docsPath = config.property("dogbin.documents.docsPath").getString(),
+        addDocsPath = config.propertyOrNull("dogbin.documents.addDocsPath")?.getString().emptyAsNull()
+    )
+
     data class DbConfig(val location: File, val environment: String)
     data class Keys(val session: ByteArray)
     data class Stats(val enabled: Boolean, val useSA: Boolean)
     data class Api(val keyLength: Int)
+    data class Documents(val docsPath: String, val addDocsPath: String?)
 }
