@@ -16,9 +16,11 @@ services:
     environment:
       - SESSION_KEY=${SESSION_KEY}
       - DB_LOCATION=/dogbin.xdb
+      - HOST=${HOST}
+      - SIMPLEANALYTICS=${SIMPLEANALYTICS}
     volumes:
       - ./dogbin.xdb:/dogbin.xdb
     expose:
       - 8080
     labels:
-      - "traefik.http.routers.dogbin.rule=Host(`l.del.dog`)"
+      - "traefik.http.routers.dogbin.rule=Host(`${HOST}`)"
