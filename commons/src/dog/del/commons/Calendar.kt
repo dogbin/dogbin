@@ -1,6 +1,5 @@
 package dog.del.commons
 
-import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -31,6 +30,10 @@ var Date.hour
 var Date.minute
     get() = get(Date.MINUTE)
     set(value) = set(Date.MINUTE, value)
+
+var Date.second
+    get() = get(Date.SECOND)
+    set(value) = set(Date.SECOND, value)
 
 fun Date.add(
     years: Int = 0,

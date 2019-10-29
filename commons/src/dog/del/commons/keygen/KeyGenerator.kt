@@ -12,6 +12,3 @@ interface KeyGenerator {
         println("distinct: $distinct")
     }
 }
-// 998769
-// 998766
-// 9906127
