@@ -29,11 +29,8 @@
         var post = function (isPushState) {
             // -- dogbin change: use slug instead of path if available --
             var path = loc.pathname;
-            if (haste_document) {
-                var doc = new haste_document();
-                if (doc.key) {
-                    path = "/" + doc.key;
-                }
+            if (typeof haste_document !== 'undefined') {
+                path = "/" + path.substring(1, path.length).split('.', 2)[0];
             }
             // Obfuscate personal data in URL by dropping the search and hash
             var url = loc.protocol + '//' + loc.hostname + path;
@@ -57,7 +54,7 @@
                 return m.split('=')[1]
             }) : [];
 
-            var data = {url: url};
+            var data = { url: url };
             if (userAgent) data.ua = userAgent;
             if (refs && refs[0]) data.urlReferrer = refs[0];
             if (doc.referrer && !isPushState) data.referrer = doc.referrer;
