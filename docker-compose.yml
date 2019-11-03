@@ -10,6 +10,11 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     labels:
       - "traefik.http.routers.reverse-proxy.rule=Host(`traefik.docker.localhost`)"
+  highlighter:
+    build: microservices/highlighter/
+    image: dogbin/highlighter
+    labels:
+      - "traefik.http.routers.highlighter.rule=Host(`highlighter.docker.localhost`)"
   dogbin:
     build: .
     image: dogbin
