@@ -1,4 +1,5 @@
 {# @pebvariable name="document" type="dog.del.app.dto.FrontendDocumentDto" #}
+{# @pebvariable name="appConfig" type="dog.del.app.config.AppConfig" #}
 {% extends 'includes/base' %}
 
 {% block body %}
@@ -64,8 +65,11 @@
             Created by {{ document.owner.displayName }}
         </div>
     {% endif %}
-        <div id="stats">Stats:&nbsp;&nbsp;
+        <div id="stats">
+        {% if  appConfig.stats.enabled and document.viewCount >= 0 %}
+            Stats:&nbsp;&nbsp;
             <div id="views"><img src="/static/icons/eye.svg" alt="Views"><b>{{ document.viewCount }}</b></div>
+        {% endif %}
         </div>
     {% endif %}
 </div>
