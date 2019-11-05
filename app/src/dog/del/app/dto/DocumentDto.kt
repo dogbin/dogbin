@@ -17,7 +17,8 @@ data class FrontendDocumentDto(
     val content: String?,
     val owner: UserDto,
     val created: String,
-    val viewCount: Int
+    val viewCount: Int,
+    val statsUrl: String?
 ) {
     // todo: Disable for rendered markdown content
     val showLines = true
@@ -38,7 +39,8 @@ data class FrontendDocumentDto(
                 document.stringContent,
                 UserDto.fromUser(document.owner),
                 document.created.formatShort(locale),
-                reporter?.getImpressions(document.slug) ?: document.viewCount
+                reporter?.getImpressions(document.slug) ?: document.viewCount,
+                reporter?.getUrl(document.slug)
             )
         }
     }

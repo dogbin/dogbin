@@ -20,7 +20,10 @@ interface StatisticsReporter {
     fun reportImpression(slug: String, frontend: Boolean, request: ApplicationRequest)
     suspend fun getImpressions(slug: String): Int
     fun reportEvent(event: Event, request: ApplicationRequest)
-
+    /**
+     * Get a publicly accessible url with statistics for the supplied slug
+     */
+    fun getUrl(slug: String): String?
 
     class NopReporter : StatisticsReporter {
         override val embedCode = ""
@@ -35,6 +38,8 @@ interface StatisticsReporter {
         override fun reportEvent(event: Event, request: ApplicationRequest) {
             // nop
         }
+
+        override fun getUrl(slug: String): String? = null
     }
 
     class ReporterWrapper(private val reporter: StatisticsReporter) : StatisticsReporter {
@@ -68,6 +73,8 @@ interface StatisticsReporter {
                 reporter.reportEvent(event, request)
             }
         }
+
+        override fun getUrl(slug: String) = reporter.getUrl(slug)
     }
 
     enum class Event {

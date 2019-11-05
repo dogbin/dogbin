@@ -126,6 +126,8 @@ class SimpleAnalyticsReporter : StatisticsReporter, KoinComponent {
         }
     }
 
+    override fun getUrl(slug: String) = "https://simpleanalytics.com/${config.host}/$slug"
+
     private suspend fun getSaViewCount(slug: String): Int {
         try {
             return client.get<StatsResult>("https://simpleanalytics.com/${config.host}/$slug.json").pageviews

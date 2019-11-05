@@ -30,4 +30,6 @@ class DBStatisticsReporter : StatisticsReporter, KoinComponent {
     override fun reportEvent(event: StatisticsReporter.Event, request: ApplicationRequest) {
         // Not implemented for our basic db reporter
     }
+
+    override fun getUrl(slug: String): String? = null
 }

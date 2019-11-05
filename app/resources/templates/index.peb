@@ -65,12 +65,12 @@
             Created by {{ document.owner.displayName }}
         </div>
     {% endif %}
-        <div id="stats">
+        <a id="stats"  {% if document.statsUrl is not null %}href="{{ document.statsUrl }}"{% endif %}>
         {% if  appConfig.stats.enabled and document.viewCount >= 0 %}
             Stats:&nbsp;&nbsp;
             <div id="views"><img src="/static/icons/eye.svg" alt="Views"><b>{{ document.viewCount }}</b></div>
         {% endif %}
-        </div>
+        </a>
     {% endif %}
 </div>
 {% endblock %}
