@@ -1,4 +1,5 @@
 {# @pebvariable name="config" type="dog.del.data.base.model.config.Config" #}
+<!doctype html>
 <html>
 <head>
     <meta charset="utf-8"/>
@@ -12,8 +13,10 @@
     <link rel="stylesheet" type="text/css" href="/static/app.css">
 
     <meta property="og:title" content="{{ title }}"/>
-    <meta property="og:site_name" content="{{ config.APPNAME }}"/>
-    <meta name="keywords" content="{{ config.keywords }}">
+    {% cache 'meta' %}
+        <meta property="og:site_name" content="{{ appConfig.appname }}"/>
+        <meta name="keywords" content="{{ config.keywords }}">
+    {% endcache %}
     <meta name="theme-color" content="#37474f">
     {% if description is not null %}
         <meta name="description" content="{{ description }}">
@@ -26,9 +29,13 @@
     {% block head %}
     {% endblock %}
 </head>
+{% flush %}
 <body>
+{% parallel %}
 {% block body %}
 {% endblock %}
+{% flush %}
+{% endparallel %}
 </body>
 {% block after_body %}
 {% endblock %}

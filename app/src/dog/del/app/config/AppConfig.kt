@@ -6,7 +6,9 @@ import io.ktor.util.hex
 import java.io.File
 
 
+@Suppress("unused")
 class AppConfig(config: ApplicationConfig) {
+    val appname = "dogbin"
     val host = config.propertyOrNull("dogbin.host")?.getString() ?: "localhost"
 
     val db = DbConfig(

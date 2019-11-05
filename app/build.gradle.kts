@@ -31,6 +31,7 @@ dependencies {
     compile("org.koin:koin-ktor:$koin_version")
     compile("net.jodah:expiringmap:0.5.9")
     compile("com.github.ben-manes.caffeine:caffeine:2.8.0")
+    compile("com.github.hazendaz:htmlcompressor:1.6.5")
     compile(project(":data:base"))
     compile(project(":commons"))
 

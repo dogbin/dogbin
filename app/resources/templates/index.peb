@@ -15,9 +15,8 @@
     {% if document is null%}
         <div class="md-input">
             <label>
-                <input name="slug" required tabindex="1" value="{{ editKey }}" {% if editKey is not null %}
-                       disabled{%
-                endif %}>
+                <input name="slug" required tabindex="1" value="{{ editKey }}"
+                       {% if editKey is not null %}disabled{% endif %}>
                 <span class="placeholder">Custom URL</span>
             </label>
         </div>
@@ -74,7 +73,7 @@
     {% endif %}
 </div>
 {% endblock %}
-{% block after_body %}}
+{% block after_body %}
 {% if document is not null %}
 <link rel="stylesheet" type="text/css" href="/static/hljs-dogbin.css"/>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
