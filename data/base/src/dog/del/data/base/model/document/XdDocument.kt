@@ -1,7 +1,9 @@
 package dog.del.data.base.model.document
 
+import com.jetbrains.teamsys.dnq.database.PropertyConstraint
 import dog.del.commons.Date
 import dog.del.commons.date
+import dog.del.commons.validSlug
 import dog.del.data.base.model.user.XdUser
 import dog.del.data.base.utils.xdRequiredDateProp
 import dog.del.data.model.Document
@@ -27,11 +29,9 @@ class XdDocument(entity: Entity) : XdEntity(entity), Document<XdDocumentType, Xd
 
         fun verifySlug(slug: String) = if (slug.length < 3) {
             "Custom Urls need to be at least 3 characters long"
-        } else if (!slug.matches(slugRegex)) {
+        } else if (!slug.validSlug()) {
             "Custom URLs must be alphanumeric and cannot contain spaces"
         } else null
-
-        val slugRegex = Regex("^[\\w-]{3,}\$")
     }
 
     override fun constructor() {
@@ -41,7 +41,12 @@ class XdDocument(entity: Entity) : XdEntity(entity), Document<XdDocumentType, Xd
     }
 
     override var slug by xdRequiredStringProp(unique = true, trimmed = true) {
-        regex(slugRegex)
+        constraints.add(object : PropertyConstraint<String?>() {
+            override fun getExceptionMessage(propertyName: String, propertyValue: String?) =
+                "\"$propertyValue\" isn't a valid slug"
+
+            override fun isValid(value: String?) = value?.validSlug() == true
+        })
     }
 
     override var type by xdLink1(XdDocumentType)

@@ -16,7 +16,7 @@ class MigationFeature : CliFeature {
             arg(
                 "db",
                 false,
-                "The name of the db. Defaults to dogbin_dev."
+                "The name of the db. Defaults to dogbin."
             ),
             arg(
                 "username",
@@ -34,10 +34,14 @@ class MigationFeature : CliFeature {
 
     override fun execute(name: String, args: Map<String, String?>) {
         val host = args["host"] ?: "localhost"
-        val dbName = args["db"] ?: "dogbin_dev"
+        val dbName = args["db"] ?: "dogbin"
         val username = args["username"]
         val password = args["password"]
-        val credential = if (username != null && password != null) MongoCredential.createCredential(username, dbName, password.toCharArray()) else null
+        val credential = if (username != null && password != null) MongoCredential.createCredential(
+            username,
+            dbName,
+            password.toCharArray()
+        ) else null
 
         MongoMigration(
             xdStore = DogbinCli.Companion.Globals.getStore(),

@@ -7,6 +7,7 @@ plugins {
 
 application {
     mainClassName = "dog.del.cli.DogbinCli"
+    applicationDefaultJvmArgs = listOf("-Xmx6g")
 }
 
 dependencies {

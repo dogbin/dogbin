@@ -33,8 +33,8 @@ class DogbinCli {
             private var storeEnvHash: Int = 0
             private val currentStoreEnvHash get() = (storeLocation + storeEnvironment).hashCode()
 
-            var storeLocation: String = ""
-            var storeEnvironment: String = ""
+            var storeLocation: String = "dogbin.xdb"
+            var storeEnvironment: String = "prod"
 
             fun getStore(): TransientEntityStore {
                 if (storeLocation.isNotBlank() && storeEnvironment.isNotBlank()) {

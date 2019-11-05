@@ -1,11 +1,17 @@
 #!/usr/bin/env sh
 
+CURRENTDIR=$(pwd)
+
 # Absolute path to this script,
 SCRIPT=$(readlink -f "$0")
 # Absolute path this script is in
 SCRIPTPATH=$(dirname "$SCRIPT")
 
+cd $SCRIPTPATH
+
 # Build/Install
-sh -c $SCRIPTPATH/gradlew :cli:installDist > /dev/null
+./gradlew :cli:installDist > /dev/null
 # Start the shell
-sh -c $SCRIPTPATH/cli/build/install/cli/bin/cli
+./cli/build/install/cli/bin/cli
+
+cd $CURRENTDIR
