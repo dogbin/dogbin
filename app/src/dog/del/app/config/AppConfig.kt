@@ -34,9 +34,14 @@ class AppConfig(config: ApplicationConfig) {
         addDocsPath = config.propertyOrNull("dogbin.documents.addDocsPath")?.getString().emptyAsNull()
     )
 
+    val microservices = Microservices(
+        highlighter = config.property("dogbin.microservices.highlighter").getString()
+    )
+
     data class DbConfig(val location: File, val environment: String)
     data class Keys(val session: ByteArray)
     data class Stats(val enabled: Boolean, val useSA: Boolean)
     data class Api(val keyLength: Int)
     data class Documents(val docsPath: String, val addDocsPath: String?)
+    data class Microservices(val highlighter: String)
 }

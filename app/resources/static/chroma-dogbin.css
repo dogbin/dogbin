@@ -1,0 +1,68 @@
+/* Background */ .chroma { color: #f8f2f7 }
+/* Error */ .chroma .err { color: #f07199 }
+/* LineTableTD */ .chroma .lntd { vertical-align: top; padding: 0; margin: 0; border: 0; }
+/* LineTable */ .chroma .lntable { border-spacing: 0; padding: 0; margin: 0; border: 0; width: auto; overflow: auto; display: block; }
+/* LineHighlight */ .chroma .hl { display: block; width: 100%;background-color: #3d3f4a }
+/* LineNumbersTable */ .chroma .lnt { margin-right: 0.4em; padding: 0 0.4em 0 0.4em;color: #7f7f7f }
+/* LineNumbers */ .chroma .ln { margin-right: 0.4em; padding: 0 0.4em 0 0.4em;color: #7f7f7f }
+/* Keyword */ .chroma .k { color: #97dbbe }
+/* KeywordConstant */ .chroma .kc { color: #97dbbe; font-weight: bold }
+/* KeywordDeclaration */ .chroma .kd { color: #bc89c9; font-style: italic }
+/* KeywordNamespace */ .chroma .kn { color: #97dbbe }
+/* KeywordPseudo */ .chroma .kp { color: #97dbbe }
+/* KeywordReserved */ .chroma .kr { color: #97dbbe }
+/* KeywordType */ .chroma .kt { color: #bc89c9 }
+/* NameAttribute */ .chroma .na { color: #94d1a4 }
+/* NameBuiltin */ .chroma .nb { color: #bc89c9; font-style: italic }
+/* NameClass */ .chroma .nc { color: #d1b0cc }
+/* NameConstant */ .chroma .no { color: #d1b0cc; font-weight: bold }
+/* NameDecorator */ .chroma .nd { color: #d1b0cc }
+/* NameEntity */ .chroma .ni { color: #d1b0cc }
+/* NameException */ .chroma .ne { color: #d1b0cc }
+/* NameFunction */ .chroma .nf { color: #f5da98 }
+/* NameLabel */ .chroma .nl { color: #bc89c9; font-style: italic }
+/* NameTag */ .chroma .nt { color: #97dbbe }
+/* NameVariable */ .chroma .nv { color: #bc89c9; font-style: italic }
+/* NameVariableClass */ .chroma .vc { color: #bc89c9; font-style: italic }
+/* NameVariableGlobal */ .chroma .vg { color: #bc89c9; font-style: italic }
+/* NameVariableInstance */ .chroma .vi { color: #bc89c9; font-style: italic }
+/* LiteralString */ .chroma .s { color: #f0a8c7 }
+/* LiteralStringAffix */ .chroma .sa { color: #f0a8c7 }
+/* LiteralStringBacktick */ .chroma .sb { color: #f0a8c7 }
+/* LiteralStringChar */ .chroma .sc { color: #d496b1 }
+/* LiteralStringDelimiter */ .chroma .dl { color: #f0a8c7 }
+/* LiteralStringDoc */ .chroma .sd { color: #f0a8c7 }
+/* LiteralStringDouble */ .chroma .s2 { color: #f0a8c7 }
+/* LiteralStringEscape */ .chroma .se { color: #f0a8c7 }
+/* LiteralStringHeredoc */ .chroma .sh { color: #f0a8c7 }
+/* LiteralStringInterpol */ .chroma .si { color: #f0a8c7 }
+/* LiteralStringOther */ .chroma .sx { color: #f0a8c7 }
+/* LiteralStringRegex */ .chroma .sr { color: #f0a8c7 }
+/* LiteralStringSingle */ .chroma .s1 { color: #f0a8c7 }
+/* LiteralStringSymbol */ .chroma .ss { color: #f0a8c7 }
+/* LiteralNumber */ .chroma .m { color: #bd93f9 }
+/* LiteralNumberBin */ .chroma .mb { color: #bd93f9 }
+/* LiteralNumberFloat */ .chroma .mf { color: #bd93f9 }
+/* LiteralNumberHex */ .chroma .mh { color: #bd93f9 }
+/* LiteralNumberInteger */ .chroma .mi { color: #bd93f9 }
+/* LiteralNumberIntegerLong */ .chroma .il { color: #bd93f9 }
+/* LiteralNumberOct */ .chroma .mo { color: #bd93f9 }
+/* Operator */ .chroma .o { color: #97dbbe }
+/* OperatorWord */ .chroma .ow { color: #97dbbe }
+/* Comment */ .chroma .c { color: #7988b5 }
+/* CommentHashbang */ .chroma .ch { color: #7988b5 }
+/* CommentMultiline */ .chroma .cm { color: #7988b5 }
+/* CommentSingle */ .chroma .c1 { color: #7988b5 }
+/* CommentSpecial */ .chroma .cs { color: #7988b5 }
+/* CommentPreproc */ .chroma .cp { color: #97dbbe }
+/* CommentPreprocFile */ .chroma .cpf { color: #97dbbe }
+/* GenericDeleted */ .chroma .gd { color: #963f3f }
+/* GenericEmph */ .chroma .ge { text-decoration: underline }
+/* GenericHeading */ .chroma .gh { font-weight: bold }
+/* GenericInserted */ .chroma .gi { color: #aee8b7; font-weight: bold }
+/* GenericOutput */ .chroma .go { color: #44475a }
+/* GenericPrompt */ .chroma .gp { color: #e0b8da }
+/* GenericStrong */ .chroma .gs { font-weight: bold }
+/* GenericSubheading */ .chroma .gu { font-weight: bold }
+/* GenericTraceback */ .chroma .gt { color: #f0cee0 }
+/* GenericUnderline */ .chroma .gl { text-decoration: underline }

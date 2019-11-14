@@ -1,6 +1,7 @@
 package dog.del.app.frontend
 
 import dog.del.app.dto.FrontendDocumentDto
+import dog.del.app.highlighter.Highlighter
 import dog.del.app.session.session
 import dog.del.app.session.user
 import dog.del.app.stats.StatisticsReporter
@@ -25,6 +26,7 @@ import org.koin.ktor.ext.inject
 fun Route.index() = route("/") {
     val store by inject<TransientEntityStore>()
     val reporter by inject<StatisticsReporter>()
+    val highlighter by inject<Highlighter>()
 
     get {
         call.respondTemplate(
@@ -69,7 +71,9 @@ fun Route.index() = route("/") {
                     "title" to documentDto!!.title,
                     "description" to documentDto!!.description,
                     "document" to documentDto!!,
-                    "editable" to editable
+                    "editable" to editable,
+                    // FIXME
+                    "rendered" to highlighter.highlight(documentDto!!.content)!!
                 )
             )
             GlobalScope.launch {
