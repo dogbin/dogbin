@@ -107,17 +107,26 @@ func highlightHandler(ctx *fasthttp.RequestCtx) {
 		lexer = lexers.Get(lang)
 	}
 	if lexer == nil && filename != "" {
-		// try to use enry for high accuracy language guessing
-		content := []byte(code)
-		lexer = lexers.Get(enry.GetLanguage(filename, content))
+		lexer = lexers.Get(enry.GetLanguage(filename, []byte(code)))
 	}
 	if lexer == nil && filename != "" {
-		// If enry didn't detect the language, chances of chroma detecting it won't be very high
 		lexer = lexers.Match(filename)
+	}
+	var enryLang = ""
+	if lexer == nil {
+		//var safe = false
+		// This can be quite inaccurate but appears to still be better than chroma at some languages, e.g. Kotlin
+		enryLang, _ = enry.GetLanguageByClassifier([]byte(code), supportedLangs)
+		//if safe {
+			lexer = lexers.Get(enryLang)
+		//}
 	}
 	if lexer == nil {
 		lexer = lexers.Analyse(code)
 	}
+	//if lexer == nil {
+	//	lexer = lexers.Get(enryLang)
+	//}
 	if lexer == nil {
 		lexer = lexers.Fallback
 	}
@@ -146,6 +155,20 @@ func highlightHandler(ctx *fasthttp.RequestCtx) {
 }
 
 func main() {
+	for _, l := range lexers.Registry.Lexers {
+		config := l.Config()
+		lang, ok := enry.GetLanguageByAlias(config.Name)
+		if ok {
+			supportedLangs = append(supportedLangs, lang)
+		} else {
+			for _, a := range config.Aliases {
+				lang, ok := enry.GetLanguageByAlias(a)
+				if ok {
+					supportedLangs = append(supportedLangs, lang)
+				}
+			}
+		}
+	}
 	if err := fasthttp.ListenAndServe(":8080", highlightHandler); err != nil {
 		fmt.Println(err)
 	}
