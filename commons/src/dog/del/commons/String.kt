@@ -26,3 +26,6 @@ fun ByteArray.toHex(): String {
 
     return String(result)
 }
+
+fun String.ensurePrefix(prefix: String) = if (startsWith(prefix)) this else prefix + this
+fun String.ensurePrefix(prefix: Char) = if (startsWith(prefix)) this else prefix + this

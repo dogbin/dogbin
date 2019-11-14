@@ -48,7 +48,7 @@
     </div>
     {% if document is not null %}
         <pre id="box" tabindex="1" {% if document.lines !=-1 %}class="haslines" {% endif %}><code
-                class="hljs {{ lang }}">{% if rendered is not null %}{{ rendered | raw }}{% else %}{{ document.content }}{% endif %}</code></pre>
+                class="hljs {{ lang }}">{% if document.rendered is not null %}{{ document.rendered | raw }}{% else %}{{ document.content }}{% endif %}</code></pre>
     {% else %}
         <textarea spellcheck="false" placeholder="Paste, save, share! (Pasting just a URL will shorten it!)"
                   tabindex="1">{{ initialValue }}</textarea>
@@ -75,7 +75,7 @@
 {% endblock %}
 {% block after_body %}
 {% if document is not null %}
-{% if rendered is null %}
+{% if document.rendered is null %}
 <link rel="stylesheet" type="text/css" href="/static/hljs-dogbin.css"/>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 {% else %}

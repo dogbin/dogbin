@@ -53,7 +53,7 @@ class XdUser(entity: Entity) : XdEntity(entity), User<XdUserRole> {
     }
 
     fun changePass(password: String) {
-        this.password = password;
+        this.password = password
         // TODO: close all sessions except for the one initiating this request
     }
 

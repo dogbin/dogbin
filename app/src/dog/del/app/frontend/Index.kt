@@ -7,6 +7,7 @@ import dog.del.app.session.user
 import dog.del.app.stats.StatisticsReporter
 import dog.del.app.stats.StatisticsReporter.*
 import dog.del.app.utils.locale
+import dog.del.app.utils.rawSlug
 import dog.del.app.utils.slug
 import dog.del.data.base.model.document.XdDocument
 import dog.del.data.base.model.document.XdDocumentType
@@ -17,10 +18,7 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.route
 import jetbrains.exodus.database.TransientEntityStore
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import org.koin.ktor.ext.inject
 
 fun Route.index() = route("/") {
@@ -39,6 +37,7 @@ fun Route.index() = route("/") {
     get("/{slug}") {
         var documentDto: FrontendDocumentDto? = null
         var editable = false
+        var highlightDeferred: Deferred<Highlighter.HighlighterResult>? = null
         store.transactional(readonly = true) {
             val doc = XdDocument.find(call.slug)
             if (doc == null) {
@@ -56,6 +55,14 @@ fun Route.index() = route("/") {
                         reporter.reportEvent(Event.URL_REDIRECT, call.request)
                     }
                 } else {
+                    highlightDeferred = async {
+                        highlighter.highlightDocument(
+                            doc.xdId,
+                            call.rawSlug,
+                            doc.version,
+                            doc.stringContent!!
+                        )
+                    }
                     documentDto = FrontendDocumentDto.fromDocument(doc, reporter, call.locale)
                     if (call.session() != null) {
                         val usr = call.user(store)
@@ -66,14 +73,19 @@ fun Route.index() = route("/") {
             Unit
         }
         if (documentDto != null) {
+            val highlightResult = highlightDeferred?.await()
+            val hlSlug = highlightResult?.createFilename(call.slug)
+            if (hlSlug != null && hlSlug != call.rawSlug) {
+                call.respondRedirect("/$hlSlug")
+                return@get
+            }
+            documentDto!!.rendered = highlightResult?.content
             call.respondTemplate(
                 "index", mapOf(
                     "title" to documentDto!!.title,
                     "description" to documentDto!!.description,
                     "document" to documentDto!!,
-                    "editable" to editable,
-                    // FIXME
-                    "rendered" to highlighter.highlight(documentDto!!.content)!!
+                    "editable" to editable
                 )
             )
             GlobalScope.launch {
@@ -85,6 +97,7 @@ fun Route.index() = route("/") {
     get("/v/{slug}") {
         var documentDto: FrontendDocumentDto? = null
         var editable = false
+        var highlightDeferred: Deferred<Highlighter.HighlighterResult?>? = null
         store.transactional(readonly = true) {
             val doc = XdDocument.find(call.slug)
             if (doc == null) {
@@ -92,6 +105,16 @@ fun Route.index() = route("/") {
                     call.respondRedirect("/")
                 }
             } else {
+                highlightDeferred = async {
+                    if (doc.type == XdDocumentType.PASTE) {
+                        highlighter.highlightDocument(
+                            doc.xdId,
+                            call.rawSlug,
+                            doc.version,
+                            doc.stringContent!!
+                        )
+                    } else null
+                }
                 documentDto = FrontendDocumentDto.fromDocument(doc, reporter, call.locale)
                 if (call.session() != null) {
                     val usr = call.user(store)
@@ -100,6 +123,8 @@ fun Route.index() = route("/") {
             }
         }
         if (documentDto != null) {
+            val highlightResult = highlightDeferred?.await()
+            documentDto!!.rendered = highlightResult?.content
             call.respondTemplate(
                 "index", mapOf(
                     "title" to documentDto!!.title,

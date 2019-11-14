@@ -5,6 +5,7 @@ import io.ktor.request.acceptLanguageItems
 import java.util.*
 
 val ApplicationCall.slug get() = parameters["slug"]!!.substringBeforeLast('.')
+val ApplicationCall.rawSlug get() = parameters["slug"]!!
 val ApplicationCall.hlLang get() = parameters["slug"]!!.substringAfterLast('.', "")
 val ApplicationCall.locale
     get() = request.acceptLanguageItems().mapNotNull {

@@ -1,5 +1,6 @@
 package dog.del.app.dto
 
+import dog.del.app.highlighter.Highlighter
 import dog.del.app.stats.StatisticsReporter
 import dog.del.commons.format
 import dog.del.commons.formatLong
@@ -18,7 +19,8 @@ data class FrontendDocumentDto(
     val owner: UserDto,
     val created: String,
     val viewCount: Int,
-    val statsUrl: String?
+    val statsUrl: String?,
+    var rendered: String?
 ) {
     // todo: Disable for rendered markdown content
     val showLines = true
@@ -31,7 +33,8 @@ data class FrontendDocumentDto(
         fun fromDocument(
             document: Document<XdDocumentType, *>,
             reporter: StatisticsReporter? = null,
-            locale: Locale? = null
+            locale: Locale? = null,
+            rendered: String? = null
         ) = runBlocking {
             FrontendDocumentDto(
                 document.slug,
@@ -40,7 +43,8 @@ data class FrontendDocumentDto(
                 UserDto.fromUser(document.owner),
                 document.created.formatShort(locale),
                 reporter?.getImpressions(document.slug) ?: document.viewCount,
-                reporter?.getUrl(document.slug)
+                reporter?.getUrl(document.slug),
+                rendered
             )
         }
     }
