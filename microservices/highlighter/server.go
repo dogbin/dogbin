@@ -41,6 +41,7 @@ func highlightHandler(ctx *fasthttp.RequestCtx) {
 	if lexer == nil {
 		//var safe = false
 		// This can be quite inaccurate but appears to still be better than chroma at some languages, e.g. Kotlin
+		// TODO: this is actually pretty bad, as it ends up returning random languages for everything below a certain minimum length
 		enryLang, _ = enry.GetLanguageByClassifier([]byte(code), supportedLangs)
 		//if safe {
 		lexer = lexers.Get(enryLang)

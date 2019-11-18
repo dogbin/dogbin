@@ -75,20 +75,25 @@ class Highlighter : KoinComponent {
             this.version = version
             val lang = rawSlug.substringAfterLast('.', missingDelimiterValue = "").emptyAsNull()
             val fileName = if (rawSlug.contains('.')) rawSlug else null
-            val hlResult = runBlocking { highlight(content, fileName, lang) }
-            if (hlResult != null) {
-                if (hlResult.language == "fallback") {
-                    language = ""
-                    extension = ".txt"
-                } else {
-                    extension = hlResult.extension
-                    language = hlResult.language
+            val hlResult = runBlocking { highlight(content, fileName, lang) } ?: HighlighterResult("", content, ".txt")
+            this.extension = hlResult.extension
+            this.language = hlResult.language
+            this.content = hlResult.content
+            // in case this request happened without language, or using an alias also ensure the default extension is cached as well
+            val defaultSlug = hlResult.createFilename(rawSlug.substringBeforeLast('.'))
+            if (rawSlug != defaultSlug) {
+                XdHighlighterCache.findOrNew(XdHighlighterCache.filter {
+                    it.docId eq docId
+                    it.slug eq defaultSlug
+                    it.version eq version
+                }) {
+                    this.docId = docId
+                    this.slug = defaultSlug
+                    this.version = version
+                    this.extension = hlResult.extension
+                    this.language = hlResult.language
+                    this.content = hlResult.content
                 }
-                this.content = hlResult.content
-            } else {
-                this.content = content
-                language = ""
-                extension = ".txt"
             }
         }
     }
@@ -106,10 +111,12 @@ class Highlighter : KoinComponent {
     }
 
     data class HighlighterResult(
-        val language: String,
+        private val lang: String,
         val content: String,
-        val extension: String
+        private val ext: String
     ) {
+        val language = if (lang == "fallback") "" else lang
+        val extension = if (lang == "fallback") ".txt" else ext
         val isMarkdown = language.toLowerCase() == "markdown"
         fun createFilename(slug: String) = slug + extension
 
