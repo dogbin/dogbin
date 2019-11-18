@@ -43,21 +43,14 @@ fun Route.user() = route("/") {
 
     route("/login") {
         post {
-            // This will either get the existing (anonymous) user or create a new anon user and add it to the session
             if (call.session() != null) {
-                val existingUser = call.user(store)
-                val isAnon = store.transactional(readonly = true) {
-                    existingUser.role == XdUserRole.ANON
-                }
-                if (!isAnon) {
-                    call.respondRedirect("/me", false)
-                    return@post
-                }
+                call.respondRedirect("/me")
+                return@post
             }
             val params = call.receiveParameters()
             val username = params.getOrFail("username")
             val password = params.getOrFail("password")
-            store.transactional(readonly = true) {
+            store.transactional {
                 val usr = XdUser.find(username)
                 if (usr != null) {
                     if (usr.checkPassword(password)) {
@@ -74,6 +67,20 @@ fun Route.user() = route("/") {
             }
         }
         get {
+            if (call.session() != null) {
+                val existingUser = call.user(store)
+                val isAnon = store.transactional(readonly = true) {
+                    existingUser.role == XdUserRole.ANON
+                }
+                if (isAnon) {
+                    // Destroy existing session
+                    call.clearWebSession()
+                } else {
+                    // User is already logged in
+                    call.respondRedirect("/me")
+                    return@get
+                }
+            }
             call.respondTemplate(
                 "user/login", mapOf(
                     "title" to "Login to dogbin",
