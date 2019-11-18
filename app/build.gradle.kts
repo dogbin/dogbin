@@ -34,6 +34,7 @@ dependencies {
     compile("com.github.hazendaz:htmlcompressor:1.6.5") {
         exclude(group = "org.slf4j")
     }
+    compile("com.vladsch.flexmark:flexmark-all:0.50.44")
     compile(project(":data:base"))
     compile(project(":commons"))
 

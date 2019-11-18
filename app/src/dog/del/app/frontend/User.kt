@@ -150,21 +150,19 @@ fun Route.user() = route("/") {
                 call.respondRedirect("/login", false)
                 return@get
             }
-            store.transactional(readonly = true) {
-                val docs = XdDocument.filter { it.owner eq usr }.sortedBy(XdDocument::created, asc = false)
-                    .asIterable().map { FrontendDocumentDto.fromDocument(it, reporter, call.locale) }
-                val user = UserDto.fromUser(usr, call.locale)
-                runBlocking {
-                    call.respondTemplate(
-                        "user/user", mapOf(
-                            "title" to "Me",
-                            "description" to "View your profile",
-                            "user" to user,
-                            "pastes" to docs
-                        )
-                    )
-                }
-            }
+            val docs = store.transactional(readonly = true) {
+                XdDocument.filter { it.owner eq usr }.sortedBy(XdDocument::created, asc = false).asIterable()
+            }.map { FrontendDocumentDto().applyFrom(it, call) }
+
+            val user = UserDto.fromUser(usr, call.locale)
+            call.respondTemplate(
+                "user/user", mapOf(
+                    "title" to "Me",
+                    "description" to "View your profile",
+                    "user" to user,
+                    "pastes" to docs
+                )
+            )
         }
 
         route("changepass") {

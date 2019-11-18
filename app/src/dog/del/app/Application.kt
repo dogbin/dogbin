@@ -12,6 +12,7 @@ import dog.del.app.frontend.admin
 import dog.del.app.frontend.frontend
 import dog.del.app.frontend.legacyApi
 import dog.del.app.highlighter.Highlighter
+import dog.del.app.markdown.MarkdownRenderer
 import dog.del.app.session.WebSession
 import dog.del.app.session.XdSessionStorage
 import dog.del.app.stats.StatisticsReporter
@@ -91,6 +92,7 @@ fun Application.module(testing: Boolean = false) {
                 }
             }
             single { Highlighter() }
+            single { MarkdownRenderer() }
         }
         modules(
             appModule

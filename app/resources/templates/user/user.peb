@@ -17,7 +17,7 @@
             {% if pastes is not empty %}
                 <h2>Documents</h2>
             {% for paste in pastes %}
-                <p><a href="/{{ paste.slug }}">{{ paste.slug }}</a> ({{ paste.created }})</p>
+                <p><a href="{{ paste.viewUrl }}">{{ paste.slug }}</a> ({{ paste.created }})</p>
             {% endfor %}
             {% endif %}
             <h2><a href="/me/api">Manage API keys</a></h2>

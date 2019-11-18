@@ -202,14 +202,11 @@ $linenos-width-plus: $linenos-width+.5rem;
     background: transparent;
     position: absolute;
     left: 1rem;
+    color: $text-light;
 
     &.unpos {
       position: unset;
       left: unset;
-    }
-
-    &.no-hljs {
-      color: $text-light;
     }
 
     &.haslines {
