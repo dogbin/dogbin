@@ -31,10 +31,7 @@ import jetbrains.exodus.database.TransientEntityStore
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.dnq.query.asIterable
-import kotlinx.dnq.query.asSequence
-import kotlinx.dnq.query.filter
-import kotlinx.dnq.query.sortedBy
+import kotlinx.dnq.query.*
 import kotlinx.dnq.util.findById
 import org.koin.ktor.ext.inject
 import java.text.SimpleDateFormat
@@ -151,10 +148,10 @@ fun Route.user() = route("/") {
                 return@get
             }
             val docs = store.transactional(readonly = true) {
-                XdDocument.filter { it.owner eq usr }.sortedBy(XdDocument::created, asc = false).asIterable()
+                XdDocument.filter { it.owner eq usr }.sortedBy(XdDocument::created, asc = false).toList()
             }.map { FrontendDocumentDto().applyFrom(it, call) }
 
-            val user = UserDto.fromUser(usr, call.locale)
+            val user = store.transactional { UserDto.fromUser(usr, call.locale) }
             call.respondTemplate(
                 "user/user", mapOf(
                     "title" to "Me",
