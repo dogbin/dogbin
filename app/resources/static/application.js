@@ -1,66 +1,8 @@
-// Map of common extensions
-// Note: this list does not need to include anything that IS its extension,
-// due to the behavior of lookupTypeByExtension and lookupExtensionByType
-// Note: optimized for lookupTypeByExtension
-extensionMap = {
-  ruby: 'rb',
-  python: 'py',
-  perl: 'pl',
-  php: 'php',
-  scala: 'scala',
-  go: 'go',
-  xml: 'xml',
-  xml: 'html',
-  xml: 'htm',
-  css: 'css',
-  javascript: 'js',
-  vbscript: 'vbs',
-  lua: 'lua',
-  delphi: 'pas',
-  java: 'java',
-  cpp: 'cpp',
-  cpp: 'cc',
-  objectivec: 'm',
-  vala: 'vala',
-  sql: 'sql',
-  smalltalk: 'sm',
-  lisp: 'lisp',
-  ini: 'ini',
-  diff: 'diff',
-  bash: 'bash',
-  bash: 'sh',
-  tex: 'tex',
-  erlang: 'erl',
-  haskell: 'hs',
-  markdown: 'md',
-  nohighlight: 'txt',
-  coffee: 'coffee',
-  javascript: 'json',
-  swift: 'swift'
-};
-
-// Look up the extension preferred for a type
-// If not found, return the type itself - which we'll place as the extension
-lookupExtensionByType = function (type) {
-  return extensionMap[type] || type;
-};
-
 var haste_document = function () {
   var path = window.location.pathname;
   if (path !== '/' && path.indexOf('/', 1) === -1) { 
     var parts = path.substring(1, path.length).split('.',2)
     this.key = parts[0];
-    hljs.initHighlighting()
-    if(parts.length === 1){
-      lang = $('code.hljs')[0].classList[1]
-      extension = lookupExtensionByType(lang)
-      var newUrl = path + '.' + extension;
-      if (extension === 'md') {
-        window.location.replace(newUrl);
-      } else {
-        window.history.pushState(null, document.title, );
-      }
-    }
   } 
 };
 
@@ -120,7 +62,7 @@ haste.prototype.fallbackCopyTextToClipboard = function(text) {
 
 haste.prototype.copyTextToClipboard = function(text) {
   if (!navigator.clipboard) {
-    fallbackCopyTextToClipboard(text);
+    this.fallbackCopyTextToClipboard(text);
     return;
   }
   _this = this;
@@ -149,13 +91,6 @@ haste.prototype.newDocument = function () {
     window.location.replace('/')
   } else {
     this.$textarea.val('')
-  }
-};
-
-// Duplicate the current document
-haste.prototype.duplicateDocument = function () {
-  if(this.doc.key){
-    window.location.replace('/d/' + this.doc.key)
   }
 };
 
