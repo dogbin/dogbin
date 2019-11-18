@@ -9,4 +9,7 @@
     </root>
     <logger name="org.eclipse.jetty" level="INFO"/>
     <logger name="io.netty" level="INFO"/>
+    <logger name="org.reflections" level="INFO"/>
+    <logger name="jetbrains.exodus" level="INFO"/>
+    <logger name="com.jetbrains.teamsys.dnq" level="INFO"/>
 </configuration>
