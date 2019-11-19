@@ -64,6 +64,7 @@ open class FrontendDocumentDto : KoinComponent, PebbleModel {
     val lines get() = content?.lineCount ?: 0
     open val description get() = content?.take(100) ?: "The sexiest pastebin and url-shortener ever"
     open val title = "dogbin - $slug"
+    open val editing = false
     protected var docContent: String? = null
 
     open suspend fun applyFrom(document: XdDocument, call: ApplicationCall? = null): FrontendDocumentDto =
@@ -161,6 +162,7 @@ class EditDocumentDto : FrontendDocumentDto() {
     override var redirectTo: String?
         get() = if (!editable) viewUrl else null
         set(value) {}
+    override val editing = true
 
     override suspend fun toModel(): Map<String, Any> {
         return super.toModel() + mapOf(

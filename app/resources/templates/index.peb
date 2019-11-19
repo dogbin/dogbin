@@ -12,7 +12,7 @@
            href="/changelog.md">CHANGELOG</a>
     </div>
     <div id="slug">
-    {% if document is null%}
+    {% if document is null or document.editing %}
         <div class="md-input">
             <label>
                 <input name="slug" required tabindex="1" value="{{ editKey }}"
@@ -26,12 +26,12 @@
     {% endif %}
     </div>
     <div id="actions">
-        <button class="save action {% if document is null %} enabled {% endif %}" tabindex="3"><img
+        <button class="save action {% if document is null or document.editing %} enabled {% endif %}" tabindex="3"><img
                 src="/static/icons/save.svg" alt="Save"></button>
-        <button class="edit action {% if document is not null and document.editable %} enabled {% endif %}"
+        <button class="edit action {% if document is not null and document.editable and not document.editing %} enabled {% endif %}"
                 tabindex="3"><img src="/static/icons/edit.svg" alt="Edit"></button>
         <button class="new action enabled" tabindex="3"><img src="/static/icons/create.svg" alt="New"></button>
-        <button class="raw action {% if document is not null %} enabled {% endif %}" tabindex="3"><img
+        <button class="raw action {% if document is not null and not document.editing %} enabled {% endif %}" tabindex="3"><img
                 src="/static/icons/raw.svg"
                 alt="Just Text"></button>
         <button class="profile action enabled" tabindex="3"><img src="/static/icons/user.svg" alt="View profile">
@@ -40,7 +40,7 @@
 </div>
 <div id="content">
     <div id="linenos" class="unselectable">
-    {% if document is not null %}
+    {% if document is not null and not document.editing %}
     {% if document.showLines %}
     {% for n in range(1, document.lines + 1) %}
         <a href="#L{{ n }}" id="L{{ n }}">{{ n }}</a><br/>
@@ -48,7 +48,7 @@
     {% endif %}
     {% else %}&gt;{% endif %}
     </div>
-    {% if document is not null %}
+    {% if document is not null and not document.editing %}
         <pre id="box" tabindex="1" {% if document.showLines and document.lines !=-1 %}class="haslines" {% endif %}>{% if document.rendered %}{{ document.content | raw }}{% else %}{{ document.content }}{% endif %}</pre>
     {% else %}
         <textarea spellcheck="false" placeholder="Paste, save, share! (Pasting just a URL will shorten it!)"
@@ -59,7 +59,7 @@
     <div id="copyright">&copy; {{ year }} <a href="https://deletescape.ch" target="_blank"
                                              rel="noopener">deletescape</a>
     </div>
-    {% if document is not null%}
+    {% if document is not null and not document.editing %}
     {% if document.owner is not null %}
         <div id="author" title="{{ document.created }}">
             Created by {{ document.owner.displayName }}
@@ -75,7 +75,7 @@
 </div>
 {% endblock %}
 {% block after_body %}
-{% if document is not null %}
+{% if document is not null and not document.editing %}
 <link rel="stylesheet" type="text/css" href="/static/chroma-dogbin.css"/>
 {% endif %}
 <script src="/static/jquery-3.3.1.min.js"></script>
