@@ -124,7 +124,7 @@ class HighlightedDocumentDto(val redirectToFull: Boolean = true) : FrontendDocum
     override var content: String?
         get() = runBlocking { highlightDeferred?.await()?.content }
         set(value) {}
-    override val rendered = true
+    override val rendered get() = !runBlocking { highlightDeferred?.await()?.language.isNullOrBlank() }
     override var redirectTo: String?
         get() = if (!redirectToFull) null else runBlocking {
             val res = highlightDeferred?.await()
