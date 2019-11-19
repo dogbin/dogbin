@@ -79,8 +79,9 @@ fun Application.module(testing: Boolean = false) {
         // TODO: split into multiple modules
         val appModule = org.koin.dsl.module {
             single { appConfig }
+            single { Highlighter() }
             single {
-                initDb(appConfig, Database.init(appConfig.db.location, appConfig.db.environment))
+                initDb(appConfig, get(), Database.init(appConfig.db.location, appConfig.db.environment))
             }
             single { Config.getConfig(get()) }
             single<KeyGenerator> { PhoneticKeyGenerator() }
@@ -93,7 +94,6 @@ fun Application.module(testing: Boolean = false) {
                     }
                 }
             }
-            single { Highlighter() }
             single { MarkdownRenderer() }
             single { Iframely() }
         }
@@ -182,7 +182,7 @@ fun Application.module(testing: Boolean = false) {
 }
 
 // Initialize system documents (/about, /changelog, etc)
-private fun initDb(appConfig: AppConfig, db: TransientEntityStore): TransientEntityStore {
+private fun Application.initDb(appConfig: AppConfig, highlighter: Highlighter, db: TransientEntityStore): TransientEntityStore {
     val usr = db.transactional(readonly = true) { XdUser.find("dogbin")!! }
     var files = File(appConfig.documents.docsPath).walk().asSequence()
     if (!appConfig.documents.addDocsPath.isNullOrBlank()) {
@@ -200,7 +200,13 @@ private fun initDb(appConfig: AppConfig, db: TransientEntityStore): TransientEnt
                         stringContent = content
                         owner = usr
                         version++
-                        type = if (content.isUrl()) XdDocumentType.URL else XdDocumentType.PASTE
+                        val isUrl = content.isUrl()
+                        type = if (isUrl) XdDocumentType.URL else XdDocumentType.PASTE
+                        if (!isUrl) {
+                            highlighter.requestHighlight(xdId, content, file.name, version)
+                            highlighter.clearCache(xdId, version)
+                        }
+                        log.info("Updated static document \'$slug\' (v$version)")
                     }
                 }
             }

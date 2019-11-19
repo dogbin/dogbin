@@ -33,7 +33,7 @@ by search engines.
 
 ## Open Source
 
-dogbin can easily be installed behind your network, and it's all [open source](https://github.com/deletescape/dogbin-server)!
+dogbin can easily be installed behind your proxy, and it's all [open source](https://del.dog/github)!
 
 ## News / Updates
 
