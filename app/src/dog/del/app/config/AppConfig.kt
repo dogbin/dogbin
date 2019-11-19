@@ -35,7 +35,8 @@ class AppConfig(config: ApplicationConfig) {
     )
 
     val microservices = Microservices(
-        highlighter = config.property("dogbin.microservices.highlighter").getString()
+        highlighter = config.property("dogbin.microservices.highlighter").getString(),
+        iframely = config.property("dogbin.microservices.iframely").getString()
     )
 
     data class DbConfig(val location: File, val environment: String)
@@ -43,5 +44,5 @@ class AppConfig(config: ApplicationConfig) {
     data class Stats(val enabled: Boolean, val useSA: Boolean)
     data class Api(val keyLength: Int)
     data class Documents(val docsPath: String, val addDocsPath: String?)
-    data class Microservices(val highlighter: String)
+    data class Microservices(val highlighter: String, val iframely: String)
 }

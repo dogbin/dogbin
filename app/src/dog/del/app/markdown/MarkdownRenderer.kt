@@ -7,6 +7,7 @@ import com.vladsch.flexmark.ext.tables.TablesExtension
 import com.vladsch.flexmark.ext.yaml.front.matter.YamlFrontMatterExtension
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
+import dog.del.app.markdown.iframely.IframelyExtensions
 import dog.del.app.markdown.utils.mutableDataSetOf
 
 // TODO: cache rendered markdown
@@ -22,7 +23,6 @@ class MarkdownRenderer {
 
     companion object {
         private val options = mutableDataSetOf(
-            // TODO: iframely extension for embeds
             // TODO: Render code blocks using our highlighter service
             Parser.EXTENSIONS to listOf(
                 TablesExtension.create(),
@@ -31,7 +31,8 @@ class MarkdownRenderer {
                 AutolinkExtension.create(),
                 // TODO: proper styling (try to make it generate same markup as old dogbin)
                 TaskListExtension.create(),
-                YamlFrontMatterExtension.create()
+                YamlFrontMatterExtension.create(),
+                IframelyExtensions.create()
             ),
             HtmlRenderer.ESCAPE_INLINE_HTML to true,
             // GFM like tables

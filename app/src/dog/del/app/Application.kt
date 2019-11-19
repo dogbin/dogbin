@@ -13,6 +13,7 @@ import dog.del.app.frontend.frontend
 import dog.del.app.frontend.legacyApi
 import dog.del.app.highlighter.Highlighter
 import dog.del.app.markdown.MarkdownRenderer
+import dog.del.app.markdown.iframely.Iframely
 import dog.del.app.session.WebSession
 import dog.del.app.session.XdSessionStorage
 import dog.del.app.stats.StatisticsReporter
@@ -75,6 +76,7 @@ fun Application.module(testing: Boolean = false) {
     val appConfig = AppConfig(environment.config)
 
     install(Koin) {
+        // TODO: split into multiple modules
         val appModule = org.koin.dsl.module {
             single { appConfig }
             single {
@@ -93,6 +95,7 @@ fun Application.module(testing: Boolean = false) {
             }
             single { Highlighter() }
             single { MarkdownRenderer() }
+            single { Iframely() }
         }
         modules(
             appModule

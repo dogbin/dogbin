@@ -203,6 +203,7 @@ $linenos-width-plus: $linenos-width+.5rem;
     position: absolute;
     left: 1rem;
     color: $text-light;
+    min-width: 90%;
 
     &.unpos {
       position: unset;
@@ -335,6 +336,10 @@ $linenos-width-plus: $linenos-width+.5rem;
     text-align: center;
     min-height: 100%;
   }
+}
+
+.md-embed {
+  max-width: 50%;
 }
 
 .card {
