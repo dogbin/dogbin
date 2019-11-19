@@ -83,5 +83,8 @@ interface StatisticsReporter {
         DOC_EDIT,
         URL_CREATE,
         URL_REDIRECT,
+        API_KEY_CREATE,
+        API_KEY_USE,
+        API_KEY_DELETE,
     }
 }

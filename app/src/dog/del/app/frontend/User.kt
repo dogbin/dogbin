@@ -284,6 +284,9 @@ fun Route.user() = route("/") {
                             "cred" to NewApiCredentialDto(name, key)
                         )
                     )
+                    GlobalScope.launch {
+                        reporter.reportEvent(StatisticsReporter.Event.API_KEY_CREATE, call.request)
+                    }
                 }
             }
 
@@ -308,6 +311,9 @@ fun Route.user() = route("/") {
                                 delete()
                                 runBlocking {
                                     call.respondRedirect("/me/api", false)
+                                }
+                                GlobalScope.launch {
+                                    reporter.reportEvent(StatisticsReporter.Event.API_KEY_DELETE, call.request)
                                 }
                             }
                         }

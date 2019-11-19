@@ -102,6 +102,11 @@ private suspend fun ApplicationCall.createDocument(
     } else db.transactional {
         val isFrontend = parameters["frontend"]?.toBoolean() ?: false
         val apiCreds = if (isFrontend) null else apiCredentials(db)
+        if (apiCreds != null) {
+            GlobalScope.launch {
+                reporter.reportEvent(Event.API_KEY_USE, request)
+            }
+        }
         val usr = apiCreds?.user ?: user(db, !isFrontend)
         val canCreate = apiCreds?.canCreateDocuments ?: true
         // If the user is able to edit documents in general
