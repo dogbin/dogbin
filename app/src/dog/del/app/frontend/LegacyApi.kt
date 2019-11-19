@@ -140,16 +140,17 @@ private suspend fun ApplicationCall.createDocument(
                     val isUrl = dto.content.isUrl()
                     doc.stringContent = dto.content
                     doc.type = if (isUrl) XdDocumentType.URL else XdDocumentType.PASTE
-                    doc.version++
+                    val version = doc.version++
+                    val id = doc.xdId
                     GlobalScope.launch {
                         reporter.reportEvent(Event.DOC_EDIT, request)
                     }
                     GlobalScope.launch {
                         val highlighter = get<Highlighter>()
                         if (!isUrl) {
-                            highlighter.requestHighlight(doc.xdId, dto.content, doc.slug, doc.version)
+                            highlighter.requestHighlight(id, dto.content, dto.slug, version)
                         }
-                        highlighter.clearCache(doc.xdId, doc.version)
+                        highlighter.clearCache(id, version)
                     }
 
                     HttpStatusCode.OK to CreateDocumentResponseDto(
