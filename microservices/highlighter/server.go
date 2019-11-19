@@ -82,7 +82,6 @@ func highlightHandler(ctx *fasthttp.RequestCtx) {
 		Code:      buf.String(),
 		Filenames: filenames,
 	})
-	fmt.Println(string(json))
 	if err != nil {
 		ctx.Error(fmt.Sprint(err), fasthttp.StatusInternalServerError)
 		return
@@ -92,6 +91,8 @@ func highlightHandler(ctx *fasthttp.RequestCtx) {
 }
 
 func main() {
+	fmt.Println("dogbin - highlighter (v1.something)")
+	fmt.Println("~ Collecting supported languages...")
 	for _, l := range lexers.Registry.Lexers {
 		config := l.Config()
 		lang, ok := enry.GetLanguageByAlias(config.Name)
@@ -106,6 +107,7 @@ func main() {
 			}
 		}
 	}
+	fmt.Println("~ Started listening on port 8080")
 	if err := fasthttp.ListenAndServe(":8080", highlightHandler); err != nil {
 		fmt.Println(err)
 	}
