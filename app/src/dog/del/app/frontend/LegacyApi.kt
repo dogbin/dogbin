@@ -113,12 +113,23 @@ private suspend fun ApplicationCall.createDocument(
                 )
             } else {
                 val isUrl = dto.content.isUrl()
+                val slug = slugGen.createKey(db, isUrl)
                 val doc = XdDocument.new {
-                    slug = slugGen.createKey(db, isUrl)
+                    this.slug = slug
                     owner = usr
                     stringContent = dto.content
                     type = if (isUrl) XdDocumentType.URL else XdDocumentType.PASTE
                 }
+
+                if (!isUrl) {
+                    val id = doc.xdId
+                    // Technically always 0
+                    val version = doc.version
+                    GlobalScope.launch {
+                        get<Highlighter>().requestHighlight(id, slug, dto.content, version)
+                    }
+                }
+
                 GlobalScope.launch {
                     val event = if (isUrl) Event.URL_CREATE else Event.PASTE_CREATE
                     reporter.reportEvent(event, request)
@@ -174,6 +185,15 @@ private suspend fun ApplicationCall.createDocument(
                         owner = usr
                         stringContent = dto.content
                         type = if (isUrl) XdDocumentType.URL else XdDocumentType.PASTE
+                    }
+
+                    if (!isUrl) {
+                        val id = doc.xdId
+                        // Technically always 0
+                        val version = doc.version
+                        GlobalScope.launch {
+                            get<Highlighter>().requestHighlight(id, dto.slug, dto.content, version)
+                        }
                     }
 
                     GlobalScope.launch {
