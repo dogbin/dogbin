@@ -34,6 +34,7 @@ class MarkdownRenderer {
                 YamlFrontMatterExtension.create(),
                 IframelyExtensions.create()
             ),
+            HtmlRenderer.ESCAPE_HTML_BLOCKS to true,
             HtmlRenderer.ESCAPE_INLINE_HTML to true,
             // GFM like tables
             TablesExtension.COLUMN_SPANS to false,
