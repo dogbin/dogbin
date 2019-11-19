@@ -30,12 +30,11 @@ class Highlighter : KoinComponent {
     private val cleaningScope = GlobalScope + cleaningJob + CoroutineName("Highlighter-Cleanup")
 
     private suspend fun highlight(
-        code: String?,
+        code: String,
         fileName: String? = null,
         language: String? = null
-    ): HighlighterResult? =
+    ): HighlighterResult =
         withContext(highlightContext) {
-            if (code.isNullOrBlank()) return@withContext null
             try {
                 client.submitForm<HighlighterServiceResult>(
                     formParameters = Parameters.build {
@@ -54,48 +53,52 @@ class Highlighter : KoinComponent {
                     println(e.response.readText())
                 }
                 e.printStackTrace()
-                return@withContext null
+                throw e
             }
         }
 
     suspend fun highlightDocument(docId: String, rawSlug: String, version: Int, content: String) =
         withContext(Dispatchers.IO) {
-            val cached = requestHighlight(docId, content, rawSlug, version)
-            HighlighterResult.fromXdHighlighterCache(store, cached)
+            requestHighlight(docId, content, rawSlug, version)
         }
 
-    fun requestHighlight(docId: String, content: String, rawSlug: String, version: Int) = store.transactional {
-        XdHighlighterCache.findOrNew(XdHighlighterCache.filter {
-            it.docId eq docId
-            it.slug eq rawSlug
-            it.version eq version
-        }) {
-            this.docId = docId
-            this.slug = rawSlug
-            this.version = version
-            val lang = rawSlug.substringAfterLast('.', missingDelimiterValue = "").emptyAsNull()
-            val fileName = if (rawSlug.contains('.')) rawSlug else null
-            val hlResult = runBlocking { highlight(content, fileName, lang) } ?: HighlighterResult("", content, ".txt")
-            this.extension = hlResult.extension
-            this.language = hlResult.language
-            this.content = hlResult.content
-            // in case this request happened without language, or using an alias also ensure the default extension is cached as well
-            val defaultSlug = hlResult.createFilename(rawSlug.substringBeforeLast('.'))
-            if (rawSlug != defaultSlug) {
-                XdHighlighterCache.findOrNew(XdHighlighterCache.filter {
-                    it.docId eq docId
-                    it.slug eq defaultSlug
-                    it.version eq version
-                }) {
-                    this.docId = docId
-                    this.slug = defaultSlug
-                    this.version = version
-                    this.extension = hlResult.extension
-                    this.language = hlResult.language
-                    this.content = hlResult.content
+    fun requestHighlight(docId: String, content: String, rawSlug: String, version: Int) = try {
+        val cached = store.transactional {
+            XdHighlighterCache.findOrNew(XdHighlighterCache.filter {
+                it.docId eq docId
+                it.slug eq rawSlug
+                it.version eq version
+            }) {
+                this.docId = docId
+                this.slug = rawSlug
+                this.version = version
+                val lang = rawSlug.substringAfterLast('.', missingDelimiterValue = "").emptyAsNull()
+                val fileName = if (rawSlug.contains('.')) rawSlug else null
+                val hlResult = runBlocking { highlight(content, fileName, lang) }
+                this.extension = hlResult.extension
+                this.language = hlResult.language
+                this.content = hlResult.content
+                // in case this request happened without language, or using an alias also ensure the default extension is cached as well
+                val defaultSlug = hlResult.createFilename(rawSlug.substringBeforeLast('.'))
+                if (rawSlug != defaultSlug) {
+                    XdHighlighterCache.findOrNew(XdHighlighterCache.filter {
+                        it.docId eq docId
+                        it.slug eq defaultSlug
+                        it.version eq version
+                    }) {
+                        this.docId = docId
+                        this.slug = defaultSlug
+                        this.version = version
+                        this.extension = hlResult.extension
+                        this.language = hlResult.language
+                        this.content = hlResult.content
+                    }
                 }
             }
         }
+        HighlighterResult.fromXdHighlighterCache(store, cached)
+    } catch (e: Exception) {
+        HighlighterResult("", content, ".txt")
     }
 
     // Clean up cached older versions of documents
