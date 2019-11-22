@@ -3,6 +3,7 @@ package dog.del.app.highlighter
 import dog.del.app.config.AppConfig
 import dog.del.app.utils.emptyAsNull
 import dog.del.commons.ensurePrefix
+import dog.del.commons.lineCount
 import dog.del.data.base.model.caches.XdHighlighterCache
 import io.ktor.client.HttpClient
 import io.ktor.client.features.ServerResponseException
@@ -34,7 +35,13 @@ class Highlighter : KoinComponent {
         fileName: String? = null,
         language: String? = null
     ): HighlighterResult =
-        withContext(highlightContext) {
+        if (code.lineCount > config.highlighter.maxLines || code.length > config.highlighter.maxChars) {
+            HighlighterResult(
+                "",
+                code,
+                ""
+            )
+        } else withContext(highlightContext) {
             try {
                 client.submitForm<HighlighterServiceResult>(
                     formParameters = Parameters.build {
