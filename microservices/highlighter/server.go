@@ -38,21 +38,22 @@ func highlightHandler(ctx *fasthttp.RequestCtx) {
 		lexer = lexers.Match(filename)
 	}
 	var enryLang = ""
+	// TODO: try to get less false positives for perl
 	if lexer == nil {
-		//var safe = false
-		// This can be quite inaccurate but appears to still be better than chroma at some languages, e.g. Kotlin
+		var safe = false
 		// TODO: this is actually pretty bad, as it ends up returning random languages for everything below a certain minimum length
-		enryLang, _ = enry.GetLanguageByClassifier([]byte(code), supportedLangs)
-		//if safe {
-		lexer = lexers.Get(enryLang)
-		//}
+		enryLang, safe = enry.GetLanguageByClassifier([]byte(code), supportedLangs)
+		if safe {
+			lexer = lexers.Get(enryLang)
+		}
 	}
 	if lexer == nil {
 		lexer = lexers.Analyse(code)
+		enryLang = ""
 	}
-	//if lexer == nil {
-	//	lexer = lexers.Get(enryLang)
-	//}
+	if lexer == nil {
+		lexer = lexers.Get(enryLang)
+	}
 	if lexer == nil {
 		lexer = lexers.Fallback
 	}
@@ -93,6 +94,7 @@ func highlightHandler(ctx *fasthttp.RequestCtx) {
 func main() {
 	fmt.Println("dogbin - highlighter (v1.something)")
 	fmt.Println("~ Collecting supported languages...")
+	lexers.Register(Log)
 	for _, l := range lexers.Registry.Lexers {
 		config := l.Config()
 		lang, ok := enry.GetLanguageByAlias(config.Name)
