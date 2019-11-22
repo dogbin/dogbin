@@ -5,6 +5,7 @@ import dog.del.app.utils.emptyAsNull
 import dog.del.commons.ensurePrefix
 import dog.del.commons.lineCount
 import dog.del.data.base.model.caches.XdHighlighterCache
+import dog.del.data.base.model.document.XdDocument
 import io.ktor.client.HttpClient
 import io.ktor.client.features.ServerResponseException
 import io.ktor.client.request.forms.submitForm
@@ -16,13 +17,16 @@ import kotlinx.coroutines.*
 import kotlinx.dnq.creator.findOrNew
 import kotlinx.dnq.query.asSequence
 import kotlinx.dnq.query.filter
+import kotlinx.dnq.util.findById
 import org.koin.core.KoinComponent
 import org.koin.core.inject
+import org.slf4j.Logger
 
 class Highlighter : KoinComponent {
     private val config by inject<AppConfig>()
     private val client by inject<HttpClient>()
     private val store by inject<TransientEntityStore>()
+    private val log by inject<Logger>()
 
     private val highlightJob = SupervisorJob()
     private val highlightContext = Dispatchers.IO + highlightJob + CoroutineName("Highlighter")
@@ -55,11 +59,10 @@ class Highlighter : KoinComponent {
                     url(config.microservices.highlighter)
                 }.toHighlighterResult()
             } catch (e: Exception) {
-                // TODO: switch to logger
                 if (e is ServerResponseException) {
-                    println(e.response.readText())
+                    log.error(e.response.readText(), e)
                 }
-                e.printStackTrace()
+                log.error("Highlighter: Highlighting failed", e)
                 throw e
             }
         }
@@ -75,6 +78,7 @@ class Highlighter : KoinComponent {
                 it.docId eq docId
                 it.slug eq rawSlug
                 it.version eq version
+                it.highlighterVersion eq HIGHLIGHTER_VERSION
             }) {
                 this.docId = docId
                 this.slug = rawSlug
@@ -85,6 +89,7 @@ class Highlighter : KoinComponent {
                 this.extension = hlResult.extension
                 this.language = hlResult.language
                 this.content = hlResult.content
+                this.highlighterVersion = HIGHLIGHTER_VERSION
                 // in case this request happened without language, or using an alias also ensure the default extension is cached as well
                 val defaultSlug = hlResult.createFilename(rawSlug.substringBeforeLast('.'))
                 if (rawSlug != defaultSlug) {
@@ -92,6 +97,7 @@ class Highlighter : KoinComponent {
                         it.docId eq docId
                         it.slug eq defaultSlug
                         it.version eq version
+                        it.highlighterVersion eq HIGHLIGHTER_VERSION
                     }) {
                         this.docId = docId
                         this.slug = defaultSlug
@@ -99,6 +105,7 @@ class Highlighter : KoinComponent {
                         this.extension = hlResult.extension
                         this.language = hlResult.language
                         this.content = hlResult.content
+                        this.highlighterVersion = HIGHLIGHTER_VERSION
                     }
                 }
             }
@@ -120,6 +127,24 @@ class Highlighter : KoinComponent {
         }
     }
 
+    // Cleans up versions cached with an older highlighter version and resubmits them
+    fun updateCache() = cleaningScope.launch {
+        log.info("Highlighter: Running cache update check for v$HIGHLIGHTER_VERSION")
+        store.transactional {
+            XdHighlighterCache.filter {
+                it.highlighterVersion lt HIGHLIGHTER_VERSION
+            }.asSequence().forEach {
+                val doc = XdDocument.findById(it.docId)
+                // Only resubmit if it's the latest document version (this should always be the case, but let's make sure
+                if (it.version == doc.version) {
+                    log.info("Highlighter: Updating ${it.slug} from v${it.highlighterVersion}")
+                    requestHighlight(it.docId, doc.stringContent!!, it.slug, it.version)
+                }
+                it.delete()
+            }
+        }
+    }
+
     data class HighlighterResult(
         private val lang: String,
         val content: String,
@@ -127,7 +152,6 @@ class Highlighter : KoinComponent {
     ) {
         val language = if (lang == "fallback") "" else lang
         val extension = if (lang == "fallback") ".txt" else ext
-        val isMarkdown = language.toLowerCase() == "markdown"
         fun createFilename(slug: String) = slug + extension
 
         companion object {
@@ -155,5 +179,9 @@ class Highlighter : KoinComponent {
             code,
             extension
         )
+    }
+
+    companion object {
+        const val HIGHLIGHTER_VERSION = 1
     }
 }

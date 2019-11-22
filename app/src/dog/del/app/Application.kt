@@ -1,7 +1,6 @@
 package dog.del.app
 
 import com.github.benmanes.caffeine.cache.Caffeine
-import com.google.gson.Gson
 import com.googlecode.htmlcompressor.compressor.HtmlCompressor
 import com.googlecode.htmlcompressor.compressor.XmlCompressor
 import com.mitchellbosecke.pebble.cache.tag.CaffeineTagCache
@@ -36,37 +35,21 @@ import io.ktor.client.features.json.JsonFeature
 import io.ktor.features.*
 import io.ktor.routing.*
 import io.ktor.gson.*
-import io.ktor.http.ContentType
 import io.ktor.http.ContentType.*
-import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.*
 import io.ktor.pebble.Pebble
 import io.ktor.response.ApplicationSendPipeline
-import io.ktor.server.engine.applicationEngineEnvironment
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
 import io.ktor.sessions.SessionTransportTransformerMessageAuthentication
 import io.ktor.sessions.Sessions
 import io.ktor.sessions.cookie
-import io.ktor.sessions.header
-import io.ktor.util.asStream
-import io.ktor.util.hex
 import jetbrains.exodus.database.TransientEntityStore
 import kotlinx.coroutines.*
-import kotlinx.coroutines.io.ByteChannel
 import kotlinx.coroutines.io.readRemaining
-import kotlinx.coroutines.io.readUTF8Line
 import kotlinx.coroutines.io.writer
 import ktor_health_check.Health
 import org.koin.ktor.ext.Koin
 import org.koin.ktor.ext.get
-import org.slf4j.LoggerFactory
 import java.io.File
-import java.nio.ByteBuffer
-import java.nio.file.Path
-import java.nio.file.Paths
-import java.util.concurrent.ExecutorService
-import kotlin.coroutines.CoroutineContext
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -181,9 +164,14 @@ fun Application.module(testing: Boolean = false) {
     }
 }
 
-// Initialize system documents (/about, /changelog, etc)
-private fun Application.initDb(appConfig: AppConfig, highlighter: Highlighter, db: TransientEntityStore): TransientEntityStore {
-    val usr = db.transactional(readonly = true) { XdUser.find("dogbin")!! }
+// Initialize system documents (/about, /changelog, etc) and run some houskeeping/migrations
+private fun Application.initDb(
+    appConfig: AppConfig,
+    highlighter: Highlighter,
+    db: TransientEntityStore
+): TransientEntityStore {
+
+    val systemUsr = db.transactional(readonly = true) { XdUser.find("dogbin")!! }
     var files = File(appConfig.documents.docsPath).walk().asSequence()
     if (!appConfig.documents.addDocsPath.isNullOrBlank()) {
         files += File(appConfig.documents.addDocsPath).walk().asSequence()
@@ -196,9 +184,9 @@ private fun Application.initDb(appConfig: AppConfig, highlighter: Highlighter, d
                 XdDocument.findOrNew(slug) {
                     version = -1
                 }.apply {
-                    if (stringContent != content || owner != usr) {
+                    if (stringContent != content || owner != systemUsr) {
                         stringContent = content
-                        owner = usr
+                        owner = systemUsr
                         version++
                         val isUrl = content.isUrl()
                         type = if (isUrl) XdDocumentType.URL else XdDocumentType.PASTE
@@ -212,5 +200,7 @@ private fun Application.initDb(appConfig: AppConfig, highlighter: Highlighter, d
             }
         }
     }
+
+    highlighter.updateCache()
     return db
 }

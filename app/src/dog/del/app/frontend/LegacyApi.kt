@@ -131,7 +131,7 @@ private suspend fun ApplicationCall.createDocument(
                     // Technically always 0
                     val version = doc.version
                     GlobalScope.launch {
-                        get<Highlighter>().requestHighlight(id, slug, dto.content, version)
+                        get<Highlighter>().requestHighlight(id, dto.content, slug, version)
                     }
                 }
 
@@ -197,7 +197,7 @@ private suspend fun ApplicationCall.createDocument(
                         // Technically always 0
                         val version = doc.version
                         GlobalScope.launch {
-                            get<Highlighter>().requestHighlight(id, dto.slug, dto.content, version)
+                            get<Highlighter>().requestHighlight(id, dto.content, dto.slug, version)
                         }
                     }
 

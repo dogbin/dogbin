@@ -17,4 +17,6 @@ class XdHighlighterCache(entity: Entity) : XdEntity(entity) {
     var content by xdRequiredBlobStringProp()
     var language by xdStringProp()
     var extension by xdStringProp()
+
+    var highlighterVersion by xdIntProp()
 }
