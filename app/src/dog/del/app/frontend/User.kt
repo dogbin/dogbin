@@ -9,6 +9,7 @@ import dog.del.app.session.*
 import dog.del.app.stats.StatisticsReporter
 import dog.del.app.utils.hlLang
 import dog.del.app.utils.locale
+import dog.del.app.utils.respondMessage
 import dog.del.commons.keygen.RandomKeyGenerator
 import dog.del.data.base.model.api.XdApiCredential
 import dog.del.data.base.model.document.XdDocument
@@ -62,7 +63,7 @@ fun Route.user() = route("/") {
                     }
                 }
                 runBlocking {
-                    call.respond(HttpStatusCode.Unauthorized, "Failed to sign in")
+                    call.respondMessage("Sign in failed", "Failed to sign in", code = HttpStatusCode.Unauthorized)
                 }
             }
         }
@@ -114,11 +115,20 @@ fun Route.user() = route("/") {
             val params = call.receiveParameters()
             val username = params.getOrFail("username")
             val password = params.getOrFail("password")
+            // Todo: implement a proper pw policy using nbvcxz
+            if (password.length < 8) {
+                call.respondMessage(
+                    "Insecure password",
+                    "Your password needs to be at least 8 characters long",
+                    code = HttpStatusCode.NotAcceptable
+                )
+                return@post
+            }
             store.transactional {
                 val usr = XdUser.find(username)
                 if (usr != null) {
                     runBlocking {
-                        call.respond(HttpStatusCode.Conflict, "This username is taken")
+                        call.respondMessage("Username Taken", "This username is taken", code = HttpStatusCode.Conflict)
                     }
                 } else {
                     existingUser.signUp(username, password)

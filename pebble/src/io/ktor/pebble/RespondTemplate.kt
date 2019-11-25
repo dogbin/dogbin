@@ -24,3 +24,19 @@ suspend fun ApplicationCall.respondTemplate(
         Charsets.UTF_8
     )
 ) = respond(PebbleContent(template, model, locale, etag, contentType))
+
+/**
+ * Respond with the specified [template] passing [model]
+ *
+ * @see PebbleContent
+ */
+suspend fun ApplicationCall.respondTemplate(
+    code: HttpStatusCode,
+    template: String,
+    model: Map<String, Any>,
+    locale: Locale? = null,
+    etag: String? = null,
+    contentType: ContentType = ContentType.Text.Html.withCharset(
+        Charsets.UTF_8
+    )
+) = respond(code, PebbleContent(template, model, locale, etag, contentType))
