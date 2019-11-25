@@ -17,27 +17,28 @@ function debounce(func, wait, immediate) {
         if (callNow) func.apply(context, args);
     };
 };
+if (location.protocol !== "http:") {
+    const protocol = location.protocol === "http:" ? "ws://" : "wss://";
+    const socket = new WebSocket(protocol + location.host + "/pw");
+    const pwField = document.getElementsByName("password")[0];
 
-const protocol = location.protocol === "http:" ? "ws://" : "wss://";
-const socket = new WebSocket(protocol + location.host + "/pw");
-const pwField = document.getElementsByName("password")[0];
-
-pwField.oninput = debounce(function () {
-    if (pwField.value) {
-        socket.send(pwField.value)
-    }
-}, 250);
-
-socket.onmessage = function (event) {
-    // TODO: proper UI, displaying the score and more suggestions
-    let result = JSON.parse(event.data);
-    if (result.accepted) {
-        pwField.setCustomValidity("");
-    } else {
-        let error = result.suggestions[0];
-        if (!error) {
-            error = result.warning;
+    pwField.oninput = debounce(function () {
+        if (pwField.value) {
+            socket.send(pwField.value)
         }
-        pwField.setCustomValidity(error);
-    }
-};
+    }, 250);
+
+    socket.onmessage = function (event) {
+        // TODO: proper UI, displaying the score and more suggestions
+        let result = JSON.parse(event.data);
+        if (result.accepted) {
+            pwField.setCustomValidity("");
+        } else {
+            let error = result.suggestions[0];
+            if (!error) {
+                error = result.warning;
+            }
+            pwField.setCustomValidity(error);
+        }
+    };
+}
