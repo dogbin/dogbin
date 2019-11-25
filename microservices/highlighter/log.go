@@ -21,7 +21,7 @@ var Log = MustNewLexer(
 		},
 		"base": {
 			{`(\d{2})(:)(\d{2})(:)(\d{2})(.)(\d{3})`, ByGroups(LiteralDate, Operator, LiteralDate, Operator, LiteralDate, Operator, LiteralDate), nil},
-			{`(\d+\s+\d+)`, NumberIntegerLong, nil},
+			{`(\d+\s+\d+)`, NumberInteger, nil},
 			{`(\s[FE])(\s+.+?)(:)(.+$)`, ByGroups(GenericError, GenericError, Operator, UsingSelf("line")), nil},
 			{`(\sW)(\s+.+?)(:)(.+$)`, ByGroups(NameFunction, NameFunction, Operator, UsingSelf("line")), nil},
 			{`(\sI)(\s+.+?)(:)(.+$)`, ByGroups(Comment, Comment, Operator, UsingSelf("line")), nil},
@@ -31,11 +31,12 @@ var Log = MustNewLexer(
 		"line": {
 			{`\[\w*?FATAL\w*?\]`, GenericError, nil},
 			{`\s+FATAL EXCEPTION:.+$`, GenericError, nil},
-			{`\s+.. \d+ more\s*?$`, GenericError, nil},
+			{`\s+\.\.\. \d+ more\s*?$`, GenericError, nil},
 			{`(\s+Process: )(.+?)(, PID: )(\d+)(.*?$)`, ByGroups(GenericError, NameConstant, GenericError, NumberInteger, GenericError), nil},
-			{`\s*?(Caused By: |)[\w\.\$]+(Exception|Error|Throwable):?.*?$`, GenericError, nil},
-			{`(\s+at )(.+?\()(.+?(?:\.java|\.kt):\d+|Native Method)(\).*?$)`, ByGroups(GenericError, NameClass, String, NameClass), nil},
-			{`\[[A-Z_-]\]`, KeywordConstant, nil},
+			{`(\s*?(?:Caused by: )?[\w\.\$]+(?:Exception|Error|Throwable):?)(.*?$)`, ByGroups(GenericError, String), nil},
+			{`(\s+at )(.+?\()(.+?(?:\.java|\.kt):\d+|Native Method)(\).*?$)`, ByGroups(GenericError, NameClass, NumberInteger, NameClass), nil},
+			{`[\[|]\w+[\]|]`, KeywordConstant, nil},
+			{`([A-Za-z\-_ ]+:\s?)(\d+)(,?)`, ByGroups(KeywordConstant, NumberInteger, KeywordConstant), nil},
 			{`.`, Text, nil},
 		},
 	},
@@ -43,13 +44,19 @@ var Log = MustNewLexer(
 	if strings.Contains(text, "W ActivityManager: Slow operation:") {
 		return 0.75
 	}
-	commonTagsRe := regexp.MustCompile(`[FEWIVD]\s+(PackageManager|SystemServer|SystemServiceManager|ActivityManager|system_server|AndroidRuntime)\s*:`)
+
+	commonTagsRe := regexp.MustCompile(`[FEWIVD]\s+(PackageManager|SystemServer|SystemServiceManager|ActivityManager|system_server|AndroidRuntime|CarrierProvider|Zygote|hwservicemanager)\s*:`)
 	if commonTagsRe.MatchString(text) {
 		return 0.7
-	} else if strings.Contains(text, "OMXClient: IOmx service obtained") {
+	}
+
+	if strings.Contains(text, "OMXClient: IOmx service obtained") {
 		return 0.6
-	} else if strings.Contains(text, "--------- beginning of system") || strings.Contains(text, "--------- beginning of main") {
-		return 0.5
+	}
+
+	sectionHeadersRe := regexp.MustCompile(`^--------- beginning of (system|main|crash)\s*?$`)
+	if sectionHeadersRe.MatchString(text) {
+		return 0.6
 	}
 	return 0
 })
