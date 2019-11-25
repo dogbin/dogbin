@@ -25,6 +25,7 @@ dependencies {
     compile("io.ktor:ktor-client-apache:$ktor_version")
     compile("io.ktor:ktor-client-gson:$ktor_version")
     compile("org.apache.httpcomponents:httpasyncclient:4.1.4")
+    compile("io.ktor:ktor-websockets:$ktor_version")
     compile(project(":pebble"))
 
     compile("com.github.zensum:ktor-health-check:011a5a8")
@@ -35,6 +36,7 @@ dependencies {
         exclude(group = "org.slf4j")
     }
     compile("com.vladsch.flexmark:flexmark-all:0.50.44")
+    compile("me.gosimple:nbvcxz:1.4.3")
     compile(project(":data:base"))
     compile(project(":commons"))
 

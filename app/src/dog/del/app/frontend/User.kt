@@ -7,7 +7,6 @@ import dog.del.app.dto.NewApiCredentialDto
 import dog.del.app.dto.UserDto
 import dog.del.app.session.*
 import dog.del.app.stats.StatisticsReporter
-import dog.del.app.utils.hlLang
 import dog.del.app.utils.locale
 import dog.del.app.utils.respondMessage
 import dog.del.commons.keygen.RandomKeyGenerator
@@ -15,13 +14,10 @@ import dog.del.data.base.model.api.XdApiCredential
 import dog.del.data.base.model.document.XdDocument
 import dog.del.data.base.model.user.XdUser
 import dog.del.data.base.model.user.XdUserRole
-import io.ktor.application.application
 import io.ktor.application.call
-import io.ktor.application.log
 import io.ktor.http.HttpStatusCode
 import io.ktor.pebble.respondTemplate
 import io.ktor.request.receiveParameters
-import io.ktor.response.respond
 import io.ktor.response.respondRedirect
 import io.ktor.routing.Route
 import io.ktor.routing.get
@@ -32,15 +28,18 @@ import jetbrains.exodus.database.TransientEntityStore
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.dnq.query.*
+import kotlinx.dnq.query.filter
+import kotlinx.dnq.query.sortedBy
+import kotlinx.dnq.query.toList
 import kotlinx.dnq.util.findById
+import me.gosimple.nbvcxz.Nbvcxz
 import org.koin.ktor.ext.inject
-import java.text.SimpleDateFormat
 
 fun Route.user() = route("/") {
     val store by inject<TransientEntityStore>()
     val reporter by inject<StatisticsReporter>()
     val appConfig by inject<AppConfig>()
+    val estimator by inject<Nbvcxz>()
 
     route("/login") {
         post {
@@ -116,10 +115,11 @@ fun Route.user() = route("/") {
             val username = params.getOrFail("username")
             val password = params.getOrFail("password")
             // Todo: implement a proper pw policy using nbvcxz
-            if (password.length < 8) {
+            val result = estimator.estimate(password)
+            if (!result.isMinimumEntropyMet) {
                 call.respondMessage(
-                    "Insecure password",
-                    "Your password needs to be at least 8 characters long",
+                    result.feedback?.warning ?: "Insecure password",
+                    result.feedback?.suggestion?.joinToString("\n") { "- $it" } ?: "",
                     code = HttpStatusCode.NotAcceptable
                 )
                 return@post
@@ -144,11 +144,12 @@ fun Route.user() = route("/") {
         get {
             call.respondTemplate(
                 "user/login", mapOf(
-                    "title" to "Register for dogbin",
-                    "description" to "Register for dogbin",
+                    "title" to "Register on dogbin",
+                    "description" to "Register on dogbin",
                     "formTitle" to "Register",
                     "secondaryLink" to "/login",
-                    "secondaryTitle" to "Login"
+                    "secondaryTitle" to "Login",
+                    "check_pw" to true
                 )
             )
         }

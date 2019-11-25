@@ -30,7 +30,11 @@
     </div>
 </div>
 <div id="footer" class="unselectable">
-    <div id="copyright">&copy; {{ year }} <a href="https://deletescape.ch" target="_blank" rel="noopener">deletescape</a>
+    <div id="copyright">&copy; {{ year }} <a href="https://deletescape.ch" target="_blank"
+                                             rel="noopener">deletescape</a>
     </div>
 </div>
+{% endblock %}
+{% block after_body %}
+<script type="text/javascript" src="/static/pwcheck.js"></script>
 {% endblock %}

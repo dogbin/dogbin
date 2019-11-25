@@ -6,6 +6,7 @@ import com.googlecode.htmlcompressor.compressor.XmlCompressor
 import com.mitchellbosecke.pebble.cache.tag.CaffeineTagCache
 import com.mitchellbosecke.pebble.cache.template.CaffeineTemplateCache
 import com.mitchellbosecke.pebble.loader.ClasspathLoader
+import dog.del.app.api.ws.websocketApis
 import dog.del.app.config.AppConfig
 import dog.del.app.frontend.admin
 import dog.del.app.frontend.frontend
@@ -17,6 +18,7 @@ import dog.del.app.session.WebSession
 import dog.del.app.session.XdSessionStorage
 import dog.del.app.stats.StatisticsReporter
 import dog.del.app.utils.DogbinPebbleExtension
+import dog.del.app.utils.PasswordEstimator
 import dog.del.app.utils.asExecutorService
 import dog.del.commons.isUrl
 import dog.del.commons.keygen.KeyGenerator
@@ -42,6 +44,7 @@ import io.ktor.response.ApplicationSendPipeline
 import io.ktor.sessions.SessionTransportTransformerMessageAuthentication
 import io.ktor.sessions.Sessions
 import io.ktor.sessions.cookie
+import io.ktor.websocket.WebSockets
 import jetbrains.exodus.database.TransientEntityStore
 import kotlinx.coroutines.*
 import kotlinx.coroutines.io.readRemaining
@@ -79,6 +82,7 @@ fun Application.module(testing: Boolean = false) {
             }
             single { MarkdownRenderer() }
             single { Iframely() }
+            single { PasswordEstimator.init() }
         }
         modules(
             appModule
@@ -89,6 +93,8 @@ fun Application.module(testing: Boolean = false) {
         gson {
         }
     }
+
+    install(WebSockets)
 
     install(Health) {
         healthCheck("running") { true }
@@ -161,6 +167,7 @@ fun Application.module(testing: Boolean = false) {
         legacyApi()
         frontend()
         admin()
+        websocketApis()
     }
 }
 
