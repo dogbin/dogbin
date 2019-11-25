@@ -15,13 +15,13 @@
             <h1>{{ formTitle }}</h1>
             <div class="md-input">
                 <label>
-                    <input name="username" required>
+                    <input name="username" placeholder=" " required>
                     <span class="placeholder">Username</span>
                 </label>
             </div>
             <div class="md-input">
                 <label>
-                    <input name="password" required type="password">
+                    <input name="password" placeholder=" " required type="password">
                     <span class="placeholder">Password</span>
                 </label>
             </div>

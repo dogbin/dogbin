@@ -15,13 +15,13 @@
             <h1>Change password</h1>
             <div class="md-input">
                 <label>
-                    <input name="current" required type="password">
+                    <input name="current" placeholder=" " required type="password">
                     <span class="placeholder">Current password</span>
                 </label>
             </div>
             <div class="md-input">
                 <label>
-                    <input name="password" required type="password">
+                    <input name="password" placeholder=" " required type="password">
                     <span class="placeholder">New password</span>
                 </label>
             </div>

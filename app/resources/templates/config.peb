@@ -16,7 +16,8 @@
             {% for item in config %}
                 <div class="md-input">
                     <label>
-                        <input name="{{ item.type }}_{{ item.key }}" required value="{{ item.value }}" type="{{ item.type }}">
+                        <input name="{{ item.type }}_{{ item.key }}" placeholder=" " value="{{ item.value }}"
+                               type="{{ item.type }}">
                         <span class="placeholder">{{ item.key }}</span>
                     </label>
                 </div>
@@ -26,7 +27,8 @@
     </div>
 </div>
 <div id="footer" class="unselectable">
-    <div id="copyright">&copy; {{ year }} <a href="https://deletescape.ch" target="_blank" rel="noopener">deletescape</a>
+    <div id="copyright">&copy; {{ year }} <a href="https://deletescape.ch" target="_blank"
+                                             rel="noopener">deletescape</a>
     </div>
 </div>
 {% endblock %}

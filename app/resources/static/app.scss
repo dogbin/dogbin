@@ -486,7 +486,7 @@ $input-width: 20rem;
   }
 
   input:focus,
-  input:valid,
+  input:not(:placeholder-shown),
   input:disabled {
     & + .placeholder {
       top: -($input-top / 2);
@@ -496,7 +496,7 @@ $input-width: 20rem;
   }
 
   input:focus,
-  input:valid {
+  input:not(:placeholder-shown) {
     & + .placeholder {
       color: $highlight-color;
     }

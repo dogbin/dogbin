@@ -15,7 +15,7 @@
             <h1>{{ formTitle }}</h1>
             <div class="md-input">
                 <label>
-                    <input name="name" required>
+                    <input name="name" placeholder=" " required>
                     <span class="placeholder">Name</span>
                 </label>
             </div>
