@@ -186,7 +186,7 @@ private fun Application.initDb(
     files.forEach { file ->
         if (file.isFile) {
             val slug = file.nameWithoutExtension
-            val content = file.readText()
+            val content = file.readText().trim()
             db.transactional {
                 XdDocument.findOrNew(slug) {
                     version = -1

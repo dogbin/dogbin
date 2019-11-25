@@ -48,7 +48,7 @@ class MongoMigration(
 
     private fun migrateDocument(document: MongoDocument, slug: String) = xdStore.transactional {
         XdDocument.findOrNew(slug) {
-            stringContent = document.content
+            stringContent = document.content.trim()
             type = if (document.content.isUrl()) XdDocumentType.URL else XdDocumentType.PASTE
             version = document.version
             viewCount = document.viewCount

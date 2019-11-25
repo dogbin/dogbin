@@ -122,7 +122,7 @@ private suspend fun ApplicationCall.createDocument(
                 val doc = XdDocument.new {
                     this.slug = slug
                     owner = usr
-                    stringContent = dto.content
+                    stringContent = dto.content.trim()
                     type = if (isUrl) XdDocumentType.URL else XdDocumentType.PASTE
                 }
 
@@ -154,7 +154,7 @@ private suspend fun ApplicationCall.createDocument(
                     )
                 } else if (doc.userCanEdit(usr)) {
                     val isUrl = dto.content.isUrl()
-                    doc.stringContent = dto.content
+                    doc.stringContent = dto.content.trim()
                     doc.type = if (isUrl) XdDocumentType.URL else XdDocumentType.PASTE
                     val version = doc.version++
                     val id = doc.xdId
@@ -188,7 +188,7 @@ private suspend fun ApplicationCall.createDocument(
                     val doc = XdDocument.new {
                         slug = dto.slug
                         owner = usr
-                        stringContent = dto.content
+                        stringContent = dto.content.trim()
                         type = if (isUrl) XdDocumentType.URL else XdDocumentType.PASTE
                     }
 
