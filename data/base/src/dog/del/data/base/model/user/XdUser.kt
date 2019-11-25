@@ -1,8 +1,9 @@
 package dog.del.data.base.model.user
 
+import com.amdelamar.jhash.Hash
+import com.amdelamar.jhash.algorithms.Type
 import dog.del.commons.Date
 import dog.del.commons.date
-import dog.del.data.base.security.Password
 import dog.del.data.base.utils.xdRequiredDateProp
 import dog.del.data.model.User
 import jetbrains.exodus.entitystore.Entity
@@ -59,16 +60,17 @@ class XdUser(entity: Entity) : XdEntity(entity), User<XdUserRole> {
 
     override var username by xdRequiredStringProp(unique = true, trimmed = true)
     // TODO: add support for expiring passwords
-    override var password: String? = null
+    override var password: String?
         /**
          * Sets the password of this user **AFTER** hashing it
          */
         set(value) {
-            _password = if (value != null) Password.hash(value) else null
+            _password = if (value != null) Hash.password(value.toCharArray()).algorithm(Type.SCRYPT).create() else null
             // Fill backing field with some data to allow checking if pw is set but don't allow snooping
-            // TODO: we should however just make the "password" field on the interface protected as soon as we switch to jdk 9
-            field = if (value == null) null else "Don't even try it"
         }
+        // TODO: we should however just make the "password" field on the interface protected as soon as we switch to jdk 9
+        get() = "Don't even try it"
+
     /**
      * Backing password field
      */
@@ -89,5 +91,10 @@ class XdUser(entity: Entity) : XdEntity(entity), User<XdUserRole> {
     }
 
     override fun checkPassword(password: String) =
-        this._password != null && Password.verify(password, this._password!!).verified
+        this._password != null && Hash.password(password.toCharArray()).verify(_password).also {
+            // Update hash format on successful auth
+            if (it && _password!!.startsWith("bcrypt:")) {
+                this.password = password
+            }
+        }
 }

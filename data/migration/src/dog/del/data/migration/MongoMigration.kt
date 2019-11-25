@@ -75,7 +75,9 @@ class MongoMigration(
                     else -> XdUserRole.USER
                 }
                 if (role.requiresPassword) {
-                    password = String(user.password.data)
+                    // Ensure jhash compatibility
+                    val hash = String(user.password.data).replace("$2b", "$2a")
+                    setPasswordHashed("bcrypt:12:60:16:n::$hash")
                 }
             }
         }
