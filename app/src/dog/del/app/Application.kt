@@ -151,6 +151,8 @@ fun Application.module(testing: Boolean = false) {
         }
     }
 
+    install(CallLogging)
+
     install(Sessions) {
         cookie<WebSession>("doggie_session", XdSessionStorage()) {
             transform(SessionTransportTransformerMessageAuthentication(appConfig.keys.session))
@@ -198,8 +200,12 @@ private fun Application.initDb(
                         val isUrl = content.isUrl()
                         type = if (isUrl) XdDocumentType.URL else XdDocumentType.PASTE
                         if (!isUrl) {
-                            highlighter.requestHighlight(xdId, content, file.name, version)
-                            highlighter.clearCache(xdId, version)
+                            GlobalScope.launch {
+                                db.transactional {
+                                    highlighter.requestHighlight(xdId, content, file.name, version)
+                                    highlighter.clearCache(xdId, version)
+                                }
+                            }
                         }
                         log.info("Updated static document \'$slug\' (v$version)")
                     }
@@ -208,6 +214,6 @@ private fun Application.initDb(
         }
     }
 
-    //highlighter.updateCache()
+    highlighter.updateCache()
     return db
 }
