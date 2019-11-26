@@ -208,6 +208,6 @@ private fun Application.initDb(
         }
     }
 
-    highlighter.updateCache()
+    //highlighter.updateCache()
     return db
 }
