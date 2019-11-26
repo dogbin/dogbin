@@ -132,7 +132,7 @@ class SimpleAnalyticsReporter : StatisticsReporter, KoinComponent {
         try {
             return client.get<StatsResult>("https://simpleanalytics.com/${config.host}/$slug.json").pageviews
         } catch (e: Exception) {
-            log.error("Error while trying to get stats from SA", e)
+            log.error("Error while trying to get stats from SA for $slug", e)
         }
         return -1
     }
