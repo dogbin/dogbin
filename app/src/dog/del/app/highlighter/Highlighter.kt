@@ -117,7 +117,7 @@ class Highlighter : KoinComponent {
             }
             HighlighterResult.fromXdHighlighterCache(store, cached)
         } catch (e: Exception) {
-            HighlighterResult("", content, ".txt")
+            HighlighterResult("failed", content, ".txt")
         }
 
     // Clean up cached older versions of documents
