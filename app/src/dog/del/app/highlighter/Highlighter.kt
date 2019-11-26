@@ -187,6 +187,6 @@ class Highlighter : KoinComponent {
     }
 
     companion object {
-        const val HIGHLIGHTER_VERSION = 2
+        const val HIGHLIGHTER_VERSION = 3
     }
 }
