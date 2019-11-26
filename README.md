@@ -1,7 +1,3 @@
----
-title: dogbin - About
-description: the sexiest pastebin and url shortener ever!
----
 # dogbin - the sexiest pastebin and url shortener ever!
 Sharing short code samples, logs, links or markdown notes is now easier than ever!
 
@@ -42,9 +38,8 @@ available soon.
 
 ## Privacy
 dogbin is a product which actually values your privacy. We are almost fully compliant with
-the [EFF DNT policy](https://www.eff.org/dnt-policy) (our goal is to be fully compliant by January 2020). We only use cookies
-for authentication and (apart from editing) all website features should be usable with
-cookies disabled.
+the [EFF DNT policy](https://www.eff.org/dnt-policy) (our goal is to be fully compliant by January 2020). We only use cookies for authentication
+and (apart from editing) all website features should be usable with cookies disabled.
 
 Please note that **all documents** are currently indexable by search engines.
 
@@ -52,7 +47,7 @@ Analytics are only collected when allowed by the useragent and our analytics pla
 ([Simple Analytics](https://simpleanalytics.io)) uses no cookies and guarantees full privacy.
 All our analytics are publicly available [here](/analytics).
 
-*You can get 1 month of Simple Analytics for free using [my referral link](https://referral.simpleanalytics.com/deletescape).*
+> You can get 1 month of Simple Analytics for free using [my referral link](https://referral.simpleanalytics.com/deletescape).
 
 ## Open Source
 dogbin is fully open source and built on open source technology. All sources can be
