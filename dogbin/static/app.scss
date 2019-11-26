@@ -316,6 +316,19 @@ $linenos-width-plus: $linenos-width+.5rem;
     }
 }
 
+#banner {
+    position: fixed;
+    width: 100%;
+    bottom: 1.6rem;
+    text-align: center;
+    background: #e9da68;
+
+    a {
+        text-decoration: underline;
+        color: $primary;
+    }
+}
+
 #footer {
     height: 1.6rem;
     position: fixed;

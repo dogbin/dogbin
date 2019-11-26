@@ -127,6 +127,8 @@ def do_login():
 
 @app.route('/register', methods=['GET', 'POST'])
 def do_register():
+    if config.READONLY:
+        return redirect('/readonly.md')
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -217,6 +219,8 @@ def edit_document(slug):
     key = slug.split('.')[0]
     doc = store.get(key)
     if doc and doc.userCanEdit(current_user):
+        if config.READONLY:
+            return redirect('/readonly.md')
         initialValue = doc.content
         appname = app.config['APPNAME']
         return render_template('index.html', title=f'{appname} - editing {key}', initialValue=initialValue, edit_key=key)
@@ -295,6 +299,8 @@ def postDocument():
     content: str = None
     slug: str = None
     update: bool = False
+    if config.READONLY:
+        return jsonify({'message': 'dogbin is currently in read-only mode. Read more on /readonly.md'}), 400
     if(ct and ct.split(';')[0] == 'multipart/form-data'):
         content = request.forms.get('data').decode('utf-8').strip()
         slug = request.forms.get('slug')

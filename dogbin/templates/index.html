@@ -73,6 +73,11 @@
 			<textarea spellcheck="false" placeholder="Paste, save, share! (Pasting just a URL will shorten it!)" tabindex="1">{{ initialValue }}</textarea>
 		{% endif %}
 	</div>
+    {% if config.BANNER %}
+    <div id="banner">
+        <p>{{ config.BANNER }}{% if config.READONLY %}&nbsp;<a href="/readonly.md">More info...</a>{% endif %}</p>
+    </div>
+    {% endif %}
 	<div id="footer" class="unselectable">
 		<div id="copyright">&copy; {{ now.year }} <a href="https://deletescape.ch" target="_blank" rel="noopener">deletescape</a></div>
 		{% if document %}
