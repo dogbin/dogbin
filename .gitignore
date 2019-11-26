@@ -9,3 +9,5 @@ __pycache__
 /data
 /logs
 /config.py
+.idea
+*.iml
