@@ -2,21 +2,22 @@ version: '3'
 services:
   reverse-proxy:
     image: traefik:v2.0
-    command: --providers.docker --providers.docker.exposedByDefault=false
-    restart: always
+    command: --api.insecure=true --providers.docker
     ports:
       - "80:80"
-      - "443:443"
+      - "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - "traefik.http.routers.reverse-proxy.rule=Host(`traefik.docker.localhost`)"
   dogbin:
+    build: .
     image: dogbin/dogbin
-    restart: always
     environment:
-      - SESSION_KEY=${SESSION_KEY}
+      - SESSION_KEY=fc028d9226d5616261dbd69f13cfee4f
       - DB_LOCATION=/dogbin.xdb
-      - HOST=${HOST}
-      - SIMPLEANALYTICS=${SIMPLEANALYTICS}
+      - HOST=l.del.dog
+      - SIMPLEANALYTICS=false
     volumes:
       - ./dogbin.xdb:/dogbin.xdb
     expose:
@@ -25,23 +26,21 @@ services:
       - "highlighter:highlighter"
       - "iframely:iframely"
     labels:
-      - "traefik.enable=true"
       - "traefik.http.routers.dogbin.rule=Host(`${HOST}`)"
   highlighter:
+    build: microservices/highlighter/
     image: dogbin/highlighter
-    restart: always
+    labels:
+      - "traefik.http.routers.highlighter.rule=Host(`highlighter.docker.localhost`)"
   iframely:
     image: dogbin/iframely
-    restart: always
     environment:
       - PORT=80
-      - HOST=iframely.docker.localhost
-      - BASE_APP_URL=https://${HOST}
+      - HOST=iframely
     expose:
       - 80
     volumes:
       - ./iframely.config.js:/iframely/config.local.js
     command: server.js
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.iframely.rule=Host(`${HOST}`) && PathPrefix(`/r/`)"
+      - "traefik.http.routers.iframely.rule=Host(`iframely.docker.localhost`) || (Host(`${HOST}`) && PathPrefix(`/r/`))"
