@@ -2,13 +2,16 @@ version: '3'
 services:
   reverse-proxy:
     image: traefik:v2.0
-    command: --providers.docker --providers.docker.exposedByDefault=false
+    command: --api.insecure=true --providers.docker
     restart: always
     ports:
       - "80:80"
+      - "8080:8080"
       - "443:443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - "traefik.enable=false"
   dogbin:
     image: dogbin/dogbin
     restart: always
@@ -27,9 +30,16 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.dogbin.rule=Host(`${HOST}`)"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/ && echo 'working fine'"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
   highlighter:
     image: dogbin/highlighter
     restart: always
+    labels:
+      - "traefik.enable=false"
   iframely:
     image: dogbin/iframely
     restart: always
@@ -45,3 +55,12 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.iframely.rule=Host(`${HOST}`) && PathPrefix(`/r/`)"
+  autoheal:
+    image: willfarrell/autoheal
+    restart: always
+    environment:
+      - AUTOHEAL_CONTAINER_LABEL=all
+      - AUTOHEAL_INTERVAL=10
+      - AUTOHEAL_START_PERIOD=30
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
