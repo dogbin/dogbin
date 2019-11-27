@@ -72,14 +72,6 @@ fun Route.legacyApi() = route("/") {
                 )
                 call.createDocument(dto, db, slugGen, reporter)
             }
-            ContentType.Application.FormUrlEncoded -> {
-                val params = call.receiveParameters()
-                val dto = CreateDocumentDto(
-                    content = params.getOrFail("data"),
-                    slug = params["slug"]
-                )
-                call.createDocument(dto, db, slugGen, reporter)
-            }
             else -> {
                 println(call.request.contentType())
                 val dto = CreateDocumentDto(
