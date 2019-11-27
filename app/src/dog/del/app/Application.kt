@@ -1,8 +1,6 @@
 package dog.del.app
 
 import com.github.benmanes.caffeine.cache.Caffeine
-import com.googlecode.htmlcompressor.compressor.HtmlCompressor
-import com.googlecode.htmlcompressor.compressor.XmlCompressor
 import com.mitchellbosecke.pebble.cache.tag.CaffeineTagCache
 import com.mitchellbosecke.pebble.cache.template.CaffeineTemplateCache
 import com.mitchellbosecke.pebble.loader.ClasspathLoader
@@ -113,32 +111,6 @@ fun Application.module(testing: Boolean = false) {
         tagCache(CaffeineTagCache())
         templateCache(CaffeineTemplateCache(Caffeine.newBuilder().maximumSize(600).build()))
         executorService(Dispatchers.IO.asExecutorService())
-    }
-
-    // TODO: extract into a feature library for others to use
-    val htmlCompressor = HtmlCompressor()
-    val xmlCompressor = XmlCompressor()
-    sendPipeline.intercept(ApplicationSendPipeline.ContentEncoding) {
-        val content = subject as OutgoingContent
-
-        suspend fun readText() = when (content) {
-            is TextContent -> content.text
-            is LocalFileContent -> content.file.readText()
-            is OutgoingContent.WriteChannelContent -> {
-                val chan = GlobalScope.writer {
-                    content.writeTo(channel)
-                }.channel
-                chan.readRemaining().readText()
-            }
-            else -> null
-        }
-        if (content.contentType?.withoutParameters() == Text.Html) {
-            val minimized = htmlCompressor.compress(readText() ?: return@intercept)
-            proceedWith(TextContent(minimized, content.contentType!!, content.status))
-        } else if (content.contentType?.toString()?.contains("xml") == true) {
-            val minimized = xmlCompressor.compress(readText() ?: return@intercept)
-            proceedWith(TextContent(minimized, content.contentType!!, content.status))
-        }
     }
 
     install(Compression) {

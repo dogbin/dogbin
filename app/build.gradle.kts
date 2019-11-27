@@ -32,9 +32,6 @@ dependencies {
     compile("org.koin:koin-ktor:$koin_version")
     compile("net.jodah:expiringmap:0.5.9")
     compile("com.github.ben-manes.caffeine:caffeine:2.8.0")
-    compile("com.github.hazendaz:htmlcompressor:1.6.5") {
-        exclude(group = "org.slf4j")
-    }
     compile("com.vladsch.flexmark:flexmark-all:0.50.44")
     compile("me.gosimple:nbvcxz:1.4.3")
     compile(project(":data:base"))
