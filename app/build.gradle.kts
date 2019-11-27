@@ -34,6 +34,13 @@ dependencies {
     compile("com.github.ben-manes.caffeine:caffeine:2.8.0")
     compile("com.vladsch.flexmark:flexmark-all:0.50.44")
     compile("me.gosimple:nbvcxz:1.4.3")
+    compile("com.github.zensum:ktor-prometheus-feature:-SNAPSHOT")
+    compile("io.prometheus:simpleclient:0.8.0")
+    compile("io.prometheus:simpleclient_common:0.8.0")
+    compile("io.prometheus:simpleclient_logback:0.8.0")
+    compile("io.prometheus:simpleclient_hotspot:0.8.0")
+    compile("io.prometheus:simpleclient_caffeine:0.8.0")
+    compile("io.prometheus:simpleclient_logback:0.8.0")
     compile(project(":data:base"))
     compile(project(":commons"))
 

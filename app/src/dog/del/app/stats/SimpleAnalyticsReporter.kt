@@ -18,6 +18,7 @@ import io.ktor.features.origin
 import io.ktor.http.URLProtocol
 import io.ktor.request.*
 import io.ktor.util.url
+import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import jetbrains.exodus.database.TransientEntityStore
 import kotlinx.coroutines.*
 import kotlinx.coroutines.future.asDeferred
@@ -32,14 +33,18 @@ class SimpleAnalyticsReporter : StatisticsReporter, KoinComponent {
     private val db by inject<TransientEntityStore>()
     private val log by inject<Logger>()
     private val config by inject<AppConfig>()
+    private val cacheMetrics by inject<CacheMetricsCollector>()
     private val job = SupervisorJob()
     private val scope = CoroutineScope(Dispatchers.IO + job)
     private val timezoneCache = Caffeine.newBuilder()
         .maximumSize(100)
+        .recordStats()
         .buildAsync<String, String?> { slug, _ ->
             scope.future {
                 getTimezone(slug)
             }
+        }.also {
+            cacheMetrics.addCache("analyticsTimezoneCache", it)
         }
     private val impressionsCache = Caffeine.newBuilder()
         .maximumSize(100)
@@ -48,6 +53,8 @@ class SimpleAnalyticsReporter : StatisticsReporter, KoinComponent {
             scope.future {
                 getSaViewCount(slug)
             }
+        }.also {
+            cacheMetrics.addCache("analyticsImpressionsCache", it)
         }
 
     override val embedCode = """

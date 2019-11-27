@@ -1,9 +1,11 @@
 package dog.del.app
 
 import com.github.benmanes.caffeine.cache.Caffeine
+import com.mitchellbosecke.pebble.cache.CacheKey
 import com.mitchellbosecke.pebble.cache.tag.CaffeineTagCache
 import com.mitchellbosecke.pebble.cache.template.CaffeineTemplateCache
 import com.mitchellbosecke.pebble.loader.ClasspathLoader
+import com.mitchellbosecke.pebble.template.PebbleTemplate
 import dog.del.app.api.ws.websocketApis
 import dog.del.app.config.AppConfig
 import dog.del.app.frontend.admin
@@ -26,30 +28,34 @@ import dog.del.data.base.model.config.Config
 import dog.del.data.base.model.document.XdDocument
 import dog.del.data.base.model.document.XdDocumentType
 import dog.del.data.base.model.user.XdUser
-import io.ktor.application.*
 import io.ktor.application.Application
+import io.ktor.application.install
+import io.ktor.application.log
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache.Apache
 import io.ktor.client.features.json.GsonSerializer
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.features.*
-import io.ktor.routing.*
-import io.ktor.gson.*
-import io.ktor.http.ContentType.*
-import io.ktor.http.content.*
+import io.ktor.gson.gson
+import io.ktor.http.content.resource
+import io.ktor.http.content.resources
+import io.ktor.http.content.static
 import io.ktor.pebble.Pebble
-import io.ktor.response.ApplicationSendPipeline
+import io.ktor.routing.routing
 import io.ktor.sessions.SessionTransportTransformerMessageAuthentication
 import io.ktor.sessions.Sessions
 import io.ktor.sessions.cookie
 import io.ktor.websocket.WebSockets
+import io.prometheus.client.cache.caffeine.CacheMetricsCollector
+import io.prometheus.client.hotspot.DefaultExports
 import jetbrains.exodus.database.TransientEntityStore
-import kotlinx.coroutines.*
-import kotlinx.coroutines.io.readRemaining
-import kotlinx.coroutines.io.writer
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import ktor_health_check.Health
 import org.koin.ktor.ext.Koin
 import org.koin.ktor.ext.get
+import se.zensum.ktorPrometheusFeature.PrometheusFeature
 import java.io.File
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
@@ -58,6 +64,8 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
     val appConfig = AppConfig(environment.config)
+
+    val cacheMetrics: CacheMetricsCollector = CacheMetricsCollector().register()
 
     install(Koin) {
         // TODO: split into multiple modules
@@ -81,6 +89,7 @@ fun Application.module(testing: Boolean = false) {
             single { MarkdownRenderer() }
             single { Iframely() }
             single { PasswordEstimator.init() }
+            single { cacheMetrics }
         }
         modules(
             appModule
@@ -108,8 +117,27 @@ fun Application.module(testing: Boolean = false) {
             suffix = ".peb"
         })
         extension(DogbinPebbleExtension())
-        tagCache(CaffeineTagCache())
-        templateCache(CaffeineTemplateCache(Caffeine.newBuilder().maximumSize(600).build()))
+
+        tagCache(
+            CaffeineTagCache(
+                Caffeine.newBuilder()
+                    .maximumSize(200)
+                    .recordStats()
+                    .build<CacheKey, Any>().also {
+                        cacheMetrics.addCache("pebbleTagCache", it)
+                    }
+            )
+        )
+        templateCache(
+            CaffeineTemplateCache(
+                Caffeine.newBuilder()
+                    .maximumSize(600)
+                    .recordStats()
+                    .build<Any, PebbleTemplate>().also {
+                        cacheMetrics.addCache("pebbleTemplateCache", it)
+                    }
+            )
+        )
         executorService(Dispatchers.IO.asExecutorService())
     }
 
@@ -124,6 +152,11 @@ fun Application.module(testing: Boolean = false) {
     }
 
     install(CallLogging)
+
+    install(PrometheusFeature) {
+        disableMetricsEndpoint()
+    }
+    DefaultExports.initialize()
 
     install(Sessions) {
         cookie<WebSession>("doggie_session", XdSessionStorage()) {

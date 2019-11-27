@@ -1,4 +1,9 @@
 version: '3'
+
+volumes:
+  prometheus_data: {}
+  grafana_data: {}
+
 services:
   reverse-proxy:
     image: traefik:v2.0
@@ -22,11 +27,12 @@ services:
       - ./dogbin.xdb:/dogbin.xdb
     expose:
       - 8080
+      - 9090
     links:
       - "highlighter:highlighter"
       - "iframely:iframely"
     labels:
-      - "traefik.http.routers.dogbin.rule=Host(`${HOST}`)"
+      - "traefik.http.routers.dogbin.rule=Host(`l.del.dog`)"
   highlighter:
     build: microservices/highlighter/
     image: dogbin/highlighter
@@ -43,4 +49,37 @@ services:
       - ./iframely.config.js:/iframely/config.local.js
     command: server.js
     labels:
-      - "traefik.http.routers.iframely.rule=Host(`iframely.docker.localhost`) || (Host(`${HOST}`) && PathPrefix(`/r/`))"
+      - "traefik.http.routers.iframely.rule=Host(`iframely.docker.localhost`) || (Host(`l.del.dog`) && PathPrefix(`/r/`))"
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./deployment/prometheus:/etc/prometheus/
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+  grafana:
+    image: grafana/grafana
+    depends_on:
+      - prometheus
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./deployment/grafana/provisioning/:/etc/grafana/provisioning/
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=foobar
+      - GF_USERS_ALLOW_SIGN_UP=false
+    labels:
+      - "traefik.http.routers.grafana.rule=Host(`grafana.docker.localhost`)"
+  node-exporter:
+    image: prom/node-exporter
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - --collector.filesystem.ignored-mount-points
+      - "^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)"

@@ -4,9 +4,14 @@
             <pattern>%d{YYYY-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
+
+    <appender name="METRICS" class="io.prometheus.client.logback.InstrumentedAppender"/>
+
     <root level="trace">
         <appender-ref ref="STDOUT"/>
+        <appender-ref ref="METRICS"/>
     </root>
+
     <logger name="org.eclipse.jetty" level="INFO"/>
     <logger name="io.netty" level="INFO"/>
     <logger name="org.reflections" level="INFO"/>
