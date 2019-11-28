@@ -14,6 +14,8 @@ import dog.del.app.frontend.legacyApi
 import dog.del.app.highlighter.Highlighter
 import dog.del.app.markdown.MarkdownRenderer
 import dog.del.app.markdown.iframely.Iframely
+import dog.del.app.metrics.DogbinCollectors
+import dog.del.app.metrics.DogbinMetrics
 import dog.del.app.session.WebSession
 import dog.del.app.session.XdSessionStorage
 import dog.del.app.stats.StatisticsReporter
@@ -29,6 +31,7 @@ import dog.del.data.base.model.document.XdDocument
 import dog.del.data.base.model.document.XdDocumentType
 import dog.del.data.base.model.user.XdUser
 import io.ktor.application.Application
+import io.ktor.application.ApplicationCallPipeline
 import io.ktor.application.install
 import io.ktor.application.log
 import io.ktor.client.HttpClient
@@ -41,11 +44,15 @@ import io.ktor.http.content.resource
 import io.ktor.http.content.resources
 import io.ktor.http.content.static
 import io.ktor.pebble.Pebble
+import io.ktor.routing.Routing
 import io.ktor.routing.routing
 import io.ktor.sessions.SessionTransportTransformerMessageAuthentication
 import io.ktor.sessions.Sessions
 import io.ktor.sessions.cookie
+import io.ktor.util.AttributeKey
+import io.ktor.util.pipeline.PipelinePhase
 import io.ktor.websocket.WebSockets
+import io.prometheus.client.Gauge
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import io.prometheus.client.hotspot.DefaultExports
 import jetbrains.exodus.database.TransientEntityStore
@@ -57,6 +64,7 @@ import org.koin.ktor.ext.Koin
 import org.koin.ktor.ext.get
 import se.zensum.ktorPrometheusFeature.PrometheusFeature
 import java.io.File
+import kotlin.reflect.jvm.jvmName
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -90,6 +98,7 @@ fun Application.module(testing: Boolean = false) {
             single { Iframely() }
             single { PasswordEstimator.init() }
             single { cacheMetrics }
+            single { DogbinMetrics() }
         }
         modules(
             appModule
@@ -157,6 +166,24 @@ fun Application.module(testing: Boolean = false) {
         disableMetricsEndpoint()
     }
     DefaultExports.initialize()
+    DogbinCollectors.register()
+
+    val metricsPhase = PipelinePhase("metrics")
+    insertPhaseBefore(ApplicationCallPipeline.Monitoring, metricsPhase)
+    intercept(metricsPhase) {
+        val metrics = get<DogbinMetrics>()
+        metrics.activeRequests.inc()
+        val timer = metrics.requestDuration.startTimer()
+        try {
+            proceed()
+        } catch (e: Exception) {
+            metrics.exceptions.labels((e::class.qualifiedName ?: e::class.jvmName)).inc()
+            throw e
+        } finally {
+            timer.setDuration()
+            metrics.activeRequests.dec()
+        }
+    }
 
     install(Sessions) {
         cookie<WebSession>("doggie_session", XdSessionStorage()) {
