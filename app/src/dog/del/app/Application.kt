@@ -77,10 +77,8 @@ fun Application.module(testing: Boolean = false) {
         disableMetricsEndpoint()
     }
     DefaultExports.initialize()
-    DogbinCollectors.register()
-    
-    val metrics = DogbinMetrics()
 
+    val metrics = DogbinMetrics()
     val metricsPhase = PipelinePhase("metrics")
     insertPhaseBefore(ApplicationCallPipeline.Monitoring, metricsPhase)
     intercept(metricsPhase) {
@@ -125,6 +123,8 @@ fun Application.module(testing: Boolean = false) {
             appModule
         )
     }
+
+    DogbinCollectors.register()
 
     install(ContentNegotiation) {
         gson {
