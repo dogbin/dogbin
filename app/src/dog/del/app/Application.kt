@@ -73,6 +73,30 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 fun Application.module(testing: Boolean = false) {
     val appConfig = AppConfig(environment.config)
 
+    install(PrometheusFeature) {
+        disableMetricsEndpoint()
+    }
+    DefaultExports.initialize()
+    DogbinCollectors.register()
+    
+    val metrics = DogbinMetrics()
+
+    val metricsPhase = PipelinePhase("metrics")
+    insertPhaseBefore(ApplicationCallPipeline.Monitoring, metricsPhase)
+    intercept(metricsPhase) {
+        metrics.activeRequests.inc()
+        val timer = metrics.requestDuration.startTimer()
+        try {
+            proceed()
+        } catch (e: Exception) {
+            metrics.exceptions.labels((e::class.qualifiedName ?: e::class.jvmName)).inc()
+            throw e
+        } finally {
+            timer.setDuration()
+            metrics.activeRequests.dec()
+        }
+    }
+
     install(Koin) {
         // TODO: split into multiple modules
         val appModule = org.koin.dsl.module {
@@ -95,7 +119,7 @@ fun Application.module(testing: Boolean = false) {
             single { MarkdownRenderer() }
             single { Iframely() }
             single { PasswordEstimator.init() }
-            single { DogbinMetrics() }
+            single { metrics }
         }
         modules(
             appModule
@@ -164,29 +188,6 @@ fun Application.module(testing: Boolean = false) {
         anyHost()
         allowNonSimpleContentTypes = true
         header("X-Api-Key")
-    }
-
-    install(PrometheusFeature) {
-        disableMetricsEndpoint()
-    }
-    DefaultExports.initialize()
-    DogbinCollectors.register()
-
-    val metricsPhase = PipelinePhase("metrics")
-    insertPhaseBefore(ApplicationCallPipeline.Monitoring, metricsPhase)
-    intercept(metricsPhase) {
-        val metrics = get<DogbinMetrics>()
-        metrics.activeRequests.inc()
-        val timer = metrics.requestDuration.startTimer()
-        try {
-            proceed()
-        } catch (e: Exception) {
-            metrics.exceptions.labels((e::class.qualifiedName ?: e::class.jvmName)).inc()
-            throw e
-        } finally {
-            timer.setDuration()
-            metrics.activeRequests.dec()
-        }
     }
 
     install(Sessions) {
