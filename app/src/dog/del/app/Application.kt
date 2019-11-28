@@ -162,6 +162,13 @@ fun Application.module(testing: Boolean = false) {
 
     install(CallLogging)
 
+    // TODO: can we configure this per route??
+    install(CORS) {
+        anyHost()
+        allowNonSimpleContentTypes = true
+        header("X-Api-Key")
+    }
+
     install(PrometheusFeature) {
         disableMetricsEndpoint()
     }
