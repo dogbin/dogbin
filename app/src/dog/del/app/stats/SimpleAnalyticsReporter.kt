@@ -3,10 +3,7 @@ package dog.del.app.stats
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.google.gson.annotations.SerializedName
 import dog.del.app.config.AppConfig
-import dog.del.app.utils.dnt
-import dog.del.app.utils.emptyAsNull
-import dog.del.app.utils.referer
-import dog.del.app.utils.refs
+import dog.del.app.utils.*
 import dog.del.commons.date
 import dog.del.commons.format
 import dog.del.data.base.model.document.XdDocument
@@ -58,7 +55,7 @@ class SimpleAnalyticsReporter : StatisticsReporter, KoinComponent {
         }
 
     override val embedCode = """
-        <script async defer src="/static/SA.min.js"></script>
+        <script async defer src="${GhostBuster.bust("/static/SA.min.js")}"></script>
         <noscript><img src="https://api.simpleanalytics.io/hello.gif" alt=""></noscript>
     """.trimIndent()
 

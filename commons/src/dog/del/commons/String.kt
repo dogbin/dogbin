@@ -29,3 +29,6 @@ fun ByteArray.toHex(): String {
 
 fun String.ensurePrefix(prefix: String) = if (startsWith(prefix)) this else prefix + this
 fun String.ensurePrefix(prefix: Char) = if (startsWith(prefix)) this else prefix + this
+
+inline fun Int.toHex() = toUInt().toString(16)
+inline fun Long.toHex() = toULong().toString(16)

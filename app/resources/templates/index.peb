@@ -22,20 +22,23 @@
         </div>
     {% else %}
         <a id="url_display" href="https://del.dog/{{ document.slug }}">/{{ document.slug }}</a>
-        <button class="copy_url btn enabled" tabindex="2"><img src="/static/icons/copy.svg" alt="Copy URL"></button>
+        <button class="copy_url btn enabled" tabindex="2"><img src="{{ ghostbuster("/static/icons/copy.svg") }}"
+                                                               alt="Copy URL"></button>
     {% endif %}
     </div>
     <div id="actions">
         <button class="save action {% if document is null or document.editing %} enabled {% endif %}" tabindex="3"><img
-                src="/static/icons/save.svg" alt="Save"></button>
+                src="{{ ghostbuster("/static/icons/save.svg") }}" alt="Save"></button>
         <button class="edit action {% if document is not null and document.editable and not document.editing %} enabled {% endif %}"
-                tabindex="3"><img src="/static/icons/edit.svg" alt="Edit"></button>
-        <button class="new action enabled" tabindex="3"><img src="/static/icons/create.svg" alt="New"></button>
+                tabindex="3"><img src="{{ ghostbuster("/static/icons/edit.svg") }}" alt="Edit"></button>
+        <button class="new action enabled" tabindex="3"><img src="{{ ghostbuster("/static/icons/create.svg") }}"
+                                                             alt="New"></button>
         <button class="raw action {% if document is not null and not document.editing %} enabled {% endif %}"
                 tabindex="3"><img
-                src="/static/icons/raw.svg"
+                src="{{ ghostbuster("/static/icons/raw.svg") }}"
                 alt="Just Text"></button>
-        <button class="profile action enabled" tabindex="3"><img src="/static/icons/user.svg" alt="View profile">
+        <button class="profile action enabled" tabindex="3"><img src="{{ ghostbuster("/static/icons/user.svg") }}"
+                                                                 alt="View profile">
         </button>
     </div>
 </div>
@@ -70,7 +73,8 @@
         <a id="stats"  {% if document.statsUrl is not null %}href="{{ document.statsUrl }}"{% endif %}>
         {% if  appConfig.stats.enabled and document.viewCount >= 0 %}
             Stats:&nbsp;&nbsp;
-            <div id="views"><img src="/static/icons/eye.svg" alt="Views"><b>{{ document.viewCount }}</b></div>
+            <div id="views"><img src="{{ ghostbuster("/static/icons/eye.svg") }}"
+                                 alt="Views"><b>{{ document.viewCount }}</b></div>
         {% endif %}
         </a>
     {% endif %}
@@ -78,10 +82,10 @@
 {% endblock %}
 {% block after_body %}
 {% if document is not null and not document.editing %}
-<link rel="stylesheet" type="text/css" href="/static/chroma-dogbin.css"/>
+<link rel="stylesheet" type="text/css" href="{{ ghostbuster("/static/chroma-dogbin.css") }}"/>
 {% endif %}
 <script src="/static/jquery-3.3.1.min.js"></script>
-<script type="text/javascript" src="/static/application.js"></script>
+<script type="text/javascript" src="{{ ghostbuster("/static/application.js") }}"></script>
 <script type="text/javascript">
     // Construct app
     $(function () {

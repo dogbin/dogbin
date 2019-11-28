@@ -36,5 +36,7 @@
 </div>
 {% endblock %}
 {% block after_body %}
-<script type="text/javascript" src="/static/pwcheck.js"></script>
+{% cache 'login_ghostbuster' %}
+<script type="text/javascript" src="{{ ghostbuster("/static/pwcheck.js") }}"></script>
+{% endcache %}
 {% endblock %}

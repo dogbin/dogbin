@@ -73,8 +73,6 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 fun Application.module(testing: Boolean = false) {
     val appConfig = AppConfig(environment.config)
 
-    val cacheMetrics: CacheMetricsCollector = CacheMetricsCollector().register()
-
     install(Koin) {
         // TODO: split into multiple modules
         val appModule = org.koin.dsl.module {
@@ -97,7 +95,6 @@ fun Application.module(testing: Boolean = false) {
             single { MarkdownRenderer() }
             single { Iframely() }
             single { PasswordEstimator.init() }
-            single { cacheMetrics }
             single { DogbinMetrics() }
         }
         modules(
@@ -133,7 +130,7 @@ fun Application.module(testing: Boolean = false) {
                     .maximumSize(200)
                     .recordStats()
                     .build<CacheKey, Any>().also {
-                        cacheMetrics.addCache("pebbleTagCache", it)
+                        get<DogbinMetrics>().cacheMetrics.addCache("pebbleTagCache", it)
                     }
             )
         )
@@ -143,7 +140,7 @@ fun Application.module(testing: Boolean = false) {
                     .maximumSize(600)
                     .recordStats()
                     .build<Any, PebbleTemplate>().also {
-                        cacheMetrics.addCache("pebbleTemplateCache", it)
+                        get<DogbinMetrics>().cacheMetrics.addCache("pebbleTemplateCache", it)
                     }
             )
         )

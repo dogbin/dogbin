@@ -1,6 +1,7 @@
 package dog.del.app.utils
 
 import com.mitchellbosecke.pebble.extension.AbstractExtension
+import com.mitchellbosecke.pebble.extension.Function
 import dog.del.app.config.AppConfig
 import dog.del.app.stats.StatisticsReporter
 import dog.del.commons.Date
@@ -21,5 +22,9 @@ class DogbinPebbleExtension : AbstractExtension(), KoinComponent {
         "year" to Date.getInstance().year,
         "stats_embed" to reporter.embedCode,
         "appConfig" to appConfig
+    )
+
+    override fun getFunctions(): MutableMap<String, Function> = mutableMapOf(
+        "ghostbuster" to GhostBuster()
     )
 }
