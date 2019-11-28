@@ -3,6 +3,7 @@ package dog.del.app.stats
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.google.gson.annotations.SerializedName
 import dog.del.app.config.AppConfig
+import dog.del.app.metrics.DogbinMetrics
 import dog.del.app.utils.*
 import dog.del.commons.date
 import dog.del.commons.format
@@ -30,7 +31,7 @@ class SimpleAnalyticsReporter : StatisticsReporter, KoinComponent {
     private val db by inject<TransientEntityStore>()
     private val log by inject<Logger>()
     private val config by inject<AppConfig>()
-    private val cacheMetrics by inject<CacheMetricsCollector>()
+    private val metrics by inject<DogbinMetrics>()
     private val job = SupervisorJob()
     private val scope = CoroutineScope(Dispatchers.IO + job)
     private val timezoneCache = Caffeine.newBuilder()
@@ -41,7 +42,7 @@ class SimpleAnalyticsReporter : StatisticsReporter, KoinComponent {
                 getTimezone(slug)
             }
         }.also {
-            cacheMetrics.addCache("analyticsTimezoneCache", it)
+            metrics.cacheMetrics.addCache("analyticsTimezoneCache", it)
         }
     private val impressionsCache = Caffeine.newBuilder()
         .maximumSize(100)
@@ -51,7 +52,7 @@ class SimpleAnalyticsReporter : StatisticsReporter, KoinComponent {
                 getSaViewCount(slug)
             }
         }.also {
-            cacheMetrics.addCache("analyticsImpressionsCache", it)
+            metrics.cacheMetrics.addCache("analyticsImpressionsCache", it)
         }
 
     override val embedCode = """
