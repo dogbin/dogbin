@@ -214,40 +214,46 @@ private suspend fun Application.initDb(
     highlighter: Highlighter
 ): TransientEntityStore = withContext(Database.context) {
     val db = Database.init(appConfig.db.location, appConfig.db.environment)
-    val systemUsr = db.transactional(readonly = true) { XdUser.find("dogbin")!! }
-    var files = File(appConfig.documents.docsPath).walk().asSequence()
-    if (!appConfig.documents.addDocsPath.isNullOrBlank()) {
-        files += File(appConfig.documents.addDocsPath).walk().asSequence()
-    }
-    files.forEach { file ->
-        if (file.isFile) {
-            val slug = file.nameWithoutExtension
-            val content = file.readText().trim()
-            db.transactional {
-                XdDocument.findOrNew(slug) {
-                    version = -1
-                }.apply {
-                    if (stringContent != content || owner != systemUsr) {
-                        stringContent = content
-                        owner = systemUsr
-                        version++
-                        val isUrl = content.isUrl()
-                        type = if (isUrl) XdDocumentType.URL else XdDocumentType.PASTE
-                        if (!isUrl) {
-                            GlobalScope.launch {
-                                db.transactional {
-                                    highlighter.requestHighlight(xdId, content, file.name, version)
-                                    highlighter.clearCache(xdId, version)
+    GlobalScope.launch {
+        with(db.persistentStore.environment.environmentConfig) {
+            envStoreGetCacheSize = 10_000
+            isLogCacheNonBlocking = true
+        }
+        val systemUsr = db.transactional(readonly = true) { XdUser.find("dogbin")!! }
+        var files = File(appConfig.documents.docsPath).walk().asSequence()
+        if (!appConfig.documents.addDocsPath.isNullOrBlank()) {
+            files += File(appConfig.documents.addDocsPath).walk().asSequence()
+        }
+        files.forEach { file ->
+            if (file.isFile) {
+                val slug = file.nameWithoutExtension
+                val content = file.readText().trim()
+                db.transactional {
+                    XdDocument.findOrNew(slug) {
+                        version = -1
+                    }.apply {
+                        if (stringContent != content || owner != systemUsr) {
+                            stringContent = content
+                            owner = systemUsr
+                            version++
+                            val isUrl = content.isUrl()
+                            type = if (isUrl) XdDocumentType.URL else XdDocumentType.PASTE
+                            if (!isUrl) {
+                                GlobalScope.launch {
+                                    db.transactional {
+                                        highlighter.requestHighlight(xdId, content, file.name, version)
+                                        highlighter.clearCache(xdId, version)
+                                    }
                                 }
                             }
+                            log.info("Updated static document \'$slug\' (v$version)")
                         }
-                        log.info("Updated static document \'$slug\' (v$version)")
                     }
                 }
             }
         }
-    }
 
-    highlighter.updateCache()
+        highlighter.updateCache()
+    }.start()
     db
 }
