@@ -63,7 +63,7 @@ open class FrontendDocumentDto : KoinComponent, PebbleModel {
     val statsUrl: String? get() = reporter.getUrl(slug)
     val showCount: Boolean get() = reporter.showCount
     val lines get() = content?.lineCount ?: 0
-    open val description get() = content?.take(100) ?: "The sexiest pastebin and url-shortener ever"
+    open val description get() = docContent?.take(100) ?: "The sexiest pastebin and url-shortener ever"
     open val title = "dogbin - $slug"
     open val editing = false
     protected var docContent: String? = null
