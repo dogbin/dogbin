@@ -56,9 +56,7 @@ import io.prometheus.client.Gauge
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import io.prometheus.client.hotspot.DefaultExports
 import jetbrains.exodus.database.TransientEntityStore
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import ktor_health_check.Health
 import org.koin.ktor.ext.Koin
 import org.koin.ktor.ext.get
@@ -101,7 +99,7 @@ fun Application.module(testing: Boolean = false) {
             single { appConfig }
             single { Highlighter() }
             single {
-                initDb(appConfig, get(), Database.init(appConfig.db.location, appConfig.db.environment))
+                runBlocking { initDb(get(), get()) }
             }
             single { Config.getConfig(get()) }
             single<KeyGenerator> { PhoneticKeyGenerator() }
@@ -211,12 +209,11 @@ fun Application.module(testing: Boolean = false) {
 }
 
 // Initialize system documents (/about, /changelog, etc) and run some houskeeping/migrations
-private fun Application.initDb(
+private suspend fun Application.initDb(
     appConfig: AppConfig,
-    highlighter: Highlighter,
-    db: TransientEntityStore
-): TransientEntityStore {
-
+    highlighter: Highlighter
+): TransientEntityStore = withContext(Database.context) {
+    val db = Database.init(appConfig.db.location, appConfig.db.environment)
     val systemUsr = db.transactional(readonly = true) { XdUser.find("dogbin")!! }
     var files = File(appConfig.documents.docsPath).walk().asSequence()
     if (!appConfig.documents.addDocsPath.isNullOrBlank()) {
@@ -252,5 +249,5 @@ private fun Application.initDb(
     }
 
     highlighter.updateCache()
-    return db
+    db
 }

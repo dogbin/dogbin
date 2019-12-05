@@ -3,6 +3,7 @@ package dog.del.cli
 import dog.del.cli.features.FeatureManager
 import dog.del.data.base.Database
 import jetbrains.exodus.database.TransientEntityStore
+import kotlinx.coroutines.runBlocking
 import java.io.File
 
 class DogbinCli {
@@ -39,7 +40,12 @@ class DogbinCli {
             fun getStore(): TransientEntityStore {
                 if (storeLocation.isNotBlank() && storeEnvironment.isNotBlank()) {
                     if (storeEnvHash != currentStoreEnvHash) {
-                        store = Database.init(File(System.getProperty("user.dir"), storeLocation), storeEnvironment)
+                        store = runBlocking {
+                            Database.init(
+                                File(System.getProperty("user.dir"), storeLocation),
+                                storeEnvironment
+                            )
+                        }
                         storeEnvHash = currentStoreEnvHash
                     }
                     return store!!

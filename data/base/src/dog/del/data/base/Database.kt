@@ -1,20 +1,18 @@
 package dog.del.data.base
 
-import dog.del.data.base.model.document.XdDocument
-import dog.del.data.base.model.document.XdDocumentType
 import dog.del.data.base.model.user.XdUser
 import jetbrains.exodus.database.TransientEntityStore
+import kotlinx.coroutines.*
 import kotlinx.dnq.XdModel
-import kotlinx.dnq.creator.findOrNew
-import kotlinx.dnq.query.size
 import kotlinx.dnq.store.container.StaticStoreContainer
-import kotlinx.dnq.store.container.createTransientEntityStore
 import kotlinx.dnq.util.initMetaData
 import java.io.File
 
 object Database {
+    val job = SupervisorJob()
+    val context = Dispatchers.IO + job + CoroutineName("Dogbin DB")
 
-    fun init(location: File, environment: String): TransientEntityStore {
+    suspend fun init(location: File, environment: String): TransientEntityStore = withContext(context) {
         XdModel.scanJavaClasspath()
 
         val store = StaticStoreContainer.init(
@@ -29,6 +27,6 @@ object Database {
             XdUser.findOrNewSystem("dogbin")
         }
 
-        return store
+        store
     }
 }
