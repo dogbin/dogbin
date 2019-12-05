@@ -63,20 +63,24 @@ open class FrontendDocumentDto : KoinComponent, PebbleModel {
     val statsUrl: String? get() = reporter.getUrl(slug)
     val showCount: Boolean get() = reporter.showCount
     val lines get() = content?.lineCount ?: 0
-    open val description get() = docContent?.take(100) ?: "The sexiest pastebin and url-shortener ever"
-    open val title = "dogbin - $slug"
+    var description = "The sexiest pastebin and url-shortener ever"
+        protected set
+    var title = "dogbin"
+        protected set
     open val editing = false
     protected var docContent: String? = null
 
     open suspend fun applyFrom(document: XdDocument, call: ApplicationCall? = null): FrontendDocumentDto =
         coroutineScope {
             slug = store.transactional(readonly = true) { document.slug }
+            title = "dogbin - $slug"
             if (reporter.showCount) {
                 viewCountDeferred = async { reporter.getImpressions(slug) }
             }
             store.transactional(readonly = true) {
                 type = DocumentTypeDto.fromXdDocumentType(document.type)
                 docContent = document.stringContent
+                description = docContent?.take(100) ?: description
                 content = docContent
                 owner = UserDto.fromUser(document.owner)
                 created = document.created.formatShort(call?.locale)
@@ -114,7 +118,10 @@ class MarkdownDocumentDto : FrontendDocumentDto() {
         super.applyFrom(document, call)
 
         if (docContent != null) {
-            content = mdRenderer.render(docContent!!)
+            val mdContent = mdRenderer.render(docContent!!)
+            title = mdContent.title ?: title
+            description = mdContent.description ?: description
+            content = mdContent.content
         }
         return this
     }
@@ -160,12 +167,18 @@ class HighlightedDocumentDto(val redirectToFull: Boolean = true) : FrontendDocum
 }
 
 class EditDocumentDto : FrontendDocumentDto() {
-    override val title: String
-        get() = "Editing - ${super.title}"
     override var redirectTo: String?
         get() = if (!editable) viewUrl else null
         set(value) {}
     override val editing = true
+
+    override suspend fun applyFrom(document: XdDocument, call: ApplicationCall?): FrontendDocumentDto {
+        super.applyFrom(document, call)
+
+        title = "Editing - $slug"
+
+        return this
+    }
 
     override suspend fun toModel(): Map<String, Any> {
         return super.toModel() + mapOf(
