@@ -71,10 +71,16 @@
         </div>
     {% endif %}
         <a id="stats"  {% if document.statsUrl is not null %}href="{{ document.statsUrl }}"{% endif %}>
-        {% if  appConfig.stats.enabled and document.viewCount >= 0 %}
+        {% if  appConfig.stats.enabled %}
+        {% if document.showCount %}
             Stats:&nbsp;&nbsp;
             <div id="views"><img src="{{ ghostbuster("/static/icons/eye.svg") }}"
                                  alt="Views"><b>{{ document.viewCount }}</b></div>
+        {% else %}
+            <div id="views"><img src="{{ ghostbuster("/static/icons/eye.svg") }}" alt="View Stats">&nbsp;<b>View
+                Stats</b>
+            </div>
+        {% endif %}
         {% endif %}
         </a>
     {% endif %}

@@ -16,6 +16,7 @@ interface StatisticsReporter {
         }
     }
 
+    val showCount: Boolean
     val embedCode: String
     fun reportImpression(slug: String, frontend: Boolean, request: ApplicationRequest)
     suspend fun getImpressions(slug: String): Int
@@ -26,6 +27,7 @@ interface StatisticsReporter {
     fun getUrl(slug: String): String?
 
     class NopReporter : StatisticsReporter {
+        override val showCount = false
         override val embedCode = ""
 
         override fun reportImpression(slug: String, frontend: Boolean, request: ApplicationRequest) {
@@ -43,6 +45,7 @@ interface StatisticsReporter {
     }
 
     class ReporterWrapper(private val reporter: StatisticsReporter) : StatisticsReporter {
+        override val showCount = reporter.showCount
         override val embedCode = reporter.embedCode
 
         private val impressionCache = ExpiringMap.builder()

@@ -61,6 +61,7 @@ open class FrontendDocumentDto : KoinComponent, PebbleModel {
     open val rendered = false
     val viewUrl: String get() = if (type == DocumentTypeDto.URL) "/v/$slug" else "/$slug"
     val statsUrl: String? get() = reporter.getUrl(slug)
+    val showCount: Boolean get() = reporter.showCount
     val lines get() = content?.lineCount ?: 0
     open val description get() = content?.take(100) ?: "The sexiest pastebin and url-shortener ever"
     open val title = "dogbin - $slug"
@@ -70,7 +71,9 @@ open class FrontendDocumentDto : KoinComponent, PebbleModel {
     open suspend fun applyFrom(document: XdDocument, call: ApplicationCall? = null): FrontendDocumentDto =
         coroutineScope {
             slug = store.transactional(readonly = true) { document.slug }
-            viewCountDeferred = async { reporter.getImpressions(slug) }
+            if (reporter.showCount) {
+                viewCountDeferred = async { reporter.getImpressions(slug) }
+            }
             store.transactional(readonly = true) {
                 type = DocumentTypeDto.fromXdDocumentType(document.type)
                 docContent = document.stringContent

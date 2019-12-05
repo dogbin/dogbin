@@ -9,8 +9,7 @@ import org.koin.core.KoinComponent
 import org.koin.core.inject
 
 class DBStatisticsReporter : StatisticsReporter, KoinComponent {
-    private val job = SupervisorJob()
-    private val scope = CoroutineScope(Dispatchers.IO + job)
+    override val showCount = true
     private val db by inject<TransientEntityStore>()
 
     override val embedCode = ""

@@ -44,17 +44,8 @@ class SimpleAnalyticsReporter : StatisticsReporter, KoinComponent {
         }.also {
             metrics.cacheMetrics.addCache("analyticsTimezoneCache", it)
         }
-    private val impressionsCache = Caffeine.newBuilder()
-        .maximumSize(100)
-        .expireAfterWrite(15, TimeUnit.MINUTES)
-        .buildAsync<String, Int> { slug, _ ->
-            scope.future {
-                getSaViewCount(slug)
-            }
-        }.also {
-            metrics.cacheMetrics.addCache("analyticsImpressionsCache", it)
-        }
 
+    override val showCount = false
     override val embedCode = """
         <script async defer src="${GhostBuster.bust("/static/SA.min.js")}"></script>
         <noscript><img src="https://api.simpleanalytics.io/hello.gif" alt=""></noscript>
@@ -88,29 +79,12 @@ class SimpleAnalyticsReporter : StatisticsReporter, KoinComponent {
         }
     }
 
-    // Get impressions from SA in an async manner and store to db to avoid network requests in hot-path as good as possible
     override suspend fun getImpressions(slug: String): Int = withContext(scope.coroutineContext) {
-        // Get latest value from in memory cache
-        val saFuture = impressionsCache.getIfPresent(slug)
-        if (saFuture != null) {
-            val saValue = saFuture.asDeferred().await()
-            if (saValue != -1) {
-                return@withContext saValue
-            }
-        } else {
-            // Update stored value
-            GlobalScope.launch {
-                val newValue = impressionsCache.get(slug).asDeferred().await()
-                db.transactional {
-                    XdDocument.find(slug)?.apply {
-                        viewCount = newValue
-                    }
-                }
-            }
-        }
-        // Get value that was last written to the db
-        return@withContext db.transactional(readonly = true) {
-            XdDocument.find(slug)?.viewCount ?: 0
+        try {
+            client.get<StatsResult>("https://simpleanalytics.com/${config.host}/$slug.json").pageviews
+        } catch (e: Exception) {
+            log.error("Error while trying to get stats from SA for $slug", e)
+            -1
         }
     }
 
@@ -132,15 +106,6 @@ class SimpleAnalyticsReporter : StatisticsReporter, KoinComponent {
     }
 
     override fun getUrl(slug: String) = "https://simpleanalytics.com/${config.host}/$slug"
-
-    private suspend fun getSaViewCount(slug: String): Int {
-        try {
-            return client.get<StatsResult>("https://simpleanalytics.com/${config.host}/$slug.json").pageviews
-        } catch (e: Exception) {
-            log.error("Error while trying to get stats from SA for $slug", e)
-        }
-        return -1
-    }
 
     private suspend fun getTimezone(ip: String): String? {
         try {
