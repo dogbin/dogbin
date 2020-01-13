@@ -41,8 +41,7 @@ class AppConfig(config: ApplicationConfig) {
 
     val highlighter = Highlighter(
         maxLines = config.propertyOrNull("dogbin.highlighter.maxLines")?.getString()?.toInt() ?: 10_000,
-        maxChars = config.propertyOrNull("dogbin.highlighter.maxChars")?.getString()?.toInt() ?: 500_000,
-        skipCache = config.propertyOrNull("dogbin.highlighter.skipCache")?.getString()?.toBoolean() ?: false
+        maxChars = config.propertyOrNull("dogbin.highlighter.maxChars")?.getString()?.toInt() ?: 500_000
     )
 
     data class DbConfig(val location: File, val environment: String)
@@ -51,5 +50,5 @@ class AppConfig(config: ApplicationConfig) {
     data class Api(val keyLength: Int)
     data class Documents(val docsPath: String, val addDocsPath: String?)
     data class Microservices(val highlighter: String, val iframely: String)
-    data class Highlighter(val maxLines: Int, val maxChars: Int, val skipCache: Boolean)
+    data class Highlighter(val maxLines: Int, val maxChars: Int)
 }

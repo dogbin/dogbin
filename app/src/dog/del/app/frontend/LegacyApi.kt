@@ -126,15 +126,6 @@ private suspend fun ApplicationCall.createDocument(
                     type = if (isUrl) XdDocumentType.URL else XdDocumentType.PASTE
                 }
 
-                if (!isUrl) {
-                    val id = doc.xdId
-                    // Technically always 0
-                    val version = doc.version
-                    GlobalScope.launch {
-                        get<Highlighter>().requestHighlight(id, dto.content, slug, version)
-                    }
-                }
-
                 GlobalScope.launch {
                     val event = if (isUrl) Event.URL_CREATE else Event.PASTE_CREATE
                     reporter.reportEvent(event, request)
@@ -161,13 +152,6 @@ private suspend fun ApplicationCall.createDocument(
                     GlobalScope.launch {
                         reporter.reportEvent(Event.DOC_EDIT, request)
                     }
-                    GlobalScope.launch {
-                        val highlighter = get<Highlighter>()
-                        if (!isUrl) {
-                            highlighter.requestHighlight(id, dto.content, dto.slug, version)
-                        }
-                        highlighter.clearCache(id, version)
-                    }
 
                     HttpStatusCode.OK to CreateDocumentResponseDto(
                         isUrl = isUrl,
@@ -190,15 +174,6 @@ private suspend fun ApplicationCall.createDocument(
                         owner = usr
                         stringContent = dto.content.trim()
                         type = if (isUrl) XdDocumentType.URL else XdDocumentType.PASTE
-                    }
-
-                    if (!isUrl) {
-                        val id = doc.xdId
-                        // Technically always 0
-                        val version = doc.version
-                        GlobalScope.launch {
-                            get<Highlighter>().requestHighlight(id, dto.content, dto.slug, version)
-                        }
                     }
 
                     GlobalScope.launch {

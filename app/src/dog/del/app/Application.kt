@@ -26,6 +26,7 @@ import dog.del.commons.isUrl
 import dog.del.commons.keygen.KeyGenerator
 import dog.del.commons.keygen.PhoneticKeyGenerator
 import dog.del.data.base.Database
+import dog.del.data.base.model.caches.XdHighlighterCache
 import dog.del.data.base.model.config.Config
 import dog.del.data.base.model.document.XdDocument
 import dog.del.data.base.model.document.XdDocumentType
@@ -238,22 +239,15 @@ private suspend fun Application.initDb(
                             version++
                             val isUrl = content.isUrl()
                             type = if (isUrl) XdDocumentType.URL else XdDocumentType.PASTE
-                            if (!isUrl) {
-                                GlobalScope.launch {
-                                    db.transactional {
-                                        highlighter.requestHighlight(xdId, content, file.name, version)
-                                        highlighter.clearCache(xdId, version)
-                                    }
-                                }
-                            }
                             log.info("Updated static document \'$slug\' (v$version)")
                         }
                     }
                 }
             }
         }
-
-        highlighter.updateCache()
+        db.transactional {
+            it.store.deleteEntityTypeRefactoring(XdHighlighterCache.entityType)
+        }
     }.start()
     db
 }

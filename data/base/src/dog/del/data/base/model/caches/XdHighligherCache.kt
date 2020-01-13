@@ -4,6 +4,7 @@ import jetbrains.exodus.entitystore.Entity
 import kotlinx.dnq.*
 import kotlin.reflect.KProperty1
 
+@Deprecated("")
 class XdHighlighterCache(entity: Entity) : XdEntity(entity) {
     companion object : XdNaturalEntityType<XdHighlighterCache>() {
         override val compositeIndices: List<List<KProperty1<XdHighlighterCache, *>>>

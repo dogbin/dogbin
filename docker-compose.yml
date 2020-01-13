@@ -36,6 +36,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.dogbin.rule=Host(`${HOST}`)"
+      - "com.centurylinklabs.watchtower.enable=true"
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8080/ && echo 'working fine'"]
       interval: 5s
@@ -46,6 +47,7 @@ services:
     restart: always
     labels:
       - "traefik.enable=false"
+      - "com.centurylinklabs.watchtower.enable=true"
   iframely:
     image: dogbin/iframely
     restart: always
@@ -104,3 +106,9 @@ services:
       - '--path.sysfs=/host/sys'
       - --collector.filesystem.ignored-mount-points
       - "^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)"
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - WATCHTOWER_LABEL_ENABLE=true
