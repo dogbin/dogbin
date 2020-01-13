@@ -48,4 +48,5 @@ class XdApiCredential(entity: Entity) : XdEntity(entity), ApiCredential<XdUser> 
     override var canCreateDocuments by xdBooleanProp()
     override var canUpdateDocuments by xdBooleanProp()
     override var canDeleteDocuments by xdBooleanProp()
+    override var canListDocuments by xdBooleanProp()
 }

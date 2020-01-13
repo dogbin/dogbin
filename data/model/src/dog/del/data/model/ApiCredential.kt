@@ -18,4 +18,5 @@ interface ApiCredential<U : User<*>> {
     var canCreateDocuments: Boolean
     var canUpdateDocuments: Boolean
     var canDeleteDocuments: Boolean
+    var canListDocuments: Boolean
 }

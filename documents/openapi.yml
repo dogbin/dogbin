@@ -1,0 +1,132 @@
+openapi: 3.0.1
+info:
+  title: Dogbin API
+  description: ''
+  contact:
+    email: dogbin@deletescape.ch
+  license:
+    name: MIT
+    url: https://github.com/dogbin/dogbin/blob/master/LICENSE
+  version: 1.0.0
+servers:
+  - url: https://del.dog/api/v1
+tags:
+  - name: auth
+    description: Authentication
+  - name: docs
+    description: Documents
+paths:
+  /auth/login:
+    post:
+      tags:
+        - auth
+      summary: Login with an existing user
+      operationId: login
+      requestBody:
+        description: Pet object that needs to be added to the store
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
+      responses:
+        401:
+          description: Username or password incorrect
+          content: {}
+        200:
+          description: Succesfully signed in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+  /auth/logout:
+    post:
+      tags:
+        - auth
+      summary: Sign out (Delete session)
+      operationId: logout
+      parameters:
+        - name: key
+          schema:
+            type: string
+            example: c6g37GHLadXI90lOb22O5136zvODZIDf7jcUk5Jw
+          description: The api key of the session
+          in: query
+      responses:
+        200:
+          description: Successfully signed out
+          content: {}
+  /docs:
+    get:
+      tags:
+        - docs
+      summary: Lists all documents of the authenticated user (given the `list` permission has been requested and granted)
+      responses:
+        200:
+          description: List of all documents
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentList'
+        401:
+          description: Api key missing, session ended, or not enough permissions
+      security:
+        - api_key: []
+components:
+  schemas:
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          example: user
+        password:
+          type: string
+          example: password
+        permissions:
+          type: array
+          items:
+            type: string
+            enum:
+              - create
+              - update
+              - delete
+              - list
+        application:
+          type: string
+          description: A human readable application name
+          example: dogbin Android
+      required: [username, password, permissions]
+    LoginResponse:
+      type: object
+      properties:
+        username:
+          type: string
+          example: user
+        key:
+          type: string
+          example: c6g37GHLadXI90lOb22O5136zvODZIDf7jcUk5Jw
+          description: API key for the user, to be used in X-Api-Key header
+    DocumentList:
+      type: array
+      items:
+        type: object
+        properties:
+          slug:
+            type: string
+          created:
+            type: string
+            format: date-time
+          link:
+            type: string
+          type:
+            type: string
+            enum:
+              - url
+              - paste
+
+  securitySchemes:
+    api_key:
+      type: apiKey
+      name: X-Api-Key
+      in: header

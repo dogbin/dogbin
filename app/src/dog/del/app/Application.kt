@@ -6,6 +6,7 @@ import com.mitchellbosecke.pebble.cache.tag.CaffeineTagCache
 import com.mitchellbosecke.pebble.cache.template.CaffeineTemplateCache
 import com.mitchellbosecke.pebble.loader.ClasspathLoader
 import com.mitchellbosecke.pebble.template.PebbleTemplate
+import dog.del.app.api.api
 import dog.del.app.api.ws.websocketApis
 import dog.del.app.config.AppConfig
 import dog.del.app.frontend.admin
@@ -204,6 +205,7 @@ fun Application.module(testing: Boolean = false) {
         }
         legacyApi()
         frontend()
+        api()
         admin()
         websocketApis()
     }

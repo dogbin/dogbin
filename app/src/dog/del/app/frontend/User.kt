@@ -277,6 +277,7 @@ fun Route.user() = route("/") {
                     val canCreateDocuments = params.get("canCreateDocuments") == "on"
                     val canUpdateDocuments = params.get("canUpdateDocuments") == "on"
                     val canDeleteDocuments = params.get("canDeleteDocuments") == "on"
+                    val canListDocuments = params.get("canListDocuments") == "on"
                     val key = RandomKeyGenerator().createKey(appConfig.api.keyLength)
 
                     // Actually create the credentials in the db
@@ -286,6 +287,7 @@ fun Route.user() = route("/") {
                             this.canCreateDocuments = canCreateDocuments
                             this.canUpdateDocuments = canUpdateDocuments
                             this.canDeleteDocuments = canDeleteDocuments
+                            this.canListDocuments = canListDocuments
                         }
                     }
                     call.respondTemplate(

@@ -34,6 +34,11 @@
                 <label for="canDeleteDocuments" class="checkbox__label">Can delete Documents</label>
             </div>
             <br>
+            <div class="checkbox">
+                <input type="checkbox" id="canListDocuments" name="canListDocuments" class="checkbox__input">
+                <label for="canListDocuments" class="checkbox__label">Can list Documents</label>
+            </div>
+            <br>
             <button class="md-btn right" type="submit"><span>CREATE</span></button>
         </form>
     </div>

@@ -109,3 +109,5 @@ fun Date.formatTime(locale: Locale? = null): String =
         SimpleDateFormat.DEFAULT,
         locale
     )).format(time)
+
+fun Date.formatISO(): String = format("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
