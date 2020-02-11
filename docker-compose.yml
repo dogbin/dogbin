@@ -5,18 +5,6 @@ volumes:
   grafana_data: {}
 
 services:
-  reverse-proxy:
-    image: traefik:v2.0
-    command: --api.insecure=true --providers.docker --providers.docker.exposedByDefault=false
-    restart: always
-    ports:
-      - "80:80"
-      - "8080:8080"
-      - "443:443"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    labels:
-      - "traefik.enable=false"
   dogbin:
     image: dogbin/dogbin
     restart: always
@@ -27,6 +15,8 @@ services:
       - SIMPLEANALYTICS=${SIMPLEANALYTICS}
     volumes:
       - ./dogbin.xdb:/dogbin.xdb
+    ports:
+      - 127.0.0.1:8080:8080
     expose:
       - 8080
       - 9090
@@ -35,8 +25,6 @@ services:
       - "screenshotter:screenshotter"
       - "iframely:iframely"
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.dogbin.rule=Host(`${HOST}`)"
       - "com.centurylinklabs.watchtower.enable=true"
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8080/ && echo 'working fine'"]
@@ -47,7 +35,6 @@ services:
     image: dogbin/highlighter
     restart: always
     labels:
-      - "traefik.enable=false"
       - "com.centurylinklabs.watchtower.enable=true"
   screenshotter:
     image: dogbin/screenshotter
@@ -55,7 +42,6 @@ services:
     environment:
       - DOGBIN_HOST=http://dogbin:8080
     labels:
-      - "traefik.enable=false"
       - "com.centurylinklabs.watchtower.enable=true"
   iframely:
     image: dogbin/iframely
@@ -64,14 +50,13 @@ services:
       - PORT=80
       - HOST=iframely.docker.localhost
       - BASE_APP_URL=https://${HOST}
+    ports:
+      - 127.0.0.1:8083:80
     expose:
       - 80
     volumes:
       - ./iframely.config.js:/iframely/config.local.js
     command: server.js
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.iframely.rule=Host(`${HOST}`) && PathPrefix(`/r/`)"
   autoheal:
     image: willfarrell/autoheal
     restart: always
@@ -101,9 +86,8 @@ services:
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=foobar
       - GF_USERS_ALLOW_SIGN_UP=false
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.grafana.rule=Host(`${GRAFANA_HOST}`)"
+    ports:
+      - 127.0.0.1:8082:3000
   node-exporter:
     image: prom/node-exporter
     volumes:

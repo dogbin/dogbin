@@ -1,0 +1,38 @@
+del.dog {
+    reverse_proxy / localhost:8080 {
+        header_up X-Forwarded-Ssl on
+        header_up Host {host}
+        header_up X-Real-IP {remote}
+        header_up X-Forwarded-For {remote}
+        header_up X-Forwarded-Port {server_port}
+        header_up X-Forwarded-Proto {scheme}
+        header_up X-Url-Scheme {scheme}
+        header_up X-Forwarded-Host {host}
+    }
+}
+
+del.dog/r/ {
+    reverse_proxy / localhost:8083 {
+        header_up X-Forwarded-Ssl on
+        header_up Host {host}
+        header_up X-Real-IP {remote}
+        header_up X-Forwarded-For {remote}
+        header_up X-Forwarded-Port {server_port}
+        header_up X-Forwarded-Proto {scheme}
+        header_up X-Url-Scheme {scheme}
+        header_up X-Forwarded-Host {host}
+    }
+}
+
+metrics.dogb.in {
+    reverse_proxy / localhost:8082 {
+        header_up X-Forwarded-Ssl on
+        header_up Host {host}
+        header_up X-Real-IP {remote}
+        header_up X-Forwarded-For {remote}
+        header_up X-Forwarded-Port {server_port}
+        header_up X-Forwarded-Proto {scheme}
+        header_up X-Url-Scheme {scheme}
+        header_up X-Forwarded-Host {host}
+    }
+}
