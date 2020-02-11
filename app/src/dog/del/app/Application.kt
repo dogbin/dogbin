@@ -29,6 +29,7 @@ import dog.del.commons.keygen.KeyGenerator
 import dog.del.commons.keygen.PhoneticKeyGenerator
 import dog.del.data.base.Database
 import dog.del.data.base.model.caches.XdHighlighterCache
+import dog.del.data.base.model.caches.XdScreenshotCache
 import dog.del.data.base.model.config.Config
 import dog.del.data.base.model.document.XdDocument
 import dog.del.data.base.model.document.XdDocumentType
@@ -251,6 +252,7 @@ private suspend fun Application.initDb(
         }
         db.transactional {
             it.store.deleteEntityTypeRefactoring(XdHighlighterCache.entityType)
+            it.store.deleteEntityTypeRefactoring(XdScreenshotCache.entityType)
         }
     }.start()
     db

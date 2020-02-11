@@ -16,6 +16,7 @@ class Screenshotter : KoinComponent {
         if (config.screenshotter.enabled) try {
             client.get<String>("${config.microservices.screenshotter}/$path?v=$version")
         } catch (e: Exception) {
+            println(e)
             null
         } else null
     }
