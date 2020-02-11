@@ -23,14 +23,16 @@ class Screenshotter : KoinComponent {
             val entry = XdScreenshotCache.find(path)
             if (entry == null) {
                 val screenshotUrl = runBlocking { captureScreenshot(path) }
-                XdScreenshotCache.new {
-                    this.path = path
-                    this.version = version
-                    this.screenshotUrl = screenshotUrl
+                if (screenshotUrl != null) {
+                    XdScreenshotCache.new {
+                        this.path = path
+                        this.version = version
+                        this.screenshotUrl = screenshotUrl
+                    }
                 }
                 return@transactional screenshotUrl
             }
-            if (entry.version < version) {
+            if (entry.version < version || entry.screenshotUrl == null) {
                 entry.screenshotUrl = runBlocking { captureScreenshot(path) }
                 entry.version = version
             }
@@ -38,6 +40,10 @@ class Screenshotter : KoinComponent {
         }
 
     private suspend fun captureScreenshot(path: String): String? = withContext(Dispatchers.IO) {
-        if (config.screenshotter.enabled) client.get<String>("${config.microservices.screenshotter}/$path") else null
+        if (config.screenshotter.enabled) try {
+            client.get<String>("${config.microservices.screenshotter}/$path")
+        } catch (e: Exception) {
+            null
+        } else null
     }
 }
