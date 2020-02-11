@@ -78,7 +78,7 @@ fun Application.module(testing: Boolean = false) {
     install(PrometheusFeature) {
         disableMetricsEndpoint()
     }
-    DefaultExports.initialize()
+    //io.ktor.DefaultExports.initialize()
 
     val metrics = DogbinMetrics()
     val metricsPhase = PipelinePhase("metrics")

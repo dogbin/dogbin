@@ -15,7 +15,7 @@ application {
 
 dependencies {
     compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
-    compile("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.3.2")
+    compile("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.3.3")
     compile("io.ktor:ktor-server-netty:$ktor_version")
     compile("ch.qos.logback:logback-classic:$logback_version")
     compile("io.ktor:ktor-metrics:$ktor_version")
@@ -26,7 +26,7 @@ dependencies {
     compile("io.ktor:ktor-client-gson:$ktor_version")
     compile("org.apache.httpcomponents:httpasyncclient:4.1.4")
     compile("io.ktor:ktor-websockets:$ktor_version")
-    compile(project(":pebble"))
+    compile("io.ktor:ktor-pebble:$ktor_version")
 
     compile("com.github.zensum:ktor-health-check:011a5a8")
     compile("org.koin:koin-ktor:$koin_version")

@@ -3,7 +3,7 @@ package dog.del.data.base.model.user
 import dog.del.data.model.UserRole
 import jetbrains.exodus.entitystore.Entity
 import kotlinx.dnq.XdEnumEntity
-import kotlinx.dnq.enum.XdEnumEntityType
+import kotlinx.dnq.XdEnumEntityType
 import kotlinx.dnq.xdBooleanProp
 import kotlinx.dnq.xdStringProp
 

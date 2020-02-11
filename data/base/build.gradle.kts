@@ -4,7 +4,7 @@ dependencies {
     compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
     compile("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.3.2")
 
-    compile("org.jetbrains.xodus:dnq:1.3.440")
+    compile("org.jetbrains.xodus:dnq:1.4.446")
     compile("com.amdelamar:jhash:2.1.0")
 
     compile(project(":data:model"))
