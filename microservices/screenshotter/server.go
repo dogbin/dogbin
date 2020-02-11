@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/allegro/bigcache"
 	"github.com/chromedp/cdproto/emulation"
 	"github.com/chromedp/chromedp"
 	"github.com/minio/minio-go"
@@ -12,7 +13,10 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 )
+
+var cache, _ = bigcache.NewBigCache(bigcache.DefaultConfig(12 * time.Hour))
 
 var host = os.Getenv("DOGBIN_HOST")
 
@@ -44,20 +48,26 @@ func init() {
 var chromeCtx context.Context
 
 func screenshotHandler(ctx *fasthttp.RequestCtx) {
-	var buf []byte
-	err := chromedp.Run(chromeCtx, elementScreenshot(fmt.Sprintf("%s%s", host, ctx.Path()), "#content", &buf))
-	if err != nil {
-		ctx.SetStatusCode(http.StatusInternalServerError)
-		return
-	}
 	objName := fmt.Sprintf("screenshots%s.png", ctx.Path())
-	_, err = minioClient.PutObject(s3Bucket, objName, bytes.NewReader(buf), int64(len(buf)), minio.PutObjectOptions{
-		UserMetadata: map[string]string{"x-amz-acl": "public-read"},
-		ContentType:  "image/png",
-	})
-	if err != nil {
-		ctx.SetStatusCode(http.StatusInternalServerError)
-		return
+	version := ctx.QueryArgs().GetUintOrZero("v")
+	value, err := cache.Get(objName)
+	outdated := int(value[0]) < version
+	if err != nil || outdated {
+		go func() {
+			var buf []byte
+			err := chromedp.Run(chromeCtx, elementScreenshot(fmt.Sprintf("%s%s", host, ctx.Path()), "#content", &buf))
+			if err != nil {
+				ctx.SetStatusCode(http.StatusInternalServerError)
+				return
+			}
+			_, err = minioClient.PutObject(s3Bucket, objName, bytes.NewReader(buf), int64(len(buf)), minio.PutObjectOptions{
+				UserMetadata: map[string]string{"x-amz-acl": "public-read"},
+				ContentType:  "image/png",
+			})
+			if err != nil {
+				log.Println(err)
+			}
+		}()
 	}
 	ctx.WriteString(fmt.Sprintf("%s/%s", s3Host, objName))
 }
