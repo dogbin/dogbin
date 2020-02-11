@@ -74,8 +74,7 @@ func screenshotHandler(ctx *fasthttp.RequestCtx) {
 	objName := fmt.Sprintf("screenshots%s.png", ctx.Path())
 	version := ctx.QueryArgs().GetUintOrZero("v")
 	value, err := cache.Get(objName)
-	outdated := int(value[0]) < version
-	if err != nil || outdated {
+	if err != nil || len(value) > 0 && int(value[0]) < version {
 		go func() {
 			var buf []byte
 			err := chromedp.Run(chromeCtx, elementScreenshot(fmt.Sprintf("%s%s", host, ctx.Path()), "#content", &buf))
@@ -90,6 +89,7 @@ func screenshotHandler(ctx *fasthttp.RequestCtx) {
 			if err != nil {
 				log.Println(err)
 			}
+			cache.Set(objName, []byte{byte(version)})
 		}()
 	}
 	ctx.WriteString(fmt.Sprintf("%s/%s", s3Host, objName))
