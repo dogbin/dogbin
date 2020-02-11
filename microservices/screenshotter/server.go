@@ -10,7 +10,6 @@ import (
 	"github.com/minio/minio-go"
 	"github.com/valyala/fasthttp"
 	"log"
-	"net/http"
 	"os"
 	"strconv"
 	"time"
@@ -73,13 +72,16 @@ var chromeCtx context.Context
 func screenshotHandler(ctx *fasthttp.RequestCtx) {
 	objName := fmt.Sprintf("screenshots%s.png", ctx.Path())
 	version := ctx.QueryArgs().GetUintOrZero("v")
-	value, err := cache.Get(objName)
-	if err != nil || len(value) > 0 && int(value[0]) < version {
-		go func() {
+	cacheValue, err := cache.Get(objName)
+
+	ctx.WriteString(fmt.Sprintf("%s/%s?v=%d", s3Host, objName, version))
+
+	if err != nil || len(cacheValue) > 0 && int(cacheValue[0]) < version {
+		go func(path []byte, objName string, version int) {
 			var buf []byte
-			err := chromedp.Run(chromeCtx, elementScreenshot(fmt.Sprintf("%s%s", host, ctx.Path()), "#content", &buf))
+			err := chromedp.Run(chromeCtx, elementScreenshot(fmt.Sprintf("%s%s", host, path), "#content", &buf))
 			if err != nil {
-				ctx.SetStatusCode(http.StatusInternalServerError)
+				log.Println(err)
 				return
 			}
 			_, err = minioClient.PutObject(s3Bucket, objName, bytes.NewReader(buf), int64(len(buf)), minio.PutObjectOptions{
@@ -90,9 +92,8 @@ func screenshotHandler(ctx *fasthttp.RequestCtx) {
 				log.Println(err)
 			}
 			cache.Set(objName, []byte{byte(version)})
-		}()
+		}(ctx.Path(), objName, version)
 	}
-	ctx.WriteString(fmt.Sprintf("%s/%s", s3Host, objName))
 }
 
 // elementScreenshot takes a screenshot of a specific element.
