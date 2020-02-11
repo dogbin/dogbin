@@ -199,6 +199,8 @@ fun Application.module(testing: Boolean = false) {
         }
     }
 
+    install(XForwardedHeaderSupport)
+
     routing {
         static("static") {
             resources("static")

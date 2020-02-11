@@ -79,7 +79,9 @@ func screenshotHandler(ctx *fasthttp.RequestCtx) {
 	if err != nil || len(cacheValue) > 0 && int(cacheValue[0]) < version {
 		go func(path []byte, objName string, version int) {
 			var buf []byte
-			err := chromedp.Run(chromeCtx, elementScreenshot(fmt.Sprintf("%s%s", host, path), "#content", &buf))
+			url := fmt.Sprintf("%s%s", host, path)
+			fmt.Println(url)
+			err := chromedp.Run(chromeCtx, elementScreenshot(url, "#content", &buf))
 			if err != nil {
 				log.Println(err)
 				return
