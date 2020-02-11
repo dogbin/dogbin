@@ -16,16 +16,17 @@
     {% endcache %}
 
     <meta property="og:title" content="{{ title }}"/>
+    <meta property="og:type" content="website"/>
     {% cache 'meta' %}
         <meta property="og:site_name" content="{{ appConfig.appname }}"/>
-        <meta name="keywords" content="{{ config.keywords }}">
+        <meta name="keywords" content="{{ config.keywords }}"/>
     {% endcache %}
     <meta name="theme-color" content="#37474f">
     {% if description is not null %}
-        <meta name="description" content="{{ description }}">
+        <meta name="description" content="{{ description }}"/>
         <meta property="og:description" content="{{ description }}"/>
     {% else %}
-        <meta name="description" content="{{ config.description }}">
+        <meta name="description" content="{{ config.description }}"/>
         <meta property="og:description" content="{{ config.description }}"/>
     {% endif %}
     {% if document is not null and document.screenshotUrl is not null %}
@@ -33,6 +34,9 @@
     {% else %}
         <meta property="og:image" content="https://del.dog/static/doggo.jpg"/>
     {% endif %}
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:site" content="@deldotdog"/>
+    <meta name="twitter:dnt" content="on"/>
     {% block head %}
     {% endblock %}
 </head>
