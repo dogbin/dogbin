@@ -43,6 +43,29 @@ func init() {
 	if !exists {
 		log.Fatalln(err)
 	}
+
+	err = minioClient.SetBucketLifecycle(s3Bucket, `<LifecycleConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+  <Rule>
+    <ID>Expire old screenshots</ID>
+    <Prefix>screenshots/</Prefix>
+    <Status>Enabled</Status>
+    <Expiration>
+      <Days>30</Days>
+    </Expiration>
+  </Rule>
+
+  <Rule>
+    <ID>Remove uncompleted uploads</ID>
+    <Status>Enabled</Status>
+    <Prefix/>
+    <AbortIncompleteMultipartUpload>
+      <DaysAfterInitiation>1</DaysAfterInitiation>
+    </AbortIncompleteMultipartUpload>
+  </Rule>
+</LifecycleConfiguration>`)
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 var chromeCtx context.Context
