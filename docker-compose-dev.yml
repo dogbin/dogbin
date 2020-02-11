@@ -30,6 +30,7 @@ services:
       - 9090
     links:
       - "highlighter:highlighter"
+      - "screenshotter:screenshotter"
       - "iframely:iframely"
     labels:
       - "traefik.http.routers.dogbin.rule=Host(`l.del.dog`)"
@@ -38,6 +39,13 @@ services:
     image: dogbin/highlighter
     labels:
       - "traefik.http.routers.highlighter.rule=Host(`highlighter.docker.localhost`)"
+  screenshotter:
+    image: dogbin/screenshotter
+    restart: always
+    environment:
+      - DOGBIN_HOST=http://dogbin:8080
+    labels:
+      - "traefik.http.routers.highlighter.rule=Host(`screenshotter.docker.localhost`)"
   iframely:
     image: dogbin/iframely
     environment:

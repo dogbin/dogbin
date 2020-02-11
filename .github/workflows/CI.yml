@@ -26,3 +26,5 @@ jobs:
           docker push dogbin/dogbin:latest
           docker image build -t dogbin/highlighter microservices/highlighter/
           docker push dogbin/highlighter:latest
+          docker image build -t dogbin/screenshotter microservices/screenshotter/
+          docker push dogbin/screenshotter:latest

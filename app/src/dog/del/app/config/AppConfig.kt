@@ -36,7 +36,8 @@ class AppConfig(config: ApplicationConfig) {
 
     val microservices = Microservices(
         highlighter = config.property("dogbin.microservices.highlighter").getString(),
-        iframely = config.property("dogbin.microservices.iframely").getString()
+        iframely = config.property("dogbin.microservices.iframely").getString(),
+        screenshotter = config.property("dogbin.microservices.screenshotter").getString()
     )
 
     val highlighter = Highlighter(
@@ -49,6 +50,6 @@ class AppConfig(config: ApplicationConfig) {
     data class Stats(val enabled: Boolean, val useSA: Boolean)
     data class Api(val keyLength: Int)
     data class Documents(val docsPath: String, val addDocsPath: String?)
-    data class Microservices(val highlighter: String, val iframely: String)
+    data class Microservices(val highlighter: String, val iframely: String, val screenshotter: String)
     data class Highlighter(val maxLines: Int, val maxChars: Int)
 }

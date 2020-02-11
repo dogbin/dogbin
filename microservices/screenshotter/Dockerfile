@@ -1,0 +1,12 @@
+FROM golang as build-env
+COPY . /screenshotter
+WORKDIR /screenshotter
+RUN ["go", "build", "-tags", "netgo"]
+
+FROM chromedp/headless-shell:latest
+RUN apt update
+RUN apt install tini
+COPY --from=build-env /screenshotter/screenshotter /screenshotter
+EXPOSE 8082
+ENTRYPOINT ["tini"]
+CMD ["/screenshotter"]
