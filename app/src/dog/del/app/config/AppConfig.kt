@@ -45,6 +45,20 @@ class AppConfig(config: ApplicationConfig) {
         maxChars = config.propertyOrNull("dogbin.highlighter.maxChars")?.getString()?.toInt() ?: 500_000
     )
 
+    val screenshotter = Screenshotter(
+        enabled = config.propertyOrNull("dogbin.screenshotter.enabled")?.getString()?.toBoolean() == true
+    )
+
+    val cdn = S3Config(
+        s3Endpoint = config.propertyOrNull("dogbin.cdn.s3Endpoint")?.getString().orEmpty(),
+        s3AccessKey = config.propertyOrNull("dogbin.cdn.s3AccessKey")?.getString().orEmpty(),
+        s3Secret = config.propertyOrNull("dogbin.cdn.s3Secret")?.getString().orEmpty(),
+        s3Secure = config.propertyOrNull("dogbin.cdn.s3Secure")?.getString()?.toBoolean() == true,
+        s3Bucket = config.propertyOrNull("dogbin.cdn.s3Bucket")?.getString().orEmpty(),
+        s3Region = config.propertyOrNull("dogbin.cdn.s3Region")?.getString().orEmpty(),
+        s3Host = config.propertyOrNull("dogbin.cdn.s3Host")?.getString().orEmpty()
+    )
+
     data class DbConfig(val location: File, val environment: String)
     data class Keys(val session: ByteArray)
     data class Stats(val enabled: Boolean, val useSA: Boolean)
@@ -52,4 +66,14 @@ class AppConfig(config: ApplicationConfig) {
     data class Documents(val docsPath: String, val addDocsPath: String?)
     data class Microservices(val highlighter: String, val iframely: String, val screenshotter: String)
     data class Highlighter(val maxLines: Int, val maxChars: Int)
+    data class Screenshotter(val enabled: Boolean)
+    data class S3Config(
+        val s3Endpoint: String,
+        val s3AccessKey: String,
+        val s3Secret: String,
+        val s3Secure: Boolean,
+        val s3Bucket: String,
+        val s3Region: String,
+        val s3Host: String
+    )
 }

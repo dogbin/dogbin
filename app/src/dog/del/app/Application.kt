@@ -17,6 +17,7 @@ import dog.del.app.markdown.MarkdownRenderer
 import dog.del.app.markdown.iframely.Iframely
 import dog.del.app.metrics.DogbinCollectors
 import dog.del.app.metrics.DogbinMetrics
+import dog.del.app.screenshotter.Screenshotter
 import dog.del.app.session.WebSession
 import dog.del.app.session.XdSessionStorage
 import dog.del.app.stats.StatisticsReporter
@@ -100,6 +101,7 @@ fun Application.module(testing: Boolean = false) {
         val appModule = org.koin.dsl.module {
             single { appConfig }
             single { Highlighter() }
+            single { Screenshotter() }
             single {
                 runBlocking { initDb(get(), get()) }
             }

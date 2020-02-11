@@ -2,6 +2,7 @@ package dog.del.app.dto
 
 import dog.del.app.highlighter.Highlighter
 import dog.del.app.markdown.MarkdownRenderer
+import dog.del.app.screenshotter.Screenshotter
 import dog.del.app.session.session
 import dog.del.app.session.user
 import dog.del.app.stats.StatisticsReporter
@@ -13,6 +14,7 @@ import dog.del.commons.lineCount
 import dog.del.data.base.model.document.XdDocument
 import dog.del.data.base.model.document.XdDocumentType
 import io.ktor.application.ApplicationCall
+import io.ktor.request.path
 import io.ktor.response.respondRedirect
 import jetbrains.exodus.database.TransientEntityStore
 import kotlinx.coroutines.Deferred
@@ -25,6 +27,7 @@ import org.koin.core.inject
 open class FrontendDocumentDto : KoinComponent, PebbleModel {
     protected val store by inject<TransientEntityStore>()
     protected val reporter by inject<StatisticsReporter>()
+    protected val screenshotter by inject<Screenshotter>()
 
     var slug: String = ""
         protected set
@@ -43,6 +46,12 @@ open class FrontendDocumentDto : KoinComponent, PebbleModel {
 
     var created: String = ""
         protected set
+
+    protected var version: Int = 0
+
+    protected var screenshotDeferred: Deferred<String?>? = null
+    var screenshotUrl: String? = null
+        get() = runBlocking { screenshotDeferred?.await() }
 
     protected var viewCountDeferred: Deferred<Int>? = null
     var viewCount: Int = -1
@@ -73,10 +82,12 @@ open class FrontendDocumentDto : KoinComponent, PebbleModel {
     open suspend fun applyFrom(document: XdDocument, call: ApplicationCall? = null): FrontendDocumentDto =
         coroutineScope {
             slug = store.transactional(readonly = true) { document.slug }
+            version = store.transactional(readonly = true) { document.version }
             title = "dogbin - $slug"
             if (reporter.showCount) {
                 viewCountDeferred = async { reporter.getImpressions(slug) }
             }
+            screenshotDeferred = async { screenshotter.getScreenshotUrl(call?.request?.path() ?: slug, version) }
             store.transactional(readonly = true) {
                 type = DocumentTypeDto.fromXdDocumentType(document.type)
                 docContent = document.stringContent
@@ -127,7 +138,7 @@ class MarkdownDocumentDto : FrontendDocumentDto() {
     }
 }
 
-class HighlightedDocumentDto(val redirectToFull: Boolean = true) : FrontendDocumentDto() {
+class HighlightedDocumentDto(private val redirectToFull: Boolean = true) : FrontendDocumentDto() {
     private val highlighter by inject<Highlighter>()
 
     private var rawSlug: String = ""
@@ -162,6 +173,9 @@ class HighlightedDocumentDto(val redirectToFull: Boolean = true) : FrontendDocum
             )
         }
 
+        screenshotDeferred =
+            async { screenshotter.getScreenshotUrl(redirectTo ?: call?.request?.path() ?: slug, version) }
+
         return@coroutineScope this@HighlightedDocumentDto
     }
 }
@@ -176,6 +190,8 @@ class EditDocumentDto : FrontendDocumentDto() {
         super.applyFrom(document, call)
 
         title = "Editing - $slug"
+
+        screenshotDeferred = null
 
         return this
     }

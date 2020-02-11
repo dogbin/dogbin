@@ -28,7 +28,11 @@
         <meta name="description" content="{{ config.description }}">
         <meta property="og:description" content="{{ config.description }}"/>
     {% endif %}
-    <meta property="og:image" content="https://del.dog/static/doggo.jpg"/>
+    {% if document is not null and document.screenshotUrl is not null %}
+        <meta property="og:image" content="{{ document.screenshotUrl }}"/>
+    {% else %}
+        <meta property="og:image" content="https://del.dog/static/doggo.jpg"/>
+    {% endif %}
     {% block head %}
     {% endblock %}
 </head>
