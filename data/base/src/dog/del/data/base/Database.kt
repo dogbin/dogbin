@@ -11,7 +11,7 @@ import java.io.File
 import java.util.concurrent.Executors
 
 object Database {
-    val dispatcher = Executors.newFixedThreadPool(32).asCoroutineDispatcher()
+    val dispatcher = Executors.newCachedThreadPool().asCoroutineDispatcher()
 
     suspend fun init(location: File, environment: String): TransientEntityStore = withContext(Dispatchers.DB) {
         XdModel.scanJavaClasspath()
