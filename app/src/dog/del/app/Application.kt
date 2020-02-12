@@ -171,7 +171,7 @@ fun Application.module(testing: Boolean = false) {
                     }
             )
         )
-        executorService(Dispatchers.IO.asExecutorService())
+        //executorService(Dispatchers.IO.asExecutorService())
     }
 
     install(Compression) {
