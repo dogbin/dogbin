@@ -12,9 +12,11 @@ import dog.del.app.utils.get
 import dog.del.app.utils.slug
 import dog.del.commons.isUrl
 import dog.del.commons.keygen.KeyGenerator
+import dog.del.data.base.DB
 import dog.del.data.base.Database
 import dog.del.data.base.model.document.XdDocument
 import dog.del.data.base.model.document.XdDocumentType
+import dog.del.data.base.suspended
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.http.ContentType
@@ -42,11 +44,9 @@ fun Route.legacyApi() = route("/") {
 
     get("raw/{slug}") {
         var docContent: String? = null
-        val doc = withContext(Database.dispatcher) {
-            db.transactional(readonly = true) {
-                XdDocument.find(call.slug)?.also {
-                    docContent = it.stringContent
-                }
+        val doc = db.suspended(readonly = true) {
+            XdDocument.find(call.slug)?.also {
+                docContent = it.stringContent
             }
         }
         if (doc == null) {
@@ -89,7 +89,7 @@ private suspend fun ApplicationCall.createDocument(
     db: TransientEntityStore,
     slugGen: KeyGenerator,
     reporter: StatisticsReporter
-) = withContext(Database.dispatcher) {
+) = withContext(Dispatchers.DB) {
     // TODO: uuh yea this ain't too beautiful
     val slugError = if (!dto.slug.isNullOrBlank()) XdDocument.verifySlug(dto.slug) else null
     val result = if (dto.content.isBlank()) {

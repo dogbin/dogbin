@@ -11,6 +11,7 @@ import dog.del.app.utils.locale
 import dog.del.app.utils.rawSlug
 import dog.del.commons.formatShort
 import dog.del.commons.lineCount
+import dog.del.data.base.DB
 import dog.del.data.base.Database
 import dog.del.data.base.model.document.XdDocument
 import dog.del.data.base.model.document.XdDocumentType
@@ -78,7 +79,7 @@ open class FrontendDocumentDto : KoinComponent, PebbleModel {
     protected var docContent: String? = null
 
     open suspend fun applyFrom(document: XdDocument, call: ApplicationCall? = null): FrontendDocumentDto =
-        withContext(Database.dispatcher) {
+        withContext(Dispatchers.DB) {
             slug = store.transactional(readonly = true) { document.slug }
             version = store.transactional(readonly = true) { document.version }
             title = "dogbin - $slug"
@@ -158,7 +159,7 @@ class HighlightedDocumentDto(private val redirectToFull: Boolean = true) : Front
         set(value) {}
 
     override suspend fun applyFrom(document: XdDocument, call: ApplicationCall?): FrontendDocumentDto =
-        withContext(Database.dispatcher) {
+        withContext(Dispatchers.DB) {
             super.applyFrom(document, call)
 
             val docId = store.transactional(readonly = true) { document.xdId }

@@ -27,6 +27,7 @@ import dog.del.app.utils.asExecutorService
 import dog.del.commons.isUrl
 import dog.del.commons.keygen.KeyGenerator
 import dog.del.commons.keygen.PhoneticKeyGenerator
+import dog.del.data.base.DB
 import dog.del.data.base.Database
 import dog.del.data.base.model.caches.XdHighlighterCache
 import dog.del.data.base.model.caches.XdScreenshotCache
@@ -223,7 +224,7 @@ fun Application.module(testing: Boolean = false) {
 private suspend fun Application.initDb(
     appConfig: AppConfig,
     highlighter: Highlighter
-): TransientEntityStore = withContext(Database.dispatcher) {
+): TransientEntityStore = withContext(Dispatchers.DB) {
     val db = Database.init(appConfig.db.location, appConfig.db.environment)
     with(db.persistentStore.environment.environmentConfig) {
         envStoreGetCacheSize = 10_000

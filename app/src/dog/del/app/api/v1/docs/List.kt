@@ -4,6 +4,7 @@ import dog.del.app.api.apiCredentials
 import dog.del.commons.formatISO
 import dog.del.data.base.Database
 import dog.del.data.base.model.document.XdDocument
+import dog.del.data.base.suspended
 import io.ktor.application.call
 import io.ktor.features.origin
 import io.ktor.http.HttpStatusCode
@@ -24,28 +25,26 @@ fun Route.list(store: TransientEntityStore) = get {
         call.respond(HttpStatusCode.Unauthorized, "Missing/invalid api key")
         return@get
     }
-    val canList = withContext(Database.dispatcher) { store.transactional(readonly = true) { creds.canListDocuments } }
+    val canList = store.suspended(readonly = true) { creds.canListDocuments }
     if (!canList) {
         call.respond(HttpStatusCode.Unauthorized, "Missing 'list' permission")
         return@get
     }
 
-    val docList = withContext(Database.dispatcher) {
-        store.transactional(readonly = true) {
-            XdDocument.filter { it.owner eq creds.user }.sortedBy(XdDocument::created, asc = false).toList().map {
-                DocumentListDto(
-                    it.slug,
-                    it.created.formatISO(),
-                    url {
-                        val origin = call.request.origin
-                        protocol = URLProtocol.createOrDefault(origin.scheme)
-                        port = origin.port
-                        host = origin.host
-                        path(it.slug)
-                    },
-                    it.type.name.toLowerCase()
-                )
-            }
+    val docList = store.suspended(readonly = true) {
+        XdDocument.filter { it.owner eq creds.user }.sortedBy(XdDocument::created, asc = false).toList().map {
+            DocumentListDto(
+                it.slug,
+                it.created.formatISO(),
+                url {
+                    val origin = call.request.origin
+                    protocol = URLProtocol.createOrDefault(origin.scheme)
+                    port = origin.port
+                    host = origin.host
+                    path(it.slug)
+                },
+                it.type.name.toLowerCase()
+            )
         }
     }
     call.respond(docList)

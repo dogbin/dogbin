@@ -1,5 +1,6 @@
 package dog.del.app.session
 
+import dog.del.data.base.DB
 import dog.del.data.base.Database
 import dog.del.data.base.model.user.XdUser
 import io.ktor.application.ApplicationCall
@@ -8,6 +9,7 @@ import io.ktor.sessions.get
 import io.ktor.sessions.sessions
 import io.ktor.sessions.set
 import jetbrains.exodus.database.TransientEntityStore
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.dnq.util.findById
 
@@ -22,7 +24,7 @@ fun ApplicationCall.clearWebSession() {
 
 fun ApplicationCall.session() = getWebSession()
 suspend fun ApplicationCall.user(db: TransientEntityStore, isApi: Boolean = false): XdUser =
-    withContext(Database.dispatcher) {
+    withContext(Dispatchers.DB) {
         val session = session()
         if (session != null) {
             try {

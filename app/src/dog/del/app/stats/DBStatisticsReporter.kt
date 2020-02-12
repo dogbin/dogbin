@@ -1,13 +1,11 @@
 package dog.del.app.stats
 
+import dog.del.data.base.DB
 import dog.del.data.base.Database
 import dog.del.data.base.model.document.XdDocument
 import io.ktor.request.ApplicationRequest
 import jetbrains.exodus.database.TransientEntityStore
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 
@@ -15,7 +13,7 @@ class DBStatisticsReporter : StatisticsReporter, KoinComponent {
     override val showCount = true
     private val db by inject<TransientEntityStore>()
     private val job = SupervisorJob()
-    private val scope = CoroutineScope(Database.dispatcher + job)
+    private val scope = CoroutineScope(Dispatchers.DB + job)
 
     override val embedCode = ""
 

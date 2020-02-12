@@ -14,6 +14,7 @@ import dog.del.app.utils.*
 import dog.del.data.base.Database
 import dog.del.data.base.model.document.XdDocument
 import dog.del.data.base.model.document.XdDocumentType
+import dog.del.data.base.suspended
 import io.ktor.application.call
 import io.ktor.pebble.respondTemplate
 import io.ktor.response.respondRedirect
@@ -40,14 +41,12 @@ fun Route.index() = route("/") {
         var doc: XdDocument? = null
         var isUrl = false
         var docContent: String? = null
-        withContext(Database.dispatcher) {
-            store.transactional {
-                doc = XdDocument.find(call.slug)
-                if (doc != null) {
-                    isUrl = doc!!.type == XdDocumentType.URL
-                    if (isUrl) {
-                        docContent = doc!!.stringContent
-                    }
+        store.suspended {
+            doc = XdDocument.find(call.slug)
+            if (doc != null) {
+                isUrl = doc!!.type == XdDocumentType.URL
+                if (isUrl) {
+                    docContent = doc!!.stringContent
                 }
             }
         }
@@ -80,12 +79,10 @@ fun Route.index() = route("/") {
     get("/v/{slug}") {
         var isUrl = false
         var doc: XdDocument? = null
-        withContext(Database.dispatcher) {
-            store.transactional(readonly = true) {
-                doc = XdDocument.find(call.slug)
-                if (doc != null) {
-                    isUrl = doc!!.type == XdDocumentType.URL
-                }
+        store.suspended(readonly = true) {
+            doc = XdDocument.find(call.slug)
+            if (doc != null) {
+                isUrl = doc!!.type == XdDocumentType.URL
             }
         }
         if (doc == null) {
@@ -106,10 +103,8 @@ fun Route.index() = route("/") {
     }
 
     get("/e/{slug}") {
-        val doc = withContext(Database.dispatcher) {
-            store.transactional(readonly = true) {
-                XdDocument.find(call.slug)
-            }
+        val doc = store.suspended(readonly = true) {
+            XdDocument.find(call.slug)
         }
         if (doc == null) {
             call.respondRedirect("/")

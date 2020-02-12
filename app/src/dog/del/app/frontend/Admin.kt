@@ -4,6 +4,7 @@ import dog.del.app.session.session
 import dog.del.app.session.user
 import dog.del.data.base.Database
 import dog.del.data.base.model.config.Config
+import dog.del.data.base.suspended
 import dog.del.data.base.utils.freeze
 import dog.del.data.base.utils.updateFrom
 import io.ktor.application.ApplicationCallPipeline
@@ -27,9 +28,9 @@ fun Route.admin() = route("/a") {
     val db by inject<TransientEntityStore>()
 
     intercept(ApplicationCallPipeline.Call) {
-        val isAdmin = call.session() != null && withContext(Database.dispatcher) {
+        val isAdmin = call.session() != null && run {
             val user = call.user(db)
-            db.transactional(readonly = true) { user.role.isAdmin }
+            db.suspended(readonly = true) { user.role.isAdmin }
         }
         if (!isAdmin) {
             call.respond(HttpStatusCode.Unauthorized, "Nice try.")

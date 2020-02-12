@@ -3,10 +3,12 @@ package dog.del.data.base.model.config
 import dog.del.commons.add
 import dog.del.commons.date
 import dog.del.commons.keygen.RandomKeyGenerator
+import dog.del.data.base.DB
 import dog.del.data.base.Database
 import dog.del.data.base.utils.freeze
 import jetbrains.exodus.database.TransientEntityStore
 import jetbrains.exodus.entitystore.Entity
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.dnq.XdEntity
 import kotlinx.dnq.singleton.XdSingletonEntityType
@@ -20,7 +22,7 @@ class Config(entity: Entity) : XdEntity(entity) {
             initDefaults()
         }
 
-        suspend fun getConfig(store: TransientEntityStore): Config = withContext(Database.dispatcher) {
+        suspend fun getConfig(store: TransientEntityStore): Config = withContext(Dispatchers.DB) {
             store.transactional {
                 get().apply { initDefaults() }
             }
