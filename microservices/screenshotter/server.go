@@ -70,12 +70,14 @@ func init() {
 var chromeCtx context.Context
 
 func capture(path []byte, oName string, v int) {
+	cache.Set(oName, []byte{byte(v)})
 	var buf []byte
 	url := fmt.Sprintf("%s%s", host, path)
 	fmt.Println(url)
 	err := chromedp.Run(chromeCtx, elementScreenshot(url, "#content", &buf))
 	if err != nil {
 		log.Println(err)
+		cache.Set(oName, []byte{0})
 		return
 	}
 	_, err = minioClient.PutObject(s3Bucket, oName, bytes.NewReader(buf), int64(len(buf)), minio.PutObjectOptions{
@@ -83,9 +85,9 @@ func capture(path []byte, oName string, v int) {
 		ContentType:  "image/png",
 	})
 	if err != nil {
+		cache.Set(oName, []byte{0})
 		log.Println(err)
 	}
-	cache.Set(oName, []byte{byte(v)})
 }
 
 func screenshotHandler(ctx *fasthttp.RequestCtx) {
