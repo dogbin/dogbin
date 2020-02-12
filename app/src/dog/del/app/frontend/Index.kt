@@ -11,6 +11,7 @@ import dog.del.app.session.user
 import dog.del.app.stats.StatisticsReporter
 import dog.del.app.stats.StatisticsReporter.*
 import dog.del.app.utils.*
+import dog.del.data.base.Database
 import dog.del.data.base.model.document.XdDocument
 import dog.del.data.base.model.document.XdDocumentType
 import io.ktor.application.call
@@ -36,34 +37,39 @@ fun Route.index() = route("/") {
     }
 
     get("/{slug}") {
-        val doc = store.transactional(readonly = true) {
-            val doc = XdDocument.find(call.slug)
-            if (doc == null) {
-                runBlocking {
-                    call.respondRedirect("/")
-                }
-            } else {
-                if (doc.type == XdDocumentType.URL) {
-                    runBlocking {
-                        call.respondRedirect(doc.stringContent!!, true)
+        var doc: XdDocument? = null
+        var isUrl = false
+        var docContent: String? = null
+        withContext(Database.dispatcher) {
+            store.transactional {
+                doc = XdDocument.find(call.slug)
+                if (doc != null) {
+                    isUrl = doc!!.type == XdDocumentType.URL
+                    if (isUrl) {
+                        docContent = doc!!.stringContent
                     }
-                    val slug = doc.slug
-                    GlobalScope.launch {
-                        reporter.reportImpression(slug, false, call.request)
-                        reporter.reportEvent(Event.URL_REDIRECT, call.request)
-                    }
-                } else {
-                    // Handle rendering outside transaction
-                    return@transactional doc
                 }
             }
-            return@transactional null
-        } ?: return@get
+        }
+
+        if (doc == null) {
+            call.respondRedirect("/")
+            return@get
+        }
+
+        if (isUrl) {
+            call.respondRedirect(docContent!!, true)
+            GlobalScope.launch {
+                reporter.reportImpression(call.slug, false, call.request)
+                reporter.reportEvent(Event.URL_REDIRECT, call.request)
+            }
+            return@get
+        }
 
         val dto = if (call.hlLang == "md") {
-            MarkdownDocumentDto().applyFrom(doc, call)
+            MarkdownDocumentDto().applyFrom(doc!!, call)
         } else {
-            HighlightedDocumentDto().applyFrom(doc, call)
+            HighlightedDocumentDto().applyFrom(doc!!, call)
         }
         call.respondTemplate("index", dto)
         GlobalScope.launch {
@@ -73,23 +79,24 @@ fun Route.index() = route("/") {
 
     get("/v/{slug}") {
         var isUrl = false
-        val doc = store.transactional(readonly = true) {
-            val doc = XdDocument.find(call.slug)
-            if (doc == null) {
-                runBlocking {
-                    call.respondRedirect("/")
+        var doc: XdDocument? = null
+        withContext(Database.dispatcher) {
+            store.transactional(readonly = true) {
+                doc = XdDocument.find(call.slug)
+                if (doc != null) {
+                    isUrl = doc!!.type == XdDocumentType.URL
                 }
-            } else {
-                isUrl = doc.type == XdDocumentType.URL
-                return@transactional doc
             }
-            return@transactional null
-        } ?: return@get
+        }
+        if (doc == null) {
+            call.respondRedirect("/")
+            return@get
+        }
 
         val dto = if (isUrl) {
-            FrontendDocumentDto().applyFrom(doc, call)
+            FrontendDocumentDto().applyFrom(doc!!, call)
         } else {
-            HighlightedDocumentDto(false).applyFrom(doc, call)
+            HighlightedDocumentDto(false).applyFrom(doc!!, call)
         }
 
         call.respondTemplate("index", dto)
@@ -99,16 +106,15 @@ fun Route.index() = route("/") {
     }
 
     get("/e/{slug}") {
-        val doc = store.transactional(readonly = true) {
-            val doc = XdDocument.find(call.slug)
-            if (doc == null) {
-                runBlocking {
-                    call.respondRedirect("/")
-                }
-                return@transactional null
+        val doc = withContext(Database.dispatcher) {
+            store.transactional(readonly = true) {
+                XdDocument.find(call.slug)
             }
-            return@transactional doc
-        } ?: return@get
+        }
+        if (doc == null) {
+            call.respondRedirect("/")
+            return@get
+        }
         val dto = EditDocumentDto().applyFrom(doc, call)
         call.respondTemplate("index", dto)
     }

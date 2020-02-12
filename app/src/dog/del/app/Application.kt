@@ -109,7 +109,7 @@ fun Application.module(testing: Boolean = false) {
             single {
                 runBlocking { initDb(get(), get()) }
             }
-            single { Config.getConfig(get()) }
+            single { runBlocking { Config.getConfig(get()) } }
             single<KeyGenerator> { PhoneticKeyGenerator() }
             single { StatisticsReporter.getReporter(appConfig) }
             single { this@module.log }
@@ -223,42 +223,40 @@ fun Application.module(testing: Boolean = false) {
 private suspend fun Application.initDb(
     appConfig: AppConfig,
     highlighter: Highlighter
-): TransientEntityStore = withContext(Database.context) {
+): TransientEntityStore = withContext(Database.dispatcher) {
     val db = Database.init(appConfig.db.location, appConfig.db.environment)
-    GlobalScope.launch {
-        with(db.persistentStore.environment.environmentConfig) {
-            envStoreGetCacheSize = 10_000
-            isLogCacheNonBlocking = true
-        }
-        val systemUsr = db.transactional(readonly = true) { XdUser.find("dogbin")!! }
-        var files = File(appConfig.documents.docsPath).walk().asSequence()
-        if (!appConfig.documents.addDocsPath.isNullOrBlank()) {
-            files += File(appConfig.documents.addDocsPath).walk().asSequence()
-        }
-        files.forEach { file ->
-            if (file.isFile) {
-                val slug = file.nameWithoutExtension
-                val content = file.readText().trim()
-                db.transactional {
-                    XdDocument.findOrNew(slug) {
-                        version = -1
-                    }.apply {
-                        if (stringContent != content || owner != systemUsr) {
-                            stringContent = content
-                            owner = systemUsr
-                            version++
-                            val isUrl = content.isUrl()
-                            type = if (isUrl) XdDocumentType.URL else XdDocumentType.PASTE
-                            log.info("Updated static document \'$slug\' (v$version)")
-                        }
+    with(db.persistentStore.environment.environmentConfig) {
+        envStoreGetCacheSize = 10_000
+        isLogCacheNonBlocking = true
+    }
+    val systemUsr = db.transactional(readonly = true) { XdUser.find("dogbin")!! }
+    var files = File(appConfig.documents.docsPath).walk().asSequence()
+    if (!appConfig.documents.addDocsPath.isNullOrBlank()) {
+        files += File(appConfig.documents.addDocsPath).walk().asSequence()
+    }
+    files.forEach { file ->
+        if (file.isFile) {
+            val slug = file.nameWithoutExtension
+            val content = file.readText().trim()
+            db.transactional {
+                XdDocument.findOrNew(slug) {
+                    version = -1
+                }.apply {
+                    if (stringContent != content || owner != systemUsr) {
+                        stringContent = content
+                        owner = systemUsr
+                        version++
+                        val isUrl = content.isUrl()
+                        type = if (isUrl) XdDocumentType.URL else XdDocumentType.PASTE
+                        log.info("Updated static document \'$slug\' (v$version)")
                     }
                 }
             }
         }
-        db.transactional {
-            it.store.deleteEntityTypeRefactoring(XdHighlighterCache.entityType)
-            it.store.deleteEntityTypeRefactoring(XdScreenshotCache.entityType)
-        }
-    }.start()
+    }
+    db.transactional {
+        it.store.deleteEntityTypeRefactoring(XdHighlighterCache.entityType)
+        it.store.deleteEntityTypeRefactoring(XdScreenshotCache.entityType)
+    }
     db
 }

@@ -1,5 +1,6 @@
 package dog.del.app.session
 
+import dog.del.data.base.Database
 import dog.del.data.base.model.session.XdSession
 import io.ktor.sessions.SessionStorage
 import io.ktor.util.KtorExperimentalAPI
@@ -18,7 +19,7 @@ import java.io.ByteArrayInputStream
 
 @KtorExperimentalAPI
 class XdSessionStorage : SessionStorage, KoinComponent {
-    private val context = Dispatchers.IO + Job()
+    private val context = Database.dispatcher + Job()
     private val db by inject<TransientEntityStore>()
 
     override suspend fun invalidate(id: String) {

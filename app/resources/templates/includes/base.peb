@@ -42,11 +42,9 @@
 </head>
 {% flush %}
 <body>
-{% parallel %}
 {% block body %}
 {% endblock %}
 {% flush %}
-{% endparallel %}
 </body>
 {% block after_body %}
 {% endblock %}

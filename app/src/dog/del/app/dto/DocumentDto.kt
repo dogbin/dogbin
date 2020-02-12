@@ -11,16 +11,14 @@ import dog.del.app.utils.locale
 import dog.del.app.utils.rawSlug
 import dog.del.commons.formatShort
 import dog.del.commons.lineCount
+import dog.del.data.base.Database
 import dog.del.data.base.model.document.XdDocument
 import dog.del.data.base.model.document.XdDocumentType
 import io.ktor.application.ApplicationCall
 import io.ktor.request.path
 import io.ktor.response.respondRedirect
 import jetbrains.exodus.database.TransientEntityStore
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 
@@ -80,7 +78,7 @@ open class FrontendDocumentDto : KoinComponent, PebbleModel {
     protected var docContent: String? = null
 
     open suspend fun applyFrom(document: XdDocument, call: ApplicationCall? = null): FrontendDocumentDto =
-        coroutineScope {
+        withContext(Database.dispatcher) {
             slug = store.transactional(readonly = true) { document.slug }
             version = store.transactional(readonly = true) { document.version }
             title = "dogbin - $slug"
@@ -88,6 +86,9 @@ open class FrontendDocumentDto : KoinComponent, PebbleModel {
                 viewCountDeferred = async { reporter.getImpressions(slug) }
             }
             screenshotDeferred = async { screenshotter.getScreenshotUrl(call?.request?.path() ?: slug, version) }
+            val usr = if (call?.session() != null) {
+                call.user(store)
+            } else null
             store.transactional(readonly = true) {
                 type = DocumentTypeDto.fromXdDocumentType(document.type)
                 docContent = document.stringContent
@@ -95,12 +96,11 @@ open class FrontendDocumentDto : KoinComponent, PebbleModel {
                 content = docContent
                 owner = UserDto.fromUser(document.owner)
                 created = document.created.formatShort(call?.locale)
-                if (call?.session() != null) {
-                    val usr = call.user(store)
+                if (usr != null) {
                     editable = document.userCanEdit(usr)
                 }
             }
-            return@coroutineScope this@FrontendDocumentDto
+            return@withContext this@FrontendDocumentDto
         }
 
     override suspend fun onRespond(call: ApplicationCall): Boolean {
@@ -157,27 +157,28 @@ class HighlightedDocumentDto(private val redirectToFull: Boolean = true) : Front
         }
         set(value) {}
 
-    override suspend fun applyFrom(document: XdDocument, call: ApplicationCall?): FrontendDocumentDto = coroutineScope {
-        super.applyFrom(document, call)
+    override suspend fun applyFrom(document: XdDocument, call: ApplicationCall?): FrontendDocumentDto =
+        withContext(Database.dispatcher) {
+            super.applyFrom(document, call)
 
-        val docId = store.transactional(readonly = true) { document.xdId }
-        val version = store.transactional(readonly = true) { document.version }
+            val docId = store.transactional(readonly = true) { document.xdId }
+            val version = store.transactional(readonly = true) { document.version }
 
-        rawSlug = call?.rawSlug ?: slug
-        highlightDeferred = async {
-            highlighter.highlightDocument(
-                docId,
-                rawSlug,
-                version,
-                docContent!!
-            )
+            rawSlug = call?.rawSlug ?: slug
+            highlightDeferred = async {
+                highlighter.highlightDocument(
+                    docId,
+                    rawSlug,
+                    version,
+                    docContent!!
+                )
+            }
+
+            screenshotDeferred =
+                async { screenshotter.getScreenshotUrl(redirectTo ?: call?.request?.path() ?: slug, version) }
+
+            return@withContext this@HighlightedDocumentDto
         }
-
-        screenshotDeferred =
-            async { screenshotter.getScreenshotUrl(redirectTo ?: call?.request?.path() ?: slug, version) }
-
-        return@coroutineScope this@HighlightedDocumentDto
-    }
 }
 
 class EditDocumentDto : FrontendDocumentDto() {

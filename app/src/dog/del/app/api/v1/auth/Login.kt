@@ -2,6 +2,7 @@ package dog.del.app.api.v1.auth
 
 import dog.del.app.config.AppConfig
 import dog.del.commons.keygen.RandomKeyGenerator
+import dog.del.data.base.Database
 import dog.del.data.base.model.api.XdApiCredential
 import dog.del.data.base.model.user.XdUser
 import io.ktor.application.call
@@ -12,6 +13,7 @@ import io.ktor.routing.Route
 import io.ktor.routing.post
 import jetbrains.exodus.database.TransientEntityStore
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 data class LoginDtoIn(
     val username: String,
@@ -27,28 +29,30 @@ data class LoginDtoOut(
 
 fun Route.login(store: TransientEntityStore, appConfig: AppConfig) = post("login") {
     val data = call.receive<LoginDtoIn>()
-    store.transactional {
-        val usr = XdUser.find(data.username)
-        if (usr != null) {
-            if (usr.checkPassword(data.password)) {
-                val key = RandomKeyGenerator().createKey(appConfig.api.keyLength)
+    val dto: LoginDtoOut? = withContext(Database.dispatcher) {
+        store.transactional {
+            val usr = XdUser.find(data.username)
+            if (usr != null) {
+                if (usr.checkPassword(data.password)) {
+                    val key = RandomKeyGenerator().createKey(appConfig.api.keyLength)
 
-                // Actually create the credentials in the db
-                XdApiCredential.new(key, usr)!!.apply {
-                    this.name = data.application ?: "Unnamed API client"
-                    this.canCreateDocuments = data.permissions.contains("create")
-                    this.canUpdateDocuments = data.permissions.contains("update")
-                    this.canDeleteDocuments = data.permissions.contains("delete")
-                    this.canListDocuments = data.permissions.contains("list")
+                    // Actually create the credentials in the db
+                    XdApiCredential.new(key, usr)!!.apply {
+                        this.name = data.application ?: "Unnamed API client"
+                        this.canCreateDocuments = data.permissions.contains("create")
+                        this.canUpdateDocuments = data.permissions.contains("update")
+                        this.canDeleteDocuments = data.permissions.contains("delete")
+                        this.canListDocuments = data.permissions.contains("list")
+                    }
+                    return@transactional LoginDtoOut(data.username, key)
                 }
-                runBlocking {
-                    call.respond(LoginDtoOut(data.username, key))
-                }
-                return@transactional
             }
+            null
         }
-        runBlocking {
-            call.respond(HttpStatusCode.Unauthorized, "Username or password incorrect")
-        }
+    }
+    if (dto != null) {
+        call.respond(dto)
+    } else {
+        call.respond(HttpStatusCode.Unauthorized, "Username or password incorrect")
     }
 }

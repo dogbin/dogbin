@@ -3,9 +3,11 @@ package dog.del.data.base.model.config
 import dog.del.commons.add
 import dog.del.commons.date
 import dog.del.commons.keygen.RandomKeyGenerator
+import dog.del.data.base.Database
 import dog.del.data.base.utils.freeze
 import jetbrains.exodus.database.TransientEntityStore
 import jetbrains.exodus.entitystore.Entity
+import kotlinx.coroutines.withContext
 import kotlinx.dnq.XdEntity
 import kotlinx.dnq.singleton.XdSingletonEntityType
 import kotlinx.dnq.xdIntProp
@@ -18,8 +20,10 @@ class Config(entity: Entity) : XdEntity(entity) {
             initDefaults()
         }
 
-        fun getConfig(store: TransientEntityStore): Config = store.transactional {
-            get().apply { initDefaults() }
+        suspend fun getConfig(store: TransientEntityStore): Config = withContext(Database.dispatcher) {
+            store.transactional {
+                get().apply { initDefaults() }
+            }
         }
     }
 
@@ -50,7 +54,7 @@ class Config(entity: Entity) : XdEntity(entity) {
             field = value
         }
 
-    fun freezeCached(store: TransientEntityStore): Map<String, Any?> {
+    suspend fun freezeCached(store: TransientEntityStore): Map<String, Any?> {
         if (needsUpdate) {
             freezeCache = freeze(store)
         }

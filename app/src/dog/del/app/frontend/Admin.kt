@@ -2,6 +2,7 @@ package dog.del.app.frontend
 
 import dog.del.app.session.session
 import dog.del.app.session.user
+import dog.del.data.base.Database
 import dog.del.data.base.model.config.Config
 import dog.del.data.base.utils.freeze
 import dog.del.data.base.utils.updateFrom
@@ -18,13 +19,18 @@ import io.ktor.routing.post
 import io.ktor.routing.route
 import io.ktor.util.toMap
 import jetbrains.exodus.database.TransientEntityStore
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.koin.ktor.ext.inject
 
 fun Route.admin() = route("/a") {
     val db by inject<TransientEntityStore>()
 
     intercept(ApplicationCallPipeline.Call) {
-        val isAdmin = call.session() != null && db.transactional(readonly = true) { call.user(db).role.isAdmin }
+        val isAdmin = call.session() != null && withContext(Database.dispatcher) {
+            val user = call.user(db)
+            db.transactional(readonly = true) { user.role.isAdmin }
+        }
         if (!isAdmin) {
             call.respond(HttpStatusCode.Unauthorized, "Nice try.")
             finish()

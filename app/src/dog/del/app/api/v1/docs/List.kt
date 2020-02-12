@@ -2,6 +2,7 @@ package dog.del.app.api.v1.docs
 
 import dog.del.app.api.apiCredentials
 import dog.del.commons.formatISO
+import dog.del.data.base.Database
 import dog.del.data.base.model.document.XdDocument
 import io.ktor.application.call
 import io.ktor.features.origin
@@ -12,6 +13,7 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.util.url
 import jetbrains.exodus.database.TransientEntityStore
+import kotlinx.coroutines.withContext
 import kotlinx.dnq.query.filter
 import kotlinx.dnq.query.sortedBy
 import kotlinx.dnq.query.toList
@@ -22,26 +24,29 @@ fun Route.list(store: TransientEntityStore) = get {
         call.respond(HttpStatusCode.Unauthorized, "Missing/invalid api key")
         return@get
     }
-    val canList = store.transactional(readonly = true) { creds.canListDocuments }
+    val canList = withContext(Database.dispatcher) { store.transactional(readonly = true) { creds.canListDocuments } }
     if (!canList) {
         call.respond(HttpStatusCode.Unauthorized, "Missing 'list' permission")
         return@get
     }
 
-    call.respond(store.transactional(readonly = true) {
-        XdDocument.filter { it.owner eq creds.user }.sortedBy(XdDocument::created, asc = false).toList().map {
-            DocumentListDto(
-                it.slug,
-                it.created.formatISO(),
-                url {
-                    val origin = call.request.origin
-                    protocol = URLProtocol.createOrDefault(origin.scheme)
-                    port = origin.port
-                    host = origin.host
-                    path(it.slug)
-                },
-                it.type.name.toLowerCase()
-            )
+    val docList = withContext(Database.dispatcher) {
+        store.transactional(readonly = true) {
+            XdDocument.filter { it.owner eq creds.user }.sortedBy(XdDocument::created, asc = false).toList().map {
+                DocumentListDto(
+                    it.slug,
+                    it.created.formatISO(),
+                    url {
+                        val origin = call.request.origin
+                        protocol = URLProtocol.createOrDefault(origin.scheme)
+                        port = origin.port
+                        host = origin.host
+                        path(it.slug)
+                    },
+                    it.type.name.toLowerCase()
+                )
+            }
         }
-    })
+    }
+    call.respond(docList)
 }

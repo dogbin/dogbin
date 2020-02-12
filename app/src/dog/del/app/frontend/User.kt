@@ -10,6 +10,7 @@ import dog.del.app.stats.StatisticsReporter
 import dog.del.app.utils.locale
 import dog.del.app.utils.respondMessage
 import dog.del.commons.keygen.RandomKeyGenerator
+import dog.del.data.base.Database
 import dog.del.data.base.model.api.XdApiCredential
 import dog.del.data.base.model.document.XdDocument
 import dog.del.data.base.model.user.XdUser
@@ -25,9 +26,7 @@ import io.ktor.routing.post
 import io.ktor.routing.route
 import io.ktor.util.getOrFail
 import jetbrains.exodus.database.TransientEntityStore
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import kotlinx.dnq.query.filter
 import kotlinx.dnq.query.sortedBy
 import kotlinx.dnq.query.toList
@@ -50,27 +49,31 @@ fun Route.user() = route("/") {
             val params = call.receiveParameters()
             val username = params.getOrFail("username")
             val password = params.getOrFail("password")
-            store.transactional {
-                val usr = XdUser.find(username)
-                if (usr != null) {
-                    if (usr.checkPassword(password)) {
-                        call.setWebSession(WebSession(usr.xdId))
-                        runBlocking {
-                            call.respondRedirect("/me")
+            val success = withContext(Database.dispatcher) {
+                store.transactional {
+                    val usr = XdUser.find(username)
+                    if (usr != null) {
+                        if (usr.checkPassword(password)) {
+                            call.setWebSession(WebSession(usr.xdId))
+                            return@transactional true
                         }
-                        return@transactional
                     }
+                    false
                 }
-                runBlocking {
-                    call.respondMessage("Sign in failed", "Failed to sign in", code = HttpStatusCode.Unauthorized)
-                }
+            }
+            if (success) {
+                call.respondRedirect("/me")
+            } else {
+                call.respondMessage("Sign in failed", "Failed to sign in", code = HttpStatusCode.Unauthorized)
             }
         }
         get {
             if (call.session() != null) {
                 val existingUser = call.user(store)
-                val isAnon = store.transactional(readonly = true) {
-                    existingUser.role == XdUserRole.ANON
+                val isAnon = withContext(Database.dispatcher) {
+                    store.transactional(readonly = true) {
+                        existingUser.role == XdUserRole.ANON
+                    }
                 }
                 if (isAnon) {
                     // Destroy existing session
@@ -104,8 +107,10 @@ fun Route.user() = route("/") {
         post {
             // This will either get the existing (anonymous) user or create a new anon user and add it to the session
             val existingUser = call.user(store)
-            val isAnon = store.transactional(readonly = true) {
-                existingUser.role == XdUserRole.ANON
+            val isAnon = withContext(Database.dispatcher) {
+                store.transactional(readonly = true) {
+                    existingUser.role == XdUserRole.ANON
+                }
             }
             if (!isAnon) {
                 call.respondRedirect("/me", false)
@@ -124,21 +129,23 @@ fun Route.user() = route("/") {
                 )
                 return@post
             }
-            store.transactional {
-                val usr = XdUser.find(username)
-                if (usr != null) {
-                    runBlocking {
-                        call.respondMessage("Username Taken", "This username is taken", code = HttpStatusCode.Conflict)
+            val success = withContext(Database.dispatcher) {
+                store.transactional {
+                    val usr = XdUser.find(username)
+                    if (usr == null) {
+                        existingUser.signUp(username, password)
+                        return@transactional true
                     }
-                } else {
-                    existingUser.signUp(username, password)
-                    runBlocking {
-                        call.respondRedirect("/me", false)
-                    }
-                    GlobalScope.launch {
-                        reporter.reportEvent(StatisticsReporter.Event.USER_REGISTER, call.request)
-                    }
+                    false
                 }
+            }
+            if (success) {
+                call.respondRedirect("/me", false)
+                GlobalScope.launch {
+                    reporter.reportEvent(StatisticsReporter.Event.USER_REGISTER, call.request)
+                }
+            } else {
+                call.respondMessage("Username Taken", "This username is taken", code = HttpStatusCode.Conflict)
             }
         }
         get {
@@ -158,18 +165,22 @@ fun Route.user() = route("/") {
     route("/me") {
         get {
             val usr = call.user(store)
-            val isAnon = store.transactional(readonly = true) {
-                usr.role == XdUserRole.ANON
+            val isAnon = withContext(Database.dispatcher) {
+                store.transactional(readonly = true) {
+                    usr.role == XdUserRole.ANON
+                }
             }
             if (isAnon) {
                 call.respondRedirect("/login", false)
                 return@get
             }
-            val docs = store.transactional(readonly = true) {
-                XdDocument.filter { it.owner eq usr }.sortedBy(XdDocument::created, asc = false).toList()
-            }.map { FrontendDocumentDto().applyFrom(it, call) }
+            val docs = withContext(Database.dispatcher) {
+                store.transactional(readonly = true) {
+                    XdDocument.filter { it.owner eq usr }.sortedBy(XdDocument::created, asc = false).toList()
+                }.map { FrontendDocumentDto().applyFrom(it, call) }
+            }
 
-            val user = store.transactional { UserDto.fromUser(usr, call.locale) }
+            val user = withContext(Database.dispatcher) { store.transactional { UserDto.fromUser(usr, call.locale) } }
             call.respondTemplate(
                 "user/user", mapOf(
                     "title" to "Me",
@@ -183,8 +194,10 @@ fun Route.user() = route("/") {
         route("changepass") {
             get {
                 val usr = call.user(store)
-                val requiresPassword = store.transactional(readonly = true) {
-                    usr.role.requiresPassword
+                val requiresPassword = withContext(Database.dispatcher) {
+                    store.transactional(readonly = true) {
+                        usr.role.requiresPassword
+                    }
                 }
                 if (!requiresPassword) {
                     call.respondRedirect("/login", false)
@@ -200,8 +213,10 @@ fun Route.user() = route("/") {
 
             post {
                 val usr = call.user(store)
-                val requiresPassword = store.transactional(readonly = true) {
-                    usr.role.requiresPassword
+                val requiresPassword = withContext(Database.dispatcher) {
+                    store.transactional(readonly = true) {
+                        usr.role.requiresPassword
+                    }
                 }
                 if (!requiresPassword) {
                     call.respondRedirect("/", false)
@@ -210,17 +225,19 @@ fun Route.user() = route("/") {
                 val params = call.receiveParameters()
                 val current = params.getOrFail("current")
                 val new = params.getOrFail("password")
-                store.transactional {
-                    if (usr.checkPassword(current)) {
-                        usr.changePass(new)
-                        runBlocking {
-                            call.respondRedirect("/me")
+                val success = withContext(Database.dispatcher) {
+                    store.transactional {
+                        if (usr.checkPassword(current)) {
+                            usr.changePass(new)
+                            return@transactional true
                         }
-                        return@transactional
+                        false
                     }
-                    runBlocking {
-                        call.respondRedirect("/me/changepass")
-                    }
+                }
+                if (success) {
+                    call.respondRedirect("/me")
+                } else {
+                    call.respondRedirect("/me/changepass")
                 }
             }
         }
@@ -228,8 +245,10 @@ fun Route.user() = route("/") {
         route("api") {
             get {
                 val usr = call.user(store)
-                val requiresPassword = store.transactional(readonly = true) {
-                    usr.role.requiresPassword
+                val requiresPassword = withContext(Database.dispatcher) {
+                    store.transactional(readonly = true) {
+                        usr.role.requiresPassword
+                    }
                 }
                 if (!requiresPassword) {
                     call.respondRedirect("/login", false)
@@ -239,8 +258,11 @@ fun Route.user() = route("/") {
                     "user/api", mapOf(
                         "title" to "API Credentials",
                         "description" to "Manage your API credentials",
-                        "credentials" to store.transactional(readonly = true) {
-                            XdApiCredential.findForUser(usr).map { ApiCredentialDto.fromApiCredential(it, call.locale) }
+                        "credentials" to withContext(Database.dispatcher) {
+                            store.transactional(readonly = true) {
+                                XdApiCredential.findForUser(usr)
+                                    .map { ApiCredentialDto.fromApiCredential(it, call.locale) }
+                            }
                         }
                     )
                 )
@@ -249,8 +271,10 @@ fun Route.user() = route("/") {
             route("new") {
                 get {
                     val usr = call.user(store)
-                    val requiresPassword = store.transactional(readonly = true) {
-                        usr.role.requiresPassword
+                    val requiresPassword = withContext(Database.dispatcher) {
+                        store.transactional(readonly = true) {
+                            usr.role.requiresPassword
+                        }
                     }
                     if (!requiresPassword) {
                         call.respondRedirect("/login", false)
@@ -265,8 +289,10 @@ fun Route.user() = route("/") {
                 }
                 post {
                     val usr = call.user(store)
-                    val requiresPassword = store.transactional(readonly = true) {
-                        usr.role.requiresPassword
+                    val requiresPassword = withContext(Database.dispatcher) {
+                        store.transactional(readonly = true) {
+                            usr.role.requiresPassword
+                        }
                     }
                     if (!requiresPassword) {
                         call.respondRedirect("/", false)
@@ -281,13 +307,15 @@ fun Route.user() = route("/") {
                     val key = RandomKeyGenerator().createKey(appConfig.api.keyLength)
 
                     // Actually create the credentials in the db
-                    store.transactional {
-                        XdApiCredential.new(key, usr)?.apply {
-                            this.name = name
-                            this.canCreateDocuments = canCreateDocuments
-                            this.canUpdateDocuments = canUpdateDocuments
-                            this.canDeleteDocuments = canDeleteDocuments
-                            this.canListDocuments = canListDocuments
+                    withContext(Database.dispatcher) {
+                        store.transactional {
+                            XdApiCredential.new(key, usr)?.apply {
+                                this.name = name
+                                this.canCreateDocuments = canCreateDocuments
+                                this.canUpdateDocuments = canUpdateDocuments
+                                this.canDeleteDocuments = canDeleteDocuments
+                                this.canListDocuments = canListDocuments
+                            }
                         }
                     }
                     call.respondTemplate(
@@ -306,30 +334,35 @@ fun Route.user() = route("/") {
             route("delete/{id}") {
                 get {
                     val usr = call.user(store)
-                    val requiresPassword = store.transactional(readonly = true) {
-                        usr.role.requiresPassword
+                    val requiresPassword = withContext(Database.dispatcher) {
+                        store.transactional(readonly = true) {
+                            usr.role.requiresPassword
+                        }
                     }
                     if (!requiresPassword) {
                         call.respondRedirect("/", false)
                         return@get
                     }
                     val id = call.parameters["id"]!!
-                    store.transactional {
-                        XdApiCredential.findById(id).apply {
-                            if (usr != user) {
-                                runBlocking {
-                                    call.respondRedirect("/", false)
-                                }
-                            } else {
-                                delete()
-                                runBlocking {
-                                    call.respondRedirect("/me/api", false)
-                                }
-                                GlobalScope.launch {
-                                    reporter.reportEvent(StatisticsReporter.Event.API_KEY_DELETE, call.request)
+                    val success = withContext(Database.dispatcher) {
+                        store.transactional {
+                            XdApiCredential.findById(id).apply {
+                                if (usr == user) {
+                                    delete()
+                                    return@transactional true
                                 }
                             }
+                            false
                         }
+                    }
+                    if (success) {
+                        call.respondRedirect("/me/api", false)
+                        GlobalScope.launch {
+                            reporter.reportEvent(StatisticsReporter.Event.API_KEY_DELETE, call.request)
+                        }
+                    } else {
+                        call.respondRedirect("/", false)
+
                     }
                 }
             }

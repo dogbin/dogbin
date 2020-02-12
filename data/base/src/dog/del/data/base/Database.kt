@@ -7,12 +7,12 @@ import kotlinx.dnq.XdModel
 import kotlinx.dnq.store.container.StaticStoreContainer
 import kotlinx.dnq.util.initMetaData
 import java.io.File
+import java.util.concurrent.Executors
 
 object Database {
-    val job = SupervisorJob()
-    val context = Dispatchers.IO + job + CoroutineName("Dogbin DB")
+    val dispatcher = Executors.newFixedThreadPool(32).asCoroutineDispatcher()
 
-    suspend fun init(location: File, environment: String): TransientEntityStore = withContext(context) {
+    suspend fun init(location: File, environment: String): TransientEntityStore = withContext(dispatcher) {
         XdModel.scanJavaClasspath()
 
         val store = StaticStoreContainer.init(
