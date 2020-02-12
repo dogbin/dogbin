@@ -66,6 +66,9 @@ import org.koin.ktor.ext.Koin
 import org.koin.ktor.ext.get
 import se.zensum.ktorPrometheusFeature.PrometheusFeature
 import java.io.File
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.ThreadPoolExecutor
 import kotlin.reflect.jvm.jvmName
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
@@ -171,7 +174,7 @@ fun Application.module(testing: Boolean = false) {
                     }
             )
         )
-        //executorService(Dispatchers.IO.asExecutorService())
+        executorService(Executors.newFixedThreadPool(10))
     }
 
     install(Compression) {
