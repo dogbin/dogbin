@@ -4,9 +4,13 @@
 <head>
     <meta charset="utf-8"/>
     <title>{{ title }}</title>
-    <link rel="shortcut icon" href="/static/favicon.ico"/>
 
     {% cache 'base_ghostbuster' %}
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ ghostbuster("/static/apple-touch-icon.png") }}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ ghostbuster("/static/favicon-32x32.png") }}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{{ ghostbuster("/static/favicon-16x16.png") }}">
+        <link rel="manifest" href="{{ ghostbuster("/static/manifest.json") }}">
+
         <link rel="preload" href="{{ ghostbuster("/static/fonts/hack-regular.woff2") }}" as="font" type="font/woff2">
         <link rel="preload" href="{{ ghostbuster("/static/fonts/hack-bold.woff2") }}" as="font" type="font/woff2">
         <link rel="preload" href="{{ ghostbuster("/static/fonts/hack-italic.woff2") }}" as="font" type="font/woff2">
