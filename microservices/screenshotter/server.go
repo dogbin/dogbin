@@ -69,6 +69,25 @@ func init() {
 
 var chromeCtx context.Context
 
+func capture(path []byte, oName string, v int) {
+	var buf []byte
+	url := fmt.Sprintf("%s%s", host, path)
+	fmt.Println(url)
+	err := chromedp.Run(chromeCtx, elementScreenshot(url, "#content", &buf))
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	_, err = minioClient.PutObject(s3Bucket, oName, bytes.NewReader(buf), int64(len(buf)), minio.PutObjectOptions{
+		UserMetadata: map[string]string{"x-amz-acl": "public-read"},
+		ContentType:  "image/png",
+	})
+	if err != nil {
+		log.Println(err)
+	}
+	cache.Set(oName, []byte{byte(v)})
+}
+
 func screenshotHandler(ctx *fasthttp.RequestCtx) {
 	objName := fmt.Sprintf("screenshots%s.png", ctx.Path())
 	version := ctx.QueryArgs().GetUintOrZero("v")
@@ -77,24 +96,7 @@ func screenshotHandler(ctx *fasthttp.RequestCtx) {
 	ctx.WriteString(fmt.Sprintf("%s/%s?v=%d", s3Host, objName, version))
 
 	if err != nil || len(cacheValue) > 0 && int(cacheValue[0]) < version {
-		go func(path []byte, objName string, version int) {
-			var buf []byte
-			url := fmt.Sprintf("%s%s", host, path)
-			fmt.Println(url)
-			err := chromedp.Run(chromeCtx, elementScreenshot(url, "#content", &buf))
-			if err != nil {
-				log.Println(err)
-				return
-			}
-			_, err = minioClient.PutObject(s3Bucket, objName, bytes.NewReader(buf), int64(len(buf)), minio.PutObjectOptions{
-				UserMetadata: map[string]string{"x-amz-acl": "public-read"},
-				ContentType:  "image/png",
-			})
-			if err != nil {
-				log.Println(err)
-			}
-			cache.Set(objName, []byte{byte(version)})
-		}(ctx.Path(), objName, version)
+		go capture(ctx.Path(), objName, version)
 	}
 }
 
