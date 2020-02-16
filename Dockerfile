@@ -10,8 +10,6 @@ RUN cp app/build/libs/*all.jar dogbin.jar
 
 FROM openjdk:8-jre-alpine
 
-RUN apk --no-cache add curl
-
 COPY --from=build-env /home/gradle/dogbin.jar dogbin.jar
 COPY documents/ /documents
 # "-XX:InitialRAMFraction=2", "-XX:MinRAMFraction=2", "-XX:MaxRAMFraction=2"

@@ -33,7 +33,7 @@ services:
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/ && echo 'working fine'"]
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/ || exit 1"]
       interval: 5s
       timeout: 5s
       retries: 3
