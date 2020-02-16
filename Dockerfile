@@ -1,8 +1,11 @@
 FROM gradle:jdk8 AS build-env
-COPY --chown=gradle:gradle . .
 
 # People apparently use windows hosts
-RUN apt-get update && apt-get install -y dos2unix
+RUN apt-get update \
+  && apt-get install --no-install-recommends -qy \
+    dos2unix
+
+COPY --chown=gradle:gradle . .
 RUN ["dos2unix", "gradlew"]
 
 RUN ./gradlew --no-daemon :app:shadowJar
