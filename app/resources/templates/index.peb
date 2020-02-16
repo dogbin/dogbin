@@ -21,7 +21,7 @@
             </label>
         </div>
     {% else %}
-        <a id="url_display" href="https://del.dog/{{ document.slug }}">/{{ document.slug }}</a>
+        <a id="url_display" href="/{{ document.slug }}">/{{ document.slug }}</a>
         <button class="copy_url btn enabled" tabindex="2"><img src="{{ ghostbuster("/static/icons/copy.svg") }}"
                                                                alt="Copy URL"></button>
     {% endif %}

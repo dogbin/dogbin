@@ -170,7 +170,7 @@ haste.prototype.configureButtons = function () {
   {
     $where: $('.btn.copy_url'),
     action: function () {
-      _this.copyTextToClipboard($('#url_display').attr("href"))
+      _this.copyTextToClipboard(window.location.origin + $('#url_display').attr("href"))
     }
   }
   ];
