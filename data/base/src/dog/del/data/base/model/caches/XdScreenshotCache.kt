@@ -5,7 +5,6 @@ import kotlinx.dnq.*
 import kotlinx.dnq.query.filter
 import kotlinx.dnq.query.firstOrNull
 
-@Deprecated("")
 class XdScreenshotCache(entity: Entity) : XdEntity(entity) {
     companion object : XdNaturalEntityType<XdScreenshotCache>() {
         fun find(path: String) = filter {

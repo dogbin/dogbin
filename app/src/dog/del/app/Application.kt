@@ -280,7 +280,6 @@ private suspend fun Application.initDb(
     }
     db.transactional {
         it.store.deleteEntityTypeRefactoring(XdHighlighterCache.entityType)
-        it.store.deleteEntityTypeRefactoring(XdScreenshotCache.entityType)
     }
     db
 }
