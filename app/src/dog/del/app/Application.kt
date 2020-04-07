@@ -90,17 +90,17 @@ fun Application.module(testing: Boolean = false) {
         options { content ->
             when (content.contentType?.withoutParameters()) {
                 ContentType.Text.CSS -> CachingOptions(
-                    CacheControl.MaxAge(maxAgeSeconds = 7 * 24 * 60 * 60)
+                    CacheControl.MaxAge(maxAgeSeconds = 365 * 24 * 60 * 60)
                 )
-                ContentType.Image.Any -> CachingOptions(
-                    CacheControl.MaxAge(maxAgeSeconds = 30 * 24 * 60 * 60)
+                ContentType.Image.SVG -> CachingOptions(
+                    CacheControl.MaxAge(maxAgeSeconds = 365 * 24 * 60 * 60)
                 )
                 ContentType.Application.JavaScript -> CachingOptions(
-                    CacheControl.MaxAge(maxAgeSeconds = 7 * 24 * 60 * 60)
+                    CacheControl.MaxAge(maxAgeSeconds = 365 * 24 * 60 * 60)
                 )
                 // Fonts
                 ContentType.Application.OctetStream -> CachingOptions(
-                    CacheControl.MaxAge(maxAgeSeconds = 30 * 24 * 60 * 60)
+                    CacheControl.MaxAge(maxAgeSeconds = 365 * 24 * 60 * 60)
                 )
                 else -> null
             }
