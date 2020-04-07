@@ -45,6 +45,9 @@ import io.ktor.client.features.json.GsonSerializer
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.features.*
 import io.ktor.gson.gson
+import io.ktor.http.CacheControl
+import io.ktor.http.ContentType
+import io.ktor.http.content.CachingOptions
 import io.ktor.http.content.resource
 import io.ktor.http.content.resources
 import io.ktor.http.content.static
@@ -83,6 +86,26 @@ fun Application.module(testing: Boolean = false) {
         disableMetricsEndpoint()
     }
     //io.ktor.DefaultExports.initialize()
+    install(CachingHeaders) {
+        options { content ->
+            when (content.contentType?.withoutParameters()) {
+                ContentType.Text.CSS -> CachingOptions(
+                    CacheControl.MaxAge(maxAgeSeconds = 7 * 24 * 60 * 60)
+                )
+                ContentType.Image.Any -> CachingOptions(
+                    CacheControl.MaxAge(maxAgeSeconds = 30 * 24 * 60 * 60)
+                )
+                ContentType.Application.JavaScript -> CachingOptions(
+                    CacheControl.MaxAge(maxAgeSeconds = 7 * 24 * 60 * 60)
+                )
+                // Fonts
+                ContentType.Application.OctetStream -> CachingOptions(
+                    CacheControl.MaxAge(maxAgeSeconds = 30 * 24 * 60 * 60)
+                )
+                else -> null
+            }
+        }
+    }
 
     val metrics = DogbinMetrics()
     val metricsPhase = PipelinePhase("metrics")
