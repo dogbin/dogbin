@@ -42,7 +42,8 @@
         </button>
     </div>
 </div>
-<div id="content">
+<div id="content" {% if document is not null and document.editing %}data-slug="{{ editKey }}"
+     {% elseif document is not null %}data-slug="{{ document.slug }}"{% endif %}>
     <div id="linenos" class="unselectable">
     {% if document is not null and not document.editing %}
     {% if document.showLines %}
