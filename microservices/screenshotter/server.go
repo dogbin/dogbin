@@ -84,9 +84,9 @@ func capture(path []byte, oName string, v int) {
 }
 
 func screenshotHandler(ctx *fasthttp.RequestCtx) {
-	var path []byte
+	path := make([]byte, len(ctx.Path()))
 	copy(path, ctx.Path())
-	
+
 	objName := fmt.Sprintf("screenshots%s.png", path)
 	version := ctx.QueryArgs().GetUintOrZero("v")
 
