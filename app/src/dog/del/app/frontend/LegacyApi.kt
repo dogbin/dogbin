@@ -3,12 +3,10 @@ package dog.del.app.frontend
 import dog.del.app.api.apiCredentials
 import dog.del.app.dto.CreateDocumentDto
 import dog.del.app.dto.CreateDocumentResponseDto
-import dog.del.app.highlighter.Highlighter
 import dog.del.app.session.user
 import dog.del.app.stats.StatisticsReporter
 import dog.del.app.stats.StatisticsReporter.Event
 import dog.del.app.utils.createKey
-import dog.del.app.utils.get
 import dog.del.app.utils.slug
 import dog.del.commons.isUrl
 import dog.del.commons.keygen.KeyGenerator
@@ -33,8 +31,10 @@ import io.ktor.routing.post
 import io.ktor.routing.route
 import io.ktor.util.getOrFail
 import jetbrains.exodus.database.TransientEntityStore
-import kotlinx.coroutines.*
-import org.koin.core.context.GlobalContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.ktor.ext.inject
 
 fun Route.legacyApi() = route("/") {
@@ -84,7 +84,7 @@ fun Route.legacyApi() = route("/") {
     }
 }
 
-private suspend fun ApplicationCall.createDocument(
+suspend fun ApplicationCall.createDocument(
     dto: CreateDocumentDto,
     db: TransientEntityStore,
     slugGen: KeyGenerator,

@@ -1,5 +1,6 @@
 package dog.del.app.api.v1.auth
 
+import dog.del.app.api.ErrorDto
 import dog.del.app.config.AppConfig
 import dog.del.commons.keygen.RandomKeyGenerator
 import dog.del.data.base.model.api.XdApiCredential
@@ -49,6 +50,6 @@ fun Route.login(store: TransientEntityStore, appConfig: AppConfig) = post("login
     if (dto != null) {
         call.respond(dto)
     } else {
-        call.respond(HttpStatusCode.Unauthorized, "Username or password incorrect")
+        call.respond(HttpStatusCode.Unauthorized, ErrorDto("Username or password incorrect"))
     }
 }

@@ -1,5 +1,6 @@
 package dog.del.app.api.v1.auth
 
+import dog.del.app.api.ErrorDto
 import dog.del.app.config.AppConfig
 import dog.del.app.stats.StatisticsReporter
 import dog.del.commons.keygen.RandomKeyGenerator
@@ -35,7 +36,7 @@ fun Route.register(store: TransientEntityStore, appConfig: AppConfig, estimator:
 
         val result = estimator.estimate(data.password)
         if (!result.isMinimumEntropyMet) {
-            call.respond(HttpStatusCode.NotAcceptable, "Insecure password")
+            call.respond(HttpStatusCode.NotAcceptable, ErrorDto("Insecure password"))
             return@post
         }
 
@@ -66,6 +67,6 @@ fun Route.register(store: TransientEntityStore, appConfig: AppConfig, estimator:
                 reporter.reportEvent(StatisticsReporter.Event.USER_REGISTER, call.request)
             }
         } else {
-            call.respond(HttpStatusCode.Conflict, "Username Taken")
+            call.respond(HttpStatusCode.Conflict, ErrorDto("Username Taken"))
         }
     }
