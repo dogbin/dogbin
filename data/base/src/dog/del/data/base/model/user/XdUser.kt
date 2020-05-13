@@ -21,6 +21,12 @@ class XdUser(entity: Entity) : XdEntity(entity), User<XdUserRole> {
             role = XdUserRole.ANON
         }
 
+        fun new(username: String, password: String) = new {
+            this.username = username
+            this.password = password
+            role = XdUserRole.USER
+        }
+
         fun findOrNewSystem(username: String) = findOrNew {
             this.username = username
             role = XdUserRole.SYSTEM

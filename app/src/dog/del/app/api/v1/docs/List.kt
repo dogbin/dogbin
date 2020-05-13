@@ -2,7 +2,6 @@ package dog.del.app.api.v1.docs
 
 import dog.del.app.api.apiCredentials
 import dog.del.commons.formatISO
-import dog.del.data.base.Database
 import dog.del.data.base.model.document.XdDocument
 import dog.del.data.base.suspended
 import io.ktor.application.call
@@ -14,7 +13,6 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.util.url
 import jetbrains.exodus.database.TransientEntityStore
-import kotlinx.coroutines.withContext
 import kotlinx.dnq.query.filter
 import kotlinx.dnq.query.sortedBy
 import kotlinx.dnq.query.toList

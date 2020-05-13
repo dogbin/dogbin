@@ -2,7 +2,6 @@ package dog.del.app.api.v1.auth
 
 import dog.del.app.config.AppConfig
 import dog.del.commons.keygen.RandomKeyGenerator
-import dog.del.data.base.Database
 import dog.del.data.base.model.api.XdApiCredential
 import dog.del.data.base.model.user.XdUser
 import dog.del.data.base.suspended
@@ -13,8 +12,6 @@ import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.post
 import jetbrains.exodus.database.TransientEntityStore
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 
 data class LoginDtoIn(
     val username: String,
