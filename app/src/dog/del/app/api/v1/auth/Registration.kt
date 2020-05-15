@@ -1,6 +1,7 @@
 package dog.del.app.api.v1.auth
 
 import dog.del.app.config.AppConfig
+import dog.del.app.dto.ErrorDto
 import dog.del.app.stats.StatisticsReporter
 import dog.del.commons.keygen.RandomKeyGenerator
 import dog.del.data.base.model.api.XdApiCredential
@@ -37,7 +38,7 @@ fun Route.register(store: TransientEntityStore, appConfig: AppConfig, estimator:
         if (!result.isMinimumEntropyMet) {
             call.respond(
                 HttpStatusCode.NotAcceptable,
-                result.feedback.suggestion.getOrNull(0) ?: "Please use a more secure password"
+                ErrorDto(result.feedback.suggestion.getOrNull(0) ?: "Please use a more secure password")
             )
             return@post
         }
@@ -69,6 +70,6 @@ fun Route.register(store: TransientEntityStore, appConfig: AppConfig, estimator:
                 reporter.reportEvent(StatisticsReporter.Event.USER_REGISTER, call.request)
             }
         } else {
-            call.respond(HttpStatusCode.Conflict, "Username Taken")
+            call.respond(HttpStatusCode.Conflict, ErrorDto("Username taken"))
         }
     }

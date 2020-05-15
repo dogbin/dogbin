@@ -1,6 +1,7 @@
 package dog.del.app.api.v1.docs
 
 import dog.del.app.api.apiCredentials
+import dog.del.app.dto.ErrorDto
 import dog.del.commons.formatISO
 import dog.del.data.base.model.document.XdDocument
 import dog.del.data.base.suspended
@@ -20,12 +21,12 @@ import kotlinx.dnq.query.toList
 fun Route.list(store: TransientEntityStore) = get {
     val creds = call.apiCredentials(store)
     if (creds == null) {
-        call.respond(HttpStatusCode.Unauthorized, "Missing/invalid api key")
+        call.respond(HttpStatusCode.Unauthorized, ErrorDto("Missing/invalid api key"))
         return@get
     }
     val canList = store.suspended(readonly = true) { creds.canListDocuments }
     if (!canList) {
-        call.respond(HttpStatusCode.Unauthorized, "Missing 'list' permission")
+        call.respond(HttpStatusCode.Unauthorized, ErrorDto("Missing 'list' permission"))
         return@get
     }
 
