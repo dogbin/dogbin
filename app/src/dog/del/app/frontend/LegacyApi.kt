@@ -1,8 +1,7 @@
 package dog.del.app.frontend
 
 import dog.del.app.api.apiCredentials
-import dog.del.app.dto.CreateDocumentDto
-import dog.del.app.dto.CreateDocumentResponseDto
+import dog.del.app.dto.*
 import dog.del.app.highlighter.Highlighter
 import dog.del.app.session.user
 import dog.del.app.stats.StatisticsReporter
@@ -79,6 +78,28 @@ fun Route.legacyApi() = route("/") {
                     content = call.receiveText()
                 )
                 call.createDocument(dto, db, slugGen, reporter)
+            }
+        }
+    }
+
+    get("documents/{slug}") {
+        val user = call.apiCredentials(db)?.user ?: call.user(db, true)
+        val docDto = db.suspended(readonly = true) {
+            val doc = XdDocument.find(call.slug) ?: return@suspended null
+            LegacyDocumentDto(
+                doc.slug,
+                doc.stringContent ?: "",
+                doc.userCanEdit(user),
+                DocumentTypeDto.fromXdDocumentType(doc.type),
+                doc.version
+            )
+        }
+        if (docDto == null) {
+            call.respond(HttpStatusCode.NotFound, ErrorDto("No Document found"))
+        } else {
+            call.respond(docDto)
+            GlobalScope.launch {
+                reporter.reportImpression(call.slug, false, call.request)
             }
         }
     }
